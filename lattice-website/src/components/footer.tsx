@@ -8,10 +8,10 @@ const footerLinks = {
     { name: "System Status", href: "/status" },
   ],
   documentation: [
-    { name: "API Reference", href: "/docs/api" },
-    { name: "VSCode Extension", href: "/docs/vscode" },
-    { name: "MCP Servers", href: "/docs/mcp" },
-    { name: "Tutorials", href: "/docs/tutorials" },
+    { name: "API Reference", href: "/docs/api-documentation" },
+    { name: "VSCode Extension", href: "/docs/vscode-extension" },
+    { name: "MCP Servers", href: "/docs/mcp-servers" },
+    { name: "Tutorials", href: "/docs/tutorials-and-guides" },
   ],
   support: [
     { name: "Help Center", href: "/support" },

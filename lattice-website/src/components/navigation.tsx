@@ -75,8 +75,8 @@ export default function Navigation() {
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
               Sign In
             </Button>
-            <Button>
-              Get Started
+            <Button asChild>
+              <a href="/pricing">Get Started</a>
             </Button>
           </div>
 
@@ -107,8 +107,8 @@ export default function Navigation() {
                   <Button variant="ghost" className="text-muted-foreground hover:text-foreground justify-start">
                     Sign In
                   </Button>
-                  <Button>
-                    Get Started
+                  <Button asChild>
+                    <a href="/pricing">Get Started</a>
                   </Button>
                 </div>
                 <div className="flex space-x-4 pt-6 border-t border-border">

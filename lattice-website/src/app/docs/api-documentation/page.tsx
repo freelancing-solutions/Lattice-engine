@@ -36,232 +36,423 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.
 
 const apiEndpoints = [
   {
-    category: "Authentication",
-    description: "Manage authentication and access tokens",
-    icon: Key,
+    category: "Mutations",
+    description: "Propose and manage code mutations",
+    icon: GitBranch,
     endpoints: [
       {
         method: "POST",
-        path: "/api/v1/auth/login",
-        description: "Authenticate user and get access token",
+        path: "/mutations/propose",
+        description: "Propose a mutation with multi-tenant context",
         example: `{
-  "email": "user@example.com",
-  "password": "your-password"
+  "spec_id": "spec-123",
+  "operation_type": "update",
+  "changes": {
+    "title": "Add password hashing",
+    "files_modified": ["src/auth.ts"]
+  },
+  "reason": "Security enhancement to hash passwords",
+  "initiated_by": "user-42",
+  "priority": 5
 }`,
         response: `{
-  "token": "jwt-token-here",
-  "expires_in": 3600,
-  "user": {
-    "id": "user_123",
-    "email": "user@example.com"
+  "status": "proposed",
+  "proposal": {
+    "proposal_id": "prop-abc123",
+    "spec_id": "spec-123",
+    "operation_type": "update",
+    "current_version": "1.0.0",
+    "proposed_changes": {...},
+    "reasoning": "Security enhancement identified",
+    "confidence": 0.92,
+    "impact_analysis": {
+      "security_impact": "high",
+      "complexity": "low"
+    },
+    "requires_approval": true,
+    "affected_specs": ["spec-123", "auth-flow"]
   }
-}`
-      },
-      {
-        method: "POST",
-        path: "/api/v1/auth/refresh",
-        description: "Refresh access token",
-        example: `{
-  "refresh_token": "your-refresh-token"
-}`,
-        response: `{
-  "token": "new-jwt-token",
-  "expires_in": 3600
-}`
-      },
-      {
-        method: "DELETE",
-        path: "/api/v1/auth/logout",
-        description: "Logout and invalidate token",
-        example: `Authorization: Bearer <token>`,
-        response: `{
-  "message": "Logged out successfully"
 }`
       }
     ]
   },
   {
-    category: "Mutations",
-    description: "Manage code changes and mutations",
-    icon: GitBranch,
+    category: "Approvals",
+    description: "Handle approval workflows and responses",
+    icon: Shield,
     endpoints: [
       {
         method: "POST",
-        path: "/api/v1/mutations",
-        description: "Create a new mutation",
+        path: "/approvals/{request_id}/respond",
+        description: "Respond to an approval request",
         example: `{
-  "spec_id": "user-auth",
-  "title": "Add password hashing",
-  "changes": {
-    "type": "security-enhancement",
-    "files_modified": ["src/auth.ts"]
-  }
+  "request_id": "approval-req-123",
+  "approved": true,
+  "responded_by": "reviewer@example.com",
+  "responded_via": "web",
+  "comments": "Security enhancement approved"
 }`,
         response: `{
-  "id": "mut_abc123",
-  "status": "pending",
-  "risk_assessment": {
-    "score": "low",
-    "factors": ["security_improvement"]
-  },
-  "created_at": "2024-01-15T10:30:00Z"
+  "status": "processed",
+  "result": {
+    "request_id": "approval-req-123",
+    "approved": true,
+    "processed_at": "2024-01-15T11:00:00Z",
+    "next_steps": ["mutation_execution"]
+  }
 }`
       },
       {
         method: "GET",
-        path: "/api/v1/mutations",
-        description: "List mutations with filtering",
-        example: `GET /api/v1/mutations?status=pending&limit=10`,
+        path: "/approvals/pending",
+        description: "Get pending approvals for a user",
+        example: `GET /approvals/pending?user_id=user-42`,
         response: `{
-  "mutations": [...],
-  "total": 150,
-  "page": 1,
-  "pages": 15
-}`
-      },
-      {
-        method: "POST",
-        path: "/api/v1/mutations/{id}/review",
-        description: "Review and approve/reject mutation",
-        example: `{
-  "action": "approve",
-  "comment": "Looks good to me"
-}`,
-        response: `{
-  "id": "mut_abc123",
-  "status": "approved",
-  "reviewed_by": "reviewer@example.com",
-  "reviewed_at": "2024-01-15T11:00:00Z"
+  "pending_approvals": [
+    {
+      "request_id": "approval-req-123",
+      "proposal_id": "prop-abc123",
+      "spec_id": "spec-123",
+      "user_id": "user-42",
+      "status": "pending",
+      "created_at": "2024-01-15T10:30:00Z",
+      "details": {...}
+    }
+  ]
 }`
       }
     ]
   },
   {
     category: "Specifications",
-    description: "Manage project specifications",
+    description: "Manage project specifications and documents",
     icon: BookOpen,
     endpoints: [
       {
+        method: "GET",
+        path: "/specs/{project_id}",
+        description: "List all specifications for a project",
+        example: `GET /specs/proj-123`,
+        response: `{
+  "project_id": "proj-123",
+  "specs": [
+    {
+      "id": "spec-123",
+      "name": "User Authentication",
+      "type": "SPEC",
+      "description": "Authentication flow specifications",
+      "content": "Detailed auth requirements...",
+      "status": "ACTIVE",
+      "created_at": "2024-01-15T10:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}`
+      },
+      {
         method: "POST",
-        path: "/api/v1/specs",
+        path: "/specs/create",
         description: "Create a new specification",
         example: `{
-  "name": "user-auth",
-  "version": "2.1.0",
-  "requirements": [
-    "Passwords must be hashed",
-    "Sessions expire after 24h"
-  ]
+  "name": "Payment Processing",
+  "description": "Payment gateway integration specs",
+  "content": "Payment processing requirements...",
+  "spec_source": "payment-team",
+  "metadata": {
+    "priority": "high",
+    "team": "backend"
+  }
 }`,
         response: `{
-  "id": "spec_abc123",
-  "name": "user-auth",
-  "version": "2.1.0",
-  "created_at": "2024-01-15T10:30:00Z"
+  "created": {
+    "id": "spec-456",
+    "name": "Payment Processing",
+    "type": "SPEC",
+    "description": "Payment gateway integration specs",
+    "content": "Payment processing requirements...",
+    "status": "DRAFT",
+    "created_at": "2024-01-15T11:00:00Z"
+  }
 }`
       },
       {
-        method: "GET",
-        path: "/api/v1/specs/{id}",
-        description: "Get specification details",
-        example: `GET /api/v1/specs/user-auth`,
-        response: `{
-  "id": "spec_abc123",
-  "name": "user-auth",
-  "version": "2.1.0",
-  "requirements": [...],
-  "validation_rules": [...]
-}`
-      },
-      {
-        method: "PUT",
-        path: "/api/v1/specs/{id}",
-        description: "Update specification",
+        method: "PATCH",
+        path: "/specs/update",
+        description: "Update an existing specification",
         example: `{
-  "version": "2.2.0",
-  "requirements": [
-    "Passwords must be hashed with bcrypt",
-    "Sessions expire after 24h",
-    "Multi-factor auth required"
-  ]
+  "spec_id": "spec-123",
+  "file_path": "docs/auth.md",
+  "diff_summary": "Added MFA requirements",
+  "user_context": {
+    "updated_by": "security-team"
+  }
 }`,
         response: `{
-  "id": "spec_abc123",
-  "version": "2.2.0",
-  "updated_at": "2024-01-15T11:00:00Z"
+  "graph_snapshot": {
+    "nodes_updated": ["spec-123"],
+    "edges_updated": [],
+    "timestamp": "2024-01-15T11:00:00Z"
+  }
+}`
+      },
+      {
+        method: "POST",
+        path: "/specs/approve",
+        description: "Approve a specification",
+        example: `{
+  "spec_id": "spec-123"
+}`,
+        response: `{
+  "status": "approved",
+  "spec_id": "spec-123",
+  "approved_at": "2024-01-15T11:00:00Z"
+}`
+      },
+      {
+        method: "DELETE",
+        path: "/specs/{spec_id}",
+        description: "Delete a specification",
+        example: `DELETE /specs/spec-123`,
+        response: `{
+  "deleted": "spec-123",
+  "deleted_at": "2024-01-15T11:00:00Z"
 }`
       }
     ]
   },
   {
-    category: "Projects",
-    description: "Manage project configuration and settings",
+    category: "Graph Query",
+    description: "Query and search the specification graph",
+    icon: Database,
+    endpoints: [
+      {
+        method: "POST",
+        path: "/graph/query",
+        description: "Query the graph with filters",
+        example: `{
+  "node_type": "SPEC",
+  "filters": {
+    "status": "ACTIVE",
+    "team": "backend"
+  }
+}`,
+        response: `{
+  "nodes": [
+    {
+      "id": "spec-123",
+      "name": "User Authentication",
+      "type": "SPEC",
+      "status": "ACTIVE",
+      "metadata": {...}
+    }
+  ]
+}`
+      },
+      {
+        method: "POST",
+        path: "/graph/semantic-search",
+        description: "Perform semantic search on specifications",
+        example: `{
+  "query": "password authentication security",
+  "top_k": 5,
+  "filters": {
+    "status": "ACTIVE"
+  }
+}`,
+        response: `{
+  "results": [
+    {
+      "id": "spec-123",
+      "name": "User Authentication",
+      "content": "Authentication and password requirements...",
+      "similarity_score": 0.95
+    }
+  ]
+}`
+      },
+      {
+        method: "GET",
+        path: "/graph/semantic-search/stats",
+        description: "Get semantic search statistics",
+        example: `GET /graph/semantic-search/stats`,
+        response: `{
+  "available": true,
+  "backend": "qdrant",
+  "total_documents": 150,
+  "embedding_model": "all-MiniLM-L6-v2",
+  "index_size": "2.3MB"
+}`
+      }
+    ]
+  },
+  {
+    category: "Tasks",
+    description: "Manage background tasks and operations",
+    icon: Zap,
+    endpoints: [
+      {
+        method: "POST",
+        path: "/tasks/request",
+        description: "Request a background task",
+        example: `{
+  "requester_id": "user-42",
+  "operation": "validate_spec",
+  "input_data": {
+    "spec_id": "spec-123",
+    "validation_rules": ["security", "performance"]
+  },
+  "target_agent_type": "validator",
+  "priority": 7
+}`,
+        response: `{
+  "status": "requested",
+  "task": {
+    "task_id": "task-789",
+    "requester_id": "user-42",
+    "operation": "validate_spec",
+    "status": "pending",
+    "created_at": "2024-01-15T11:00:00Z",
+    "target_agent_type": "validator"
+  }
+}`
+      },
+      {
+        method: "POST",
+        path: "/tasks/clarify",
+        description: "Request clarification for a task",
+        example: `{
+  "task_id": "task-789",
+  "note": "Please specify which security validation rules to apply",
+  "from_user_id": "user-42"
+}`,
+        response: `{
+  "status": "clarification_requested",
+  "task": {
+    "task_id": "task-789",
+    "status": "clarification_requested",
+    "clarification_notes": [
+      {
+        "note": "Please specify which security validation rules to apply",
+        "from_user_id": "user-42",
+        "timestamp": "2024-01-15T11:05:00Z"
+      }
+    ]
+  }
+}`
+      },
+      {
+        method: "POST",
+        path: "/tasks/complete",
+        description: "Mark a task as completed",
+        example: `{
+  "task_id": "task-789",
+  "success": true,
+  "result": {
+    "validation_passed": true,
+    "issues_found": 0
+  },
+  "notes": "Spec validation completed successfully"
+}`,
+        response: `{
+  "status": "completed",
+  "task": {
+    "task_id": "task-789",
+    "status": "completed",
+    "result": {
+      "validation_passed": true,
+      "issues_found": 0
+    },
+    "completed_at": "2024-01-15T11:10:00Z"
+  }
+}`
+      },
+      {
+        method: "GET",
+        path: "/tasks/status/{task_id}",
+        description: "Get task status",
+        example: `GET /tasks/status/task-789`,
+        response: `{
+  "task": {
+    "task_id": "task-789",
+    "requester_id": "user-42",
+    "operation": "validate_spec",
+    "status": "completed",
+    "result": {
+      "validation_passed": true,
+      "issues_found": 0
+    },
+    "created_at": "2024-01-15T11:00:00Z",
+    "updated_at": "2024-01-15T11:10:00Z"
+  }
+}`
+      }
+    ]
+  },
+  {
+    category: "Spec Sync",
+    description: "Manage specification synchronization",
+    icon: GitBranch,
+    endpoints: [
+      {
+        method: "GET",
+        path: "/spec-sync/status",
+        description: "Get spec sync daemon status",
+        example: `GET /spec-sync/status`,
+        response: `{
+  "enabled": true,
+  "running": true,
+  "dir": "specs"
+}`
+      },
+      {
+        method: "POST",
+        path: "/spec-sync/start",
+        description: "Start the spec sync daemon",
+        example: `POST /spec-sync/start`,
+        response: `{
+  "status": "started",
+  "dir": "specs"
+}`
+      },
+      {
+        method: "POST",
+        path: "/spec-sync/stop",
+        description: "Stop the spec sync daemon",
+        example: `POST /spec-sync/stop`,
+        response: `{
+  "status": "stopped"
+}`
+      }
+    ]
+  },
+  {
+    category: "System",
+    description: "System health and monitoring endpoints",
     icon: Database,
     endpoints: [
       {
         method: "GET",
-        path: "/api/v1/projects/{id}",
-        description: "Get project information",
-        example: `GET /api/v1/projects/proj_123`,
+        path: "/health",
+        description: "Check API health status",
+        example: `GET /health`,
         response: `{
-  "id": "proj_123",
-  "name": "My Project",
-  "status": "active",
-  "settings": {...},
-  "team": [...]
-}`
-      },
-      {
-        method: "PUT",
-        path: "/api/v1/projects/{id}/settings",
-        description: "Update project settings",
-        example: `{
-  "auto_approve": {
-    "enabled": true,
-    "risk_threshold": "low"
-  },
-  "notifications": {
-    "slack": "#deployments"
-  }
-}`,
-        response: `{
-  "settings": {...},
-  "updated_at": "2024-01-15T11:00:00Z"
-}`
-      }
-    ]
-  },
-  {
-    category: "Webhooks",
-    description: "Configure webhook integrations",
-    icon: Webhook,
-    endpoints: [
-      {
-        method: "POST",
-        path: "/api/v1/webhooks",
-        description: "Create a webhook",
-        example: `{
-  "name": "Deployment Notifications",
-  "url": "https://your-app.com/webhooks",
-  "events": ["mutation.approved", "deployment.completed"],
-  "secret": "your-webhook-secret"
-}`,
-        response: `{
-  "id": "webhook_abc123",
-  "name": "Deployment Notifications",
-  "url": "https://your-app.com/webhooks",
-  "active": true
+  "status": "healthy",
+  "engine_initialized": true,
+  "timestamp": "2024-01-15T11:00:00Z"
 }`
       },
       {
         method: "GET",
-        path: "/api/v1/webhooks",
-        description: "List webhooks",
-        example: `GET /api/v1/webhooks`,
-        response: `{
-  "webhooks": [...],
-  "total": 5
-}`
+        path: "/metrics",
+        description: "Get Prometheus metrics",
+        example: `GET /metrics`,
+        response: `# HELP lattice_mutations_proposed_total Total number of mutations proposed
+# TYPE lattice_mutations_proposed_total counter
+lattice_mutations_proposed_total 42
+
+# HELP lattice_websocket_connections Current WebSocket connections
+# TYPE lattice_websocket_connections gauge
+lattice_websocket_connections 5`
       }
     ]
   }
@@ -269,45 +460,119 @@ const apiEndpoints = [
 
 const sdks = [
   {
-    name: "JavaScript SDK",
-    description: "Full-featured SDK for Node.js and browser environments",
-    install: "npm install @lattice/engine",
-    example: `import { Lattice } from '@lattice/engine';
+    name: "Python SDK",
+    description: "Direct FastAPI client for the Lattice Mutation Engine",
+    install: "pip install httpx pydantic",
+    example: `import httpx
+from pydantic import BaseModel
 
-const lattice = new Lattice({
-  apiKey: 'your-api-key',
-  projectId: 'your-project-id'
-});
+class LatticeClient:
+    def __init__(self, base_url: str, api_key: str):
+        self.base_url = base_url
+        self.client = httpx.Client(
+            base_url=base_url,
+            headers={"X-API-Key": api_key}
+        )
 
-const mutation = await lattice.mutations.create({
-  specId: 'user-auth',
-  changes: { /*...*/ }
-});`,
-    features: ["TypeScript support", "Promise-based API", "Error handling", "Retry logic"]
+    async def propose_mutation(self, spec_id: str, operation_type: str,
+                             changes: dict, reason: str, initiated_by: str):
+        response = await self.client.post("/mutations/propose", json={
+            "spec_id": spec_id,
+            "operation_type": operation_type,
+            "changes": changes,
+            "reason": reason,
+            "initiated_by": initiated_by
+        })
+        return response.json()
+
+    async def get_specs(self, project_id: str):
+        response = await self.client.get(f"/specs/{project_id}")
+        return response.json()
+
+# Usage
+client = LatticeClient("http://localhost:8000", "your-api-key")
+mutation = await client.propose_mutation(
+    spec_id="spec-123",
+    operation_type="update",
+    changes={"title": "Add password hashing"},
+    reason="Security enhancement",
+    initiated_by="user-42"
+)`,
+    features: ["Async/await support", "Type hints", "Pydantic integration", "Direct HTTP client"]
   },
   {
-    name: "Python SDK",
-    description: "Python SDK with async support and type hints",
-    install: "pip install lattice-engine",
-    example: `import lattice
-from lattice import LatticeClient
+    name: "JavaScript/Fetch SDK",
+    description: "Lightweight JavaScript client using fetch API",
+    install: "# No installation needed - uses built-in fetch",
+    example: `class LatticeClient {
+  constructor(baseUrl, apiKey) {
+    this.baseUrl = baseUrl;
+    this.apiKey = apiKey;
+  }
 
-client = LatticeClient(
-    api_key='your-api-key',
-    project_id='your-project-id'
-)
+  async proposeMutation(specId, operationType, changes, reason, initiatedBy) {
+    const response = await fetch(\`\${this.baseUrl}/mutations/propose\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': this.apiKey
+      },
+      body: JSON.stringify({
+        spec_id: specId,
+        operation_type: operationType,
+        changes,
+        reason,
+        initiated_by: initiatedBy
+      })
+    });
 
-mutation = await client.mutations.create({
-    'spec_id': 'user-auth',
-    'changes': {...}
-})`,
-    features: ["Async/await support", "Type hints", "Pydantic integration", "CLI tools"]
+    return response.json();
+  }
+
+  async getSpecs(projectId) {
+    const response = await fetch(\`\${this.baseUrl}/specs/\${projectId}\`, {
+      headers: { 'X-API-Key': this.apiKey }
+    });
+    return response.json();
+  }
+}
+
+// Usage
+const client = new LatticeClient('http://localhost:8000', 'your-api-key');
+const mutation = await client.proposeMutation(
+  'spec-123',
+  'update',
+  { title: 'Add password hashing' },
+  'Security enhancement',
+  'user-42'
+);`,
+    features: ["No dependencies", "Promise-based API", "TypeScript support", "Browser and Node.js compatible"]
   }
 ]
 
 const authentication = {
-  bearerToken: "Authorization: Bearer your-api-key-here",
-  description: "Include your API key in the Authorization header for all requests."
+  bearerToken: "X-API-Key: your-api-key-here",
+  description: "Include your API key in the X-API-Key header for all requests. For WebSocket connections, include it as a query parameter: ?token=your-api-key"
+}
+
+const webSocketApi = {
+  endpoint: "ws://localhost:8000/ws/{user_id}/{client_type}",
+  description: "Real-time WebSocket connection for approval requests and notifications",
+  events: [
+    {
+      event: "approval:response",
+      description: "Handle approval responses via WebSocket",
+      example: `{
+  "event": "approval:response",
+  "data": {
+    "request_id": "approval-req-123",
+    "approved": true,
+    "responded_by": "reviewer@example.com",
+    "comments": "Approved via WebSocket"
+  }
+}`
+    }
+  ]
 }
 
 export default function ApiDocumentationPage() {
@@ -378,11 +643,14 @@ export default function ApiDocumentationPage() {
                     <div className="space-y-3">
                       <div className="p-3 bg-muted rounded">
                         <code className="text-sm text-muted-foreground">
-                          curl -X POST https://api.lattice.dev/v1/auth/login
+                          curl -X POST http://localhost:8000/mutations/propose \<br/>
+&nbsp;&nbsp;-H "Content-Type: application/json" \<br/>
+&nbsp;&nbsp;-H "X-API-Key: your-api-key" \<br/>
+&nbsp;&nbsp;-d '{"spec_id":"spec-123","operation_type":"update","changes":{"title":"Add hashing"},"reason":"Security","initiated_by":"user-42"}'
                         </code>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Start with authentication to get your API token.
+                        Start by proposing a mutation with your API key.
                       </p>
                     </div>
                   </CardContent>
@@ -519,10 +787,10 @@ export default function ApiDocumentationPage() {
                 className="mb-16"
               >
                 <h2 className="text-3xl font-bold text-foreground mb-6">SDKs & Libraries</h2>
-                <Tabs defaultValue="javascript" className="w-full">
+                <Tabs defaultValue="python" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="javascript">JavaScript</TabsTrigger>
                     <TabsTrigger value="python">Python</TabsTrigger>
+                    <TabsTrigger value="javascript">JavaScript</TabsTrigger>
                   </TabsList>
 
                   {sdks.map((sdk) => (
@@ -733,11 +1001,91 @@ export default function ApiDocumentationPage() {
                 </Card>
               </motion.section>
 
-              {/* Webhooks */}
+              {/* WebSocket API */}
               <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
+                className="mb-16"
+              >
+                <h2 className="text-3xl font-bold text-foreground mb-6">WebSocket API</h2>
+                <Card className="border-border">
+                  <CardContent className="p-6">
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-3">Connection Endpoint</h4>
+                        <div className="bg-muted p-4 rounded overflow-x-auto">
+                          <pre className="text-sm">
+                            <code>{webSocketApi.endpoint}</code>
+                          </pre>
+                        </div>
+                        <p className="text-muted-foreground mt-2">
+                          {webSocketApi.description}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-3">WebSocket Events</h4>
+                        {webSocketApi.events.map((event, index) => (
+                          <div key={index} className="mb-4">
+                            <p className="text-sm font-medium text-foreground mb-2">
+                              Event: <code className="bg-muted px-2 py-1 rounded">{event.event}</code>
+                            </p>
+                            <p className="text-muted-foreground mb-2">{event.description}</p>
+                            <div className="bg-muted p-4 rounded overflow-x-auto">
+                              <pre className="text-sm">
+                                <code>{event.example}</code>
+                              </pre>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-3">JavaScript WebSocket Example</h4>
+                        <div className="bg-muted p-4 rounded overflow-x-auto">
+                          <pre className="text-sm">
+                            <code>{`const ws = new WebSocket('ws://localhost:8000/ws/user-42/web?token=your-api-key');
+
+ws.onopen = () => {
+  console.log('Connected to Lattice WebSocket');
+};
+
+ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  console.log('Received:', message);
+
+  if (message.event === 'approval:response') {
+    // Handle approval response
+    handleApprovalResponse(message.data);
+  }
+};
+
+function sendApprovalResponse(approvalRequest, approved, comments) {
+  ws.send(JSON.stringify({
+    event: 'approval:response',
+    data: {
+      request_id: approvalRequest.request_id,
+      approved: approved,
+      responded_by: 'user-42',
+      responded_via: 'web',
+      comments: comments
+    }
+  }));
+}`}</code>
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.section>
+
+              {/* Webhooks */}
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
               >
                 <h2 className="text-3xl font-bold text-foreground mb-6">Webhooks</h2>
                 <Card className="border-border">
