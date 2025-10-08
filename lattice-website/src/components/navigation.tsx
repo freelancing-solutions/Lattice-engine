@@ -8,8 +8,9 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, Github, Twitter } from "lucide-react"
 
 const navigation = [
-  { name: "Features", href: "#features" },
-  { name: "Documentation", href: "#docs" },
+  { name: "Home", href: "/" },
+  { name: "Features", href: "/features" },
+  { name: "Documentation", href: "/docs" },
   { name: "Downloads", href: "/downloads" },
   { name: "Status", href: "/status" },
   { name: "Support", href: "/support" },
@@ -46,10 +47,13 @@ export default function Navigation() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
-            </div>
-            <span className="text-foreground font-bold text-xl">Lattice Engine</span>
+            <a href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">L</span>
+              </div>
+              <span className="text-foreground font-bold text-xl hidden sm:block">Lattice Engine</span>
+              <span className="text-foreground font-bold text-xl sm:hidden">LR</span>
+            </a>
           </motion.div>
 
           {/* Desktop Navigation */}

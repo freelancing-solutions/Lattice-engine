@@ -552,9 +552,10 @@ lattice logs --tail 100
 ### Getting Help
 
 #### Documentation
-- [API Reference](https://docs.lattice.dev/api)
-- [SDK Documentation](https://docs.lattice.dev/sdk)
-- [Best Practices Guide](https://docs.lattice.dev/best-practices)
+- [API Documentation](docs/api-documentation.md)
+- [VSCode Extension Guide](docs/vscode-extension.md)
+- [MCP Servers Documentation](docs/mcp-servers.md)
+- [Tutorials & Guides](docs/tutorials-and-guides.md)
 
 #### Community
 - [Community Forum](https://community.lattice.dev)
@@ -581,6 +582,12 @@ We welcome contributions from the community:
 - [Feature Requests](https://github.com/lattice-engine/discussions)
 
 ### Additional Resources
+
+#### Documentation Files
+- [API Documentation v2.1.0](docs/api-documentation.md) - Complete REST API reference with examples and SDKs
+- [VSCode Extension v1.5.2](docs/vscode-extension.md) - Native IDE integration guide
+- [MCP Servers v2.0.0](docs/mcp-servers.md) - Model Context Protocol integration documentation
+- [Tutorials & Guides](docs/tutorials-and-guides.md) - Step-by-step guides and best practices
 
 #### Blog & Tutorials
 - [Official Blog](https://blog.lattice.dev)
