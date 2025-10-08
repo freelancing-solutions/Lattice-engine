@@ -42,46 +42,11 @@ import {
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-export const metadata: Metadata = {
-  title: "Documentation - Lattice Engine",
-  description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications with our detailed guides and API references.",
-  keywords: [
-    "Lattice Engine documentation",
-    "API documentation",
-    "developer guide",
-    "getting started",
-    "tutorials",
-    "VSCode extension docs",
-    "MCP servers",
-    "agentic coding",
-    "AI development platform"
-  ],
-  openGraph: {
-    title: "Documentation - Lattice Engine",
-    description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications.",
-    url: `${baseUrl}/docs`,
-    siteName: "Lattice Engine",
-    images: [
-      {
-        url: `${baseUrl}/og-docs.png`,
-        width: 1200,
-        height: 630,
-        alt: "Lattice Engine Documentation",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Documentation - Lattice Engine",
-    description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications.",
-    images: [`${baseUrl}/twitter-docs.png`],
-  },
-  alternates: {
-    canonical: `${baseUrl}/docs`,
-  },
-}
+// Metadata for the Documentation page
+// export const metadata: Metadata = {
+//   title: "Documentation - Lattice Engine",
+//   description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications with our detailed guides and API references.",
+// }
 
 const documentationCategories = [
   {

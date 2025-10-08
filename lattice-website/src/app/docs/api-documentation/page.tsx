@@ -28,45 +28,11 @@ import Link from "next/link"
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-export const metadata: Metadata = {
-  title: "API Documentation v2.1.0 - Lattice Engine",
-  description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications.",
-  keywords: [
-    "Lattice Engine API",
-    "REST API documentation",
-    "API v2.1.0",
-    "SDK documentation",
-    "JavaScript SDK",
-    "Python SDK",
-    "API reference",
-    "webhook integration"
-  ],
-  openGraph: {
-    title: "API Documentation v2.1.0 - Lattice Engine",
-    description: "Complete REST API reference with examples and SDK documentation.",
-    url: `${baseUrl}/docs/api-documentation`,
-    siteName: "Lattice Engine",
-    images: [
-      {
-        url: `${baseUrl}/og-api-docs.png`,
-        width: 1200,
-        height: 630,
-        alt: "Lattice Engine API Documentation",
-      },
-    ],
-    locale: "en_US",
-    type: "article",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "API Documentation v2.1.0 - Lattice Engine",
-    description: "Complete REST API reference with examples and SDK documentation.",
-    images: [`${baseUrl}/twitter-api-docs.png`],
-  },
-  alternates: {
-    canonical: `${baseUrl}/docs/api-documentation`,
-  },
-}
+// Metadata for the API Documentation page
+// export const metadata: Metadata = {
+//   title: "API Documentation v2.1.0 - Lattice Engine",
+//   description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications.",
+// }
 
 const apiEndpoints = [
   {

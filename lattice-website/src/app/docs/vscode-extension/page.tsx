@@ -30,44 +30,11 @@ import Link from "next/link"
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-export const metadata: Metadata = {
-  title: "VSCode Extension v1.5.2 - Lattice Engine",
-  description: "Native VSCode integration with IntelliSense support, real-time validation, and debugging tools. Install and configure the Lattice Engine extension.",
-  keywords: [
-    "VSCode extension",
-    "Lattice Engine VSCode",
-    "IntelliSense support",
-    "code completion",
-    "real-time validation",
-    "debugging tools",
-    "IDE integration"
-  ],
-  openGraph: {
-    title: "VSCode Extension v1.5.2 - Lattice Engine",
-    description: "Native VSCode integration with IntelliSense support, real-time validation, and debugging tools.",
-    url: `${baseUrl}/docs/vscode-extension`,
-    siteName: "Lattice Engine",
-    images: [
-      {
-        url: `${baseUrl}/og-vscode-extension.png`,
-        width: 1200,
-        height: 630,
-        alt: "Lattice Engine VSCode Extension",
-      },
-    ],
-    locale: "en_US",
-    type: "article",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "VSCode Extension v1.5.2 - Lattice Engine",
-    description: "Native VSCode integration with IntelliSense support, real-time validation, and debugging tools.",
-    images: [`${baseUrl}/twitter-vscode-extension.png`],
-  },
-  alternates: {
-    canonical: `${baseUrl}/docs/vscode-extension`,
-  },
-}
+// Metadata for the VSCode Extension page
+// export const metadata: Metadata = {
+//   title: "VSCode Extension v1.5.2 - Lattice Engine",
+//   description: "Native VSCode integration with IntelliSense support, real-time validation, and debugging tools. Install and configure the Lattice Engine extension.",
+// }
 
 const features = [
   {
