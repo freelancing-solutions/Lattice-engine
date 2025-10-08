@@ -7,7 +7,7 @@ interface StructuredDataProps {
 
 export function StructuredData({ type, data }: StructuredDataProps) {
   const getStructuredData = () => {
-    const baseUrl = "https://lattice-engine.dev";
+    const baseUrl = "https://www.project-lattice.site";
     
     switch (type) {
       case "organization":
@@ -27,7 +27,7 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           "contactPoint": {
             "@type": "ContactPoint",
             "contactType": "customer service",
-            "email": "support@lattice-engine.dev"
+            "email": "support@project-lattice.site"
           },
           "address": {
             "@type": "PostalAddress",
@@ -155,7 +155,33 @@ export function StructuredData({ type, data }: StructuredDataProps) {
 
 // Pre-configured structured data components
 export function OrganizationStructuredData() {
-  return <StructuredData type="organization" />;
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Lattice Engine",
+    "url": "https://www.project-lattice.site",
+    "logo": "https://www.project-lattice.site/logo.svg",
+    "description": "AI-powered development platform for intelligent code generation, automated testing, and seamless deployment.",
+    "foundingDate": "2024",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "support@project-lattice.site",
+      "url": "https://www.project-lattice.site/contact"
+    },
+    "sameAs": [
+      "https://twitter.com/lattice_engine",
+      "https://github.com/lattice-engine",
+      "https://linkedin.com/company/lattice-engine"
+    ]
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+    />
+  );
 }
 
 export function SoftwareStructuredData() {
@@ -163,7 +189,29 @@ export function SoftwareStructuredData() {
 }
 
 export function WebsiteStructuredData() {
-  return <StructuredData type="website" />;
+  const websiteData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Lattice Engine",
+    "url": "https://www.project-lattice.site",
+    "description": "AI-powered development platform for intelligent code generation, automated testing, and seamless deployment.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Lattice Engine"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.project-lattice.site/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteData) }}
+    />
+  );
 }
 
 export function ArticleStructuredData(props: {

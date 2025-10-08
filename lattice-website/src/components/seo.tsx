@@ -14,6 +14,8 @@ interface SEOProps {
   tags?: string[];
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://lattice-engine.dev";
+
 export function generateSEO({
   title,
   description,
@@ -27,7 +29,6 @@ export function generateSEO({
   section,
   tags = [],
 }: SEOProps): Metadata {
-  const baseUrl = "https://lattice-engine.dev";
   const fullUrl = url ? `${baseUrl}${url}` : baseUrl;
   const ogImage = image ? `${baseUrl}${image}` : `${baseUrl}/og-image.png`;
   const twitterImage = image ? `${baseUrl}${image}` : `${baseUrl}/twitter-image.png`;
