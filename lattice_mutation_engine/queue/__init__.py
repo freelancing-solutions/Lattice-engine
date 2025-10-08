@@ -1,0 +1,1 @@
+"""Queue integration for Celery tasks."""

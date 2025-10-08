@@ -1,0 +1,246 @@
+{
+  "name": "lattice-mutation-engine",
+  "displayName": "Lattice Mutation Engine",
+  "description": "Real-time approval workflow integration for the Lattice Mutation Engine",
+  "version": "0.1.0",
+  "publisher": "lattice-ai",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other",
+    "Debuggers",
+    "Testing"
+  ],
+  "keywords": [
+    "lattice",
+    "mutation",
+    "approval",
+    "workflow",
+    "ai",
+    "code-review"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:java",
+    "onLanguage:csharp",
+    "onCommand:lattice.startApprovalWorkflow",
+    "onCommand:lattice.connectToEngine"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lattice.authenticate",
+        "title": "Authenticate with Lattice",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.signOut",
+        "title": "Sign Out",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.createProject",
+        "title": "Create New Project",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.selectProject",
+        "title": "Select Project",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.refreshProjects",
+        "title": "Refresh Projects",
+        "category": "Lattice",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "lattice.syncProjectSpec",
+        "title": "Sync Project Specification",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.proposeMutation",
+        "title": "Propose Code Mutation",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.viewMutations",
+        "title": "View Mutations",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.approveMutation",
+        "title": "Approve Mutation",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.rejectMutation",
+        "title": "Reject Mutation",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.proposeMutationFromContext",
+        "title": "Propose Mutation for File",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.startApprovalWorkflow",
+        "title": "Start Approval Workflow",
+        "category": "Lattice"
+      },
+      {
+        "command": "lattice.connectToEngine",
+        "title": "Connect to Lattice Engine",
+        "category": "Lattice"
+      }
+    ],
+    "views": {
+      "lattice": [
+        {
+          "id": "latticeProjects",
+          "name": "Projects",
+          "when": "lattice.authenticated"
+        },
+        {
+          "id": "latticeApprovalQueue",
+          "name": "Approval Queue",
+          "when": "lattice.connected"
+        },
+        {
+          "id": "latticeChangeHistory",
+          "name": "Change History",
+          "when": "lattice.connected"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "lattice",
+          "title": "Lattice",
+          "icon": "$(symbol-class)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "lattice.refreshProjects",
+          "when": "view == latticeProjects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "lattice.syncProjectSpec",
+          "when": "view == latticeProjects && viewItem == project",
+          "group": "inline"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "lattice.proposeMutationFromContext",
+          "when": "resourceExtname =~ /\\.(js|ts|py|java|cpp|c|cs|php|rb|go|rs)$/",
+          "group": "lattice"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "lattice.proposeMutation",
+          "when": "editorHasSelection",
+          "group": "lattice"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "lattice.proposeMutationFromContext",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Lattice",
+      "properties": {
+        "lattice.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Lattice Engine API URL"
+        },
+        "lattice.autoSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically sync project specifications on file changes"
+        },
+        "lattice.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show mutation status notifications"
+        },
+        "lattice.defaultRiskLevel": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "default": "medium",
+          "description": "Default risk level for mutations"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "lattice.startApprovalWorkflow",
+        "key": "ctrl+shift+l",
+        "mac": "cmd+shift+l",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "lattice.approveChange",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "lattice.connected"
+      },
+      {
+        "command": "lattice.rejectChange",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "lattice.connected"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "@types/ws": "^8.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "typescript": "^4.9.4",
+    "@vscode/test-electron": "^2.2.0",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "ws": "^8.13.0",
+    "axios": "^1.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lattice-ai/lattice-mutation-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lattice-ai/lattice-mutation-engine/issues"
+  },
+  "homepage": "https://github.com/lattice-ai/lattice-mutation-engine#readme",
+  "license": "MIT"
+}
