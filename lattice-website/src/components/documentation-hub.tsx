@@ -53,7 +53,7 @@ const docCategories = [
     icon: Book,
     title: "Tutorials & Guides",
     description: "Step-by-step guides to master Lattice Engine",
-    color: "bg-orange-500",
+    color: "bg-primary",
     items: [
       "Getting Started Guide",
       "Advanced Workflows",

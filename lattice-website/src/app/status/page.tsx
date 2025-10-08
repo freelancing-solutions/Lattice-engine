@@ -149,7 +149,7 @@ export default function StatusPage() {
       case "investigating":
         return "bg-blue-500"
       case "identified":
-        return "bg-orange-500"
+        return "bg-primary"
       case "monitoring":
         return "bg-yellow-500"
       case "resolved":
