@@ -72,6 +72,76 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) to see your application running.
 
+## 🎫 Support Ticket System
+
+This application includes a comprehensive support ticket system for customer service and issue tracking.
+
+### Features
+
+- **Ticket Creation**: Users can create support tickets with categories, priorities, and detailed descriptions
+- **Ticket Tracking**: Public interface for users to track their ticket status and view conversation history
+- **Admin Dashboard**: Complete admin interface for managing and responding to tickets
+- **Threaded Conversations**: Support for ongoing conversations between staff and customers
+- **Status Management**: Ticket statuses (Open, In Progress, Waiting Response, Resolved, Closed)
+- **Priority Levels**: Priority levels (Low, Medium, High, Urgent) for proper triage
+- **Category Classification**: Organize tickets by type (Bug, Feature, Integration, Billing, Other)
+
+### Setup
+
+1. **Configure Database**:
+   ```bash
+   # Copy environment template
+   cp .env.example .env
+
+   # Configure your PostgreSQL connection
+   DATABASE_URL="postgresql://user:password@localhost:5432/lattice_website"
+
+   # Set up database schema
+   npm run db:setup
+   ```
+
+2. **Optional Email Configuration**:
+   Configure SMTP settings in your `.env` file to enable email notifications:
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASSWORD=your-app-password
+   SMTP_FROM=support@lattice.dev
+   ADMIN_EMAIL=admin@lattice.dev
+   ```
+
+### Routes
+
+- `/support` - Main support page with ticket creation form
+- `/support/tickets/[ticketNumber]` - Public ticket tracking page
+- `/admin/tickets` - Admin dashboard for managing tickets
+- `/admin/tickets/[ticketId]` - Admin ticket detail page
+
+### API Endpoints
+
+- `GET /api/support/tickets` - List tickets with filtering and pagination
+- `POST /api/support/tickets` - Create new support ticket
+- `GET /api/support/tickets/[ticketId]` - Get ticket details with messages
+- `PATCH /api/support/tickets/[ticketId]` - Update ticket status or priority
+- `POST /api/support/tickets/[ticketId]/messages` - Add message to ticket
+
+### Database Schema
+
+The support system uses PostgreSQL with these models:
+
+- **SupportTicket** - Main ticket entity with metadata
+- **TicketMessage** - Individual messages in ticket conversations
+- **TicketAttachment** - File attachments (prepared for future use)
+
+### Security Notes
+
+⚠️ **Important**: The admin routes are currently accessible without authentication. In a production environment, you should:
+
+1. Implement authentication using NextAuth.js (already installed)
+2. Add middleware to protect admin routes
+3. Use role-based access control for admin features
+
 ## 🤖 Powered by Z.ai
 
 This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:
@@ -89,10 +159,16 @@ Ready to build something amazing? Start chatting with Z.ai at [chat.z.ai](https:
 ```
 src/
 ├── app/                 # Next.js App Router pages
+│   ├── admin/          # Admin dashboard pages
+│   ├── api/            # API routes
+│   │   └── support/    # Support ticket API endpoints
+│   └── support/        # Support pages
 ├── components/          # Reusable React components
 │   └── ui/             # shadcn/ui components
 ├── hooks/              # Custom React hooks
 └── lib/                # Utility functions and configurations
+    ├── validations/    # Zod validation schemas
+    └── ticket-utils.ts # Ticket utility functions
 ```
 
 ## 🎨 Available Features & Components

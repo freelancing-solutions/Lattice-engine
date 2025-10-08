@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Github, Twitter } from "lucide-react"
+import { Menu, X, Github, Twitter, Shield } from "lucide-react"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -14,6 +14,7 @@ const navigation = [
   { name: "Downloads", href: "/downloads" },
   { name: "Status", href: "/status" },
   { name: "Support", href: "/support" },
+  { name: "Admin", href: "/admin/tickets", isAdmin: true },
 ]
 
 export default function Navigation() {
@@ -62,9 +63,14 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
+                className={`transition-colors duration-200 text-sm font-medium flex items-center space-x-1 ${
+                  item.isAdmin
+                    ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {item.name}
+                {item.isAdmin && <Shield className="h-4 w-4" />}
+                <span>{item.name}</span>
               </a>
             ))}
           </nav>
@@ -93,10 +99,15 @@ export default function Navigation() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 text-lg font-medium"
+                    className={`transition-colors duration-200 text-lg font-medium flex items-center space-x-2 ${
+                      item.isAdmin
+                        ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
-                    {item.name}
+                    {item.isAdmin && <Shield className="h-4 w-4" />}
+                    <span>{item.name}</span>
                   </a>
                 ))}
                 <div className="flex flex-col space-y-4 pt-6 border-t border-border">

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
 import { 
   BookOpen, 
   Calendar, 
@@ -34,6 +35,7 @@ const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.
 // }
 
 const featuredPost = {
+  slug: "the-future-of-agentic-coding",
   title: "The Future of Agentic Coding: How AI is Transforming Software Development",
   excerpt: "Discover how AI-powered agentic systems are revolutionizing the way we write, test, and deploy code. Learn about the latest advances in automated code generation and what it means for developers.",
   author: "Lattice Team",
@@ -45,6 +47,7 @@ const featuredPost = {
 
 const blogPosts = [
   {
+    slug: "getting-started-with-lattice-engine",
     title: "Getting Started with Lattice Engine",
     excerpt: "A comprehensive guide to setting up your first project with Lattice Engine and understanding the core concepts of agentic coding.",
     author: "Sarah Chen",
@@ -54,6 +57,7 @@ const blogPosts = [
     image: "/blog/getting-started.jpg"
   },
   {
+    slug: "ai-powered-code-mutations-explained",
     title: "AI-Powered Code Mutations Explained",
     excerpt: "Deep dive into how Lattice Engine's mutation system works and how it can automatically refactor and improve your codebase.",
     author: "Alex Rodriguez",
@@ -63,6 +67,7 @@ const blogPosts = [
     image: "/blog/code-mutations.jpg"
   },
   {
+    slug: "building-scalable-specifications",
     title: "Building Scalable Specifications",
     excerpt: "Learn best practices for creating maintainable and scalable specifications that grow with your project requirements.",
     author: "Jordan Kim",
@@ -72,6 +77,7 @@ const blogPosts = [
     image: "/blog/scalable-specs.jpg"
   },
   {
+    slug: "vscode-extension-deep-dive",
     title: "VSCode Extension Deep Dive",
     excerpt: "Explore the powerful features of the Lattice Engine VSCode extension and how to maximize your productivity in your favorite IDE.",
     author: "Maya Patel",
@@ -81,6 +87,7 @@ const blogPosts = [
     image: "/blog/vscode-extension.jpg"
   },
   {
+    slug: "case-study-reducing-review-time",
     title: "Case Study: Reducing Review Time by 80%",
     excerpt: "How TechCorp used Lattice Engine to dramatically reduce code review time while improving code quality and team collaboration.",
     author: "David Wilson",
@@ -90,6 +97,7 @@ const blogPosts = [
     image: "/blog/case-study-review.jpg"
   },
   {
+    slug: "mcp-server-integration-guide",
     title: "MCP Server Integration Guide",
     excerpt: "Step-by-step guide to integrating Model Context Protocol servers with your Lattice Engine workflow for enhanced AI capabilities.",
     author: "Lisa Zhang",
@@ -101,10 +109,10 @@ const blogPosts = [
 ]
 
 const popularPosts = [
-  "Getting Started with Lattice Engine",
-  "AI-Powered Code Mutations Explained",
-  "Case Study: Reducing Review Time by 80%",
-  "VSCode Extension Deep Dive"
+  { title: "Getting Started with Lattice Engine", slug: "getting-started-with-lattice-engine" },
+  { title: "AI-Powered Code Mutations Explained", slug: "ai-powered-code-mutations-explained" },
+  { title: "Case Study: Reducing Review Time by 80%", slug: "case-study-reducing-review-time" },
+  { title: "VSCode Extension Deep Dive", slug: "vscode-extension-deep-dive" }
 ]
 
 const categories = [
@@ -214,10 +222,12 @@ export default function BlogPage() {
                         </div>
                       </div>
                     </div>
-                    <Button className="bg-purple-600 hover:bg-purple-700">
-                      Read Article
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={`/blog/${featuredPost.slug}`}>
+                      <Button className="bg-purple-600 hover:bg-purple-700">
+                        Read Article
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </Card>
@@ -281,10 +291,12 @@ export default function BlogPage() {
                                     <Calendar className="h-4 w-4 ml-2" />
                                     <span>{post.date}</span>
                                   </div>
-                                  <Button variant="ghost" size="sm">
-                                    Read More
-                                    <ArrowRight className="ml-1 h-3 w-3" />
-                                  </Button>
+                                  <Link href={`/blog/${post.slug}`}>
+                                    <Button variant="ghost" size="sm">
+                                      Read More
+                                      <ArrowRight className="ml-1 h-3 w-3" />
+                                    </Button>
+                                  </Link>
                                 </div>
                               </CardContent>
                             </Card>
@@ -324,10 +336,12 @@ export default function BlogPage() {
                                     <Calendar className="h-4 w-4 ml-2" />
                                     <span>{post.date}</span>
                                   </div>
-                                  <Button variant="ghost" size="sm">
-                                    Read More
-                                    <ArrowRight className="ml-1 h-3 w-3" />
-                                  </Button>
+                                  <Link href={`/blog/${post.slug}`}>
+                                    <Button variant="ghost" size="sm">
+                                      Read More
+                                      <ArrowRight className="ml-1 h-3 w-3" />
+                                    </Button>
+                                  </Link>
                                 </div>
                               </CardContent>
                             </Card>
@@ -366,10 +380,12 @@ export default function BlogPage() {
                                     <Calendar className="h-4 w-4 ml-2" />
                                     <span>{post.date}</span>
                                   </div>
-                                  <Button variant="ghost" size="sm">
-                                    Read More
-                                    <ArrowRight className="ml-1 h-3 w-3" />
-                                  </Button>
+                                  <Link href={`/blog/${post.slug}`}>
+                                    <Button variant="ghost" size="sm">
+                                      Read More
+                                      <ArrowRight className="ml-1 h-3 w-3" />
+                                    </Button>
+                                  </Link>
                                 </div>
                               </CardContent>
                             </Card>
@@ -408,10 +424,12 @@ export default function BlogPage() {
                                     <Calendar className="h-4 w-4 ml-2" />
                                     <span>{post.date}</span>
                                   </div>
-                                  <Button variant="ghost" size="sm">
-                                    Read More
-                                    <ArrowRight className="ml-1 h-3 w-3" />
-                                  </Button>
+                                  <Link href={`/blog/${post.slug}`}>
+                                    <Button variant="ghost" size="sm">
+                                      Read More
+                                      <ArrowRight className="ml-1 h-3 w-3" />
+                                    </Button>
+                                  </Link>
                                 </div>
                               </CardContent>
                             </Card>
@@ -451,10 +469,10 @@ export default function BlogPage() {
                       <CardContent>
                         <div className="space-y-3">
                           {popularPosts.map((post, index) => (
-                            <div key={index} className="flex items-start space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <Link key={index} href={`/blog/${post.slug}`} className="flex items-start space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                               <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                              <span className="text-sm text-gray-700 hover:text-purple-600">{post}</span>
-                            </div>
+                              <span className="text-sm text-gray-700 hover:text-purple-600">{post.title}</span>
+                            </Link>
                           ))}
                         </div>
                       </CardContent>

@@ -2,6 +2,11 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
+import axios from "axios"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { createTicketSchema, type CreateTicketInput } from "@/lib/validations/ticket"
 import { 
   MessageCircle, 
   Book, 
@@ -107,17 +114,44 @@ const popularArticles = [
 
 export default function SupportPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [ticketForm, setTicketForm] = useState({
-    category: "",
-    priority: "",
-    subject: "",
-    description: ""
+  const [submittedTicketNumber, setSubmittedTicketNumber] = useState<string | null>(null)
+
+  // React Hook Form setup with Zod validation
+  const form = useForm<CreateTicketInput>({
+    resolver: zodResolver(createTicketSchema),
+    defaultValues: {
+      category: "",
+      priority: "",
+      subject: "",
+      description: "",
+      userEmail: "",
+      userName: ""
+    }
   })
 
-  const handleTicketSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Ticket submitted:", ticketForm)
-    // Handle ticket submission
+  // API mutation for creating ticket
+  const createTicketMutation = useMutation({
+    mutationFn: async (data: CreateTicketInput) => {
+      const response = await axios.post('/api/support/tickets', data)
+      return response.data
+    },
+    onSuccess: (data) => {
+      toast.success(`Ticket #${data.ticketNumber} created successfully! We'll respond within 24 hours.`)
+      setSubmittedTicketNumber(data.ticketNumber)
+      form.reset()
+    },
+    onError: (error: any) => {
+      const errorMessage = error.response?.data?.error || 'Failed to create ticket. Please try again.'
+      toast.error(errorMessage)
+    }
+  })
+
+  const handleTicketSubmit = (data: CreateTicketInput) => {
+    createTicketMutation.mutate(data)
+  }
+
+  const handleCreateAnotherTicket = () => {
+    setSubmittedTicketNumber(null)
   }
 
   return (
@@ -163,9 +197,10 @@ export default function SupportPage() {
             {/* Main Content */}
             <div className="lg:col-span-2">
             <Tabs defaultValue="help" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="help">Help Articles</TabsTrigger>
                 <TabsTrigger value="community">Community</TabsTrigger>
+                <TabsTrigger value="track">Track Ticket</TabsTrigger>
                 <TabsTrigger value="contact">Contact Support</TabsTrigger>
               </TabsList>
               
@@ -300,7 +335,51 @@ export default function SupportPage() {
                   </Card>
                 </div>
               </TabsContent>
-              
+
+              <TabsContent value="track" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Search className="h-5 w-5 mr-2" />
+                      Track Your Ticket
+                    </CardTitle>
+                    <CardDescription>
+                      Enter your ticket number to check the status and view conversation.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="ticketNumber">Ticket Number</Label>
+                        <Input
+                          id="ticketNumber"
+                          placeholder="e.g., TICK-ABC123"
+                          className="font-mono"
+                        />
+                      </div>
+                      <Button className="w-full">
+                        <Search className="h-4 w-4 mr-2" />
+                        Track Ticket
+                      </Button>
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Don't have a ticket number?{' '}
+                          <button
+                            onClick={() => {
+                              const tabsElement = document.querySelector('[data-value="contact"]') as HTMLElement;
+                              tabsElement?.click();
+                            }}
+                            className="text-primary hover:text-primary/80 underline"
+                          >
+                            Create a new ticket
+                          </button>
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="contact" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -313,72 +392,197 @@ export default function SupportPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={handleTicketSubmit} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="category">Category</Label>
-                          <Select value={ticketForm.category} onValueChange={(value) => setTicketForm({...ticketForm, category: value})}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="bug">Bug Report</SelectItem>
-                              <SelectItem value="feature">Feature Request</SelectItem>
-                              <SelectItem value="integration">Integration Help</SelectItem>
-                              <SelectItem value="billing">Billing Question</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
+                    {submittedTicketNumber ? (
+                      // Success state
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center py-8"
+                      >
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle className="h-8 w-8 text-green-600" />
                         </div>
-                        <div>
-                          <Label htmlFor="priority">Priority</Label>
-                          <RadioGroup
-                            value={ticketForm.priority}
-                            onValueChange={(value) => setTicketForm({...ticketForm, priority: value})}
-                            className="flex space-x-4 mt-2"
+                        <h3 className="text-xl font-semibold mb-2">Ticket Created Successfully!</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Your ticket <span className="font-mono font-semibold">#{submittedTicketNumber}</span> has been created.
+                          We'll respond within 24 hours.
+                        </p>
+                        <div className="space-y-3">
+                          <Button
+                            onClick={() => window.open(`/support/tickets/${submittedTicketNumber}`, '_blank')}
+                            className="w-full"
                           >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="low" id="low" />
-                              <Label htmlFor="low">Low</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="medium" id="medium" />
-                              <Label htmlFor="medium">Medium</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="high" id="high" />
-                              <Label htmlFor="high">High</Label>
-                            </div>
-                          </RadioGroup>
+                            <Search className="h-4 w-4 mr-2" />
+                            Track Your Ticket
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleCreateAnotherTicket}
+                            className="w-full"
+                          >
+                            Create Another Ticket
+                          </Button>
                         </div>
-                      </div>
+                      </motion.div>
+                    ) : (
+                      // Form state
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleTicketSubmit)} className="space-y-6">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="userEmail"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email Address *</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="your@email.com"
+                                      type="email"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="userName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Your Name</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="John Doe"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
 
-                      <div>
-                        <Label htmlFor="subject">Subject</Label>
-                        <Input
-                          id="subject"
-                          placeholder="Brief description of your issue"
-                          value={ticketForm.subject}
-                          onChange={(e) => setTicketForm({...ticketForm, subject: e.target.value})}
-                        />
-                      </div>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="category"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Category *</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select a category" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="bug">Bug Report</SelectItem>
+                                      <SelectItem value="feature">Feature Request</SelectItem>
+                                      <SelectItem value="integration">Integration Help</SelectItem>
+                                      <SelectItem value="billing">Billing Question</SelectItem>
+                                      <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="priority"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Priority *</FormLabel>
+                                  <FormControl>
+                                    <RadioGroup
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                      className="flex space-x-4 mt-2"
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="low" id="low" />
+                                        <Label htmlFor="low">Low</Label>
+                                      </div>
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="medium" id="medium" />
+                                        <Label htmlFor="medium">Medium</Label>
+                                      </div>
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="high" id="high" />
+                                        <Label htmlFor="high">High</Label>
+                                      </div>
+                                      <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="urgent" id="urgent" />
+                                        <Label htmlFor="urgent">Urgent</Label>
+                                      </div>
+                                    </RadioGroup>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
 
-                      <div>
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Please provide detailed information about your issue..."
-                          className="min-h-[120px]"
-                          value={ticketForm.description}
-                          onChange={(e) => setTicketForm({...ticketForm, description: e.target.value})}
-                        />
-                      </div>
+                          <FormField
+                            control={form.control}
+                            name="subject"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Subject *</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Brief description of your issue"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                      <Button type="submit" className="w-full">
-                        <Send className="h-4 w-4 mr-2" />
-                        Submit Ticket
-                      </Button>
-                    </form>
+                          <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Description *</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Please provide detailed information about your issue..."
+                                    className="min-h-[120px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Minimum 20 characters
+                                </p>
+                              </FormItem>
+                            )}
+                          />
+
+                          <Button
+                            type="submit"
+                            className="w-full"
+                            disabled={createTicketMutation.isPending}
+                          >
+                            {createTicketMutation.isPending ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                                Submitting...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-4 w-4 mr-2" />
+                                Submit Ticket
+                              </>
+                            )}
+                          </Button>
+                        </form>
+                      </Form>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
