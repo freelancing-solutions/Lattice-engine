@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -7,6 +7,17 @@ import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/
 const inter = Inter({ subsets: ['latin'] })
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  colorScheme: 'dark light',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -87,16 +98,6 @@ export const metadata: Metadata = {
   category: 'technology',
   classification: 'AI Infrastructure Platform',
   referrer: 'origin-when-cross-origin',
-  colorScheme: 'dark light',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
