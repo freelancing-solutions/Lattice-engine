@@ -80,7 +80,7 @@ export default function InteractiveDemo() {
   const [activeTab, setActiveTab] = useState("mutation")
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -89,10 +89,10 @@ export default function InteractiveDemo() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             See Lattice in Action
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Watch how Lattice transforms your development workflow from code changes to production deployment.
           </p>
         </motion.div>
@@ -125,21 +125,21 @@ export default function InteractiveDemo() {
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-700 mb-2">Before:</h4>
-                        <pre className="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
+                        <h4 className="font-semibold text-sm text-muted-foreground mb-2">Before:</h4>
+                        <pre className="bg-muted text-foreground p-3 rounded text-xs overflow-x-auto">
                           <code>{mutationBefore}</code>
                         </pre>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-700 mb-2">After:</h4>
-                        <pre className="bg-green-50 p-3 rounded text-xs overflow-x-auto border border-green-200">
+                        <h4 className="font-semibold text-sm text-muted-foreground mb-2">After:</h4>
+                        <pre className="bg-green-50 dark:bg-green-900/20 p-3 rounded text-xs overflow-x-auto border border-green-200 dark:border-green-800 text-foreground">
                           <code>{mutationAfter}</code>
                         </pre>
                       </div>
                       <div className="flex items-center justify-between pt-4 border-t">
                         <div className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm text-gray-600">AI Analysis Complete</span>
+                          <span className="text-sm text-muted-foreground">AI Analysis Complete</span>
                         </div>
                         <Button size="sm">
                           <Play className="h-4 w-4 mr-2" />
@@ -224,10 +224,10 @@ export default function InteractiveDemo() {
             className="space-y-6"
           >
             <div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+              <h3 className="text-2xl font-semibold text-foreground mb-4">
                 From Idea to Production in Minutes
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Lattice streamlines your development workflow with intelligent automation and smart approvals.
               </p>
             </div>
@@ -254,19 +254,19 @@ export default function InteractiveDemo() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{step.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                    <h4 className="font-semibold text-foreground">{step.title}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{step.description}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
 
             <div className="pt-6 border-t">
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border border-purple-200">
-                <h4 className="font-semibold text-purple-900 mb-2">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 p-6 rounded-lg border border-purple-200 dark:border-purple-800">
+                <h4 className="font-semibold text-foreground mb-2">
                   🚀 80% Faster Deployment Cycle
                 </h4>
-                <p className="text-sm text-purple-800 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   Teams using Lattice report an average 80% reduction in time from code commit to production deployment.
                 </p>
                 <Button className="bg-purple-600 hover:bg-purple-700">
