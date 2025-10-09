@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/providers";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.project-lattice.site';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -15,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://app.project-lattice.site"),
+  metadataBase: new URL(baseUrl),
   title: {
     default: "Lattice Portal – Code Mutation Platform",
     template: "%s | Lattice Portal",
@@ -54,7 +56,7 @@ export const metadata: Metadata = {
     title: "Lattice Portal",
     description:
       "AI-powered code mutation and approval platform for modern software teams",
-    url: "http://app.project-lattice.site/",
+    url: baseUrl,
     siteName: "Lattice Portal",
     type: "website",
     images: [
@@ -91,8 +93,8 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'Lattice Portal',
-              url: 'http://app.project-lattice.site/',
-              logo: 'http://app.project-lattice.site/logo.svg',
+              url: baseUrl,
+              logo: `${baseUrl}/logo.svg`,
               sameAs: [],
             }),
           }}
@@ -104,10 +106,10 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'Lattice Portal',
-              url: 'http://app.project-lattice.site/',
+              url: baseUrl,
               potentialAction: {
                 '@type': 'SearchAction',
-                target: 'http://app.project-lattice.site/dashboard?query={search_term_string}',
+                target: `${baseUrl}/dashboard?query={search_term_string}`,
                 'query-input': 'required name=search_term_string',
               },
             }),
