@@ -78,8 +78,8 @@ export default function Navigation() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              Sign In
+            <Button asChild variant="ghost" className="text-muted-foreground hover:text-foreground">
+              <a href="https://app.project-lattice.site/login">Sign In</a>
             </Button>
             <Button asChild>
               <a href="/pricing">Get Started</a>
@@ -115,8 +115,8 @@ export default function Navigation() {
                     <span className="text-foreground font-medium">Theme</span>
                     <ThemeToggle />
                   </div>
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground justify-start">
-                    Sign In
+                  <Button asChild variant="ghost" className="text-muted-foreground hover:text-foreground justify-start" onClick={() => setIsOpen(false)}>
+                    <a href="https://app.project-lattice.site/login">Sign In</a>
                   </Button>
                   <Button asChild>
                     <a href="/pricing">Get Started</a>

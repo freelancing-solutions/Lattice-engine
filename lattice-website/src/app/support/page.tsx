@@ -125,8 +125,8 @@ export default function SupportPage() {
   const form = useForm<CreateTicketInput>({
     resolver: zodResolver(createTicketSchema),
     defaultValues: {
-      category: "",
-      priority: "",
+      category: undefined,
+      priority: undefined,
       subject: "",
       description: "",
       userEmail: "",
