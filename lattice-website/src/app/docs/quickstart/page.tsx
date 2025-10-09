@@ -43,7 +43,7 @@ const quickSteps = [
     description: "Sign up for a free account and get your API key.",
     icon: BookOpen,
     actions: [
-      "Visit lattice.dev/signup to create your account",
+"Visit https://app.project-lattice.site/register to create your account",
       "Navigate to Settings → API Keys",
       "Generate a new API key",
       "Copy and securely store your key"

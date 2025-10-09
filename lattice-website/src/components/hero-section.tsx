@@ -28,7 +28,7 @@ export default function HeroSection() {
   }, [])
 
   useEffect(() => {
-    const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓ Risk assessment: LOW\n✓ Mutation proposed successfully\n→ Review at: https://app.lattice.dev/mutations/mut_123`
+const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓ Risk assessment: LOW\n✓ Mutation proposed successfully\n→ Review at: https://app.project-lattice.site/mutations/mut_123`
     let index = 0
     
     const interval = setInterval(() => {

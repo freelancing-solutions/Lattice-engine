@@ -32,7 +32,7 @@ const socialLinks = [
   { icon: Twitter, href: "https://twitter.com/latticedev", label: "Twitter" },
   { icon: Linkedin, href: "https://linkedin.com/company/lattice-dev", label: "LinkedIn" },
   { icon: MessageCircle, href: "https://discord.gg/lattice", label: "Discord" },
-  { icon: Mail, href: "mailto:hello@lattice.dev", label: "Email" },
+{ icon: Mail, href: "mailto:hello@project-lattice.site", label: "Email" },
 ]
 
 export default function Footer() {

@@ -105,7 +105,7 @@ export default function AdminTicketDetailPage() {
       content: '',
       isStaffReply: true,
       authorName: 'Support Team',
-      authorEmail: 'support@lattice.dev'
+authorEmail: 'support@project-lattice.site'
     }
   })
 

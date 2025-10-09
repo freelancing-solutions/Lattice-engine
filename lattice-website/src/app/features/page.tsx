@@ -95,7 +95,7 @@ const developerTools = [
     icon: Database,
     title: "MCP Servers",
     description: "Model Context Protocol integration",
-    code: "https://lattice.dev/specs/user-management",
+    code: "https://mcp.project-lattice.site/specs/user-management",
     features: ["Real-time sync", "Multi-client support", "Event streaming", "State management"]
   }
 ]

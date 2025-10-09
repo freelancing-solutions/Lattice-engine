@@ -107,8 +107,8 @@ This application includes a comprehensive support ticket system for customer ser
    SMTP_PORT=587
    SMTP_USER=your-email@gmail.com
    SMTP_PASSWORD=your-app-password
-   SMTP_FROM=support@lattice.dev
-   ADMIN_EMAIL=admin@lattice.dev
+SMTP_FROM=support@project-lattice.site
+ADMIN_EMAIL=admin@project-lattice.site
    ```
 
 ### Routes

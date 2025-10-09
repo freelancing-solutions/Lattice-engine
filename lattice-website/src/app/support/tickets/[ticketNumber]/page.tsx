@@ -514,7 +514,7 @@ export default function TicketTrackingPage() {
                           If you have questions about this ticket or need immediate assistance:
                         </p>
                         <Button variant="outline" className="w-full" asChild>
-                          <a href="mailto:support@lattice.dev">
+<a href="mailto:support@project-lattice.site">
                             <Mail className="h-4 w-4 mr-2" />
                             Email Support
                           </a>
