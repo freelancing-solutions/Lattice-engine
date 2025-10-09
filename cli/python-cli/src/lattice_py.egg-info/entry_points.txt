@@ -1,0 +1,2 @@
+[console_scripts]
+lattice-py = lattice_py.__main__:main

@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: lattice-py
+Version: 0.1.0
+Summary: Lattice CLI (Python) for interacting with the Lattice Engine backend
+Requires-Python: >=3.9
+Requires-Dist: requests>=2.31

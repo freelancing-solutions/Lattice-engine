@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/lattice_py/__init__.py
+src/lattice_py/__main__.py
+src/lattice_py.egg-info/PKG-INFO
+src/lattice_py.egg-info/SOURCES.txt
+src/lattice_py.egg-info/dependency_links.txt
+src/lattice_py.egg-info/entry_points.txt
+src/lattice_py.egg-info/requires.txt
+src/lattice_py.egg-info/top_level.txt

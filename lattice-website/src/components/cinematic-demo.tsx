@@ -121,7 +121,7 @@ export class Auth {
     insights: [
       "Smart routing eliminates manual approval chain confusion",
       "Right people review the right changes automatically",
-      "No more "who should approve this?" discussions"
+      "No more 'who should approve this?' discussions"
     ],
     duration: 4500,
     icon: GitBranch,
