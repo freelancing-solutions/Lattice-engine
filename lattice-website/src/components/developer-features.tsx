@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Terminal, Code, Webhook, Database, Copy, ExternalLink } from "lucide-react"
+import Link from "next/link"
 
 const developerFeatures = [
   {
@@ -11,28 +12,32 @@ const developerFeatures = [
     title: "CLI Integration",
     description: "Powerful command-line tools for automation",
     code: "npx lattice mutation propose --spec user-auth",
-    features: ["Automation scripts", "CI/CD integration", "Batch operations", "Custom workflows"]
+    features: ["Automation scripts", "CI/CD integration", "Batch operations", "Custom workflows"],
+    href: "/docs/cli"
   },
   {
     icon: Code,
     title: "VSCode Extension",
     description: "Native IDE integration with IntelliSense",
     code: "// Auto-complete for Lattice APIs\nlattice.mutation.create({...})",
-    features: ["Real-time validation", "Code completion", "Integrated debugging", "Live preview"]
+    features: ["Real-time validation", "Code completion", "Integrated debugging", "Live preview"],
+    href: "/docs/vscode-extension"
   },
   {
     icon: Webhook,
     title: "REST API",
     description: "Full programmatic access to all features",
     code: "POST /api/v1/mutations\n{\n  \"spec_id\": \"user-auth\",\n  \"changes\": {...}\n}",
-    features: ["RESTful design", "Webhook support", "Rate limiting", "OAuth 2.0 security"]
+    features: ["RESTful design", "Webhook support", "Rate limiting", "OAuth 2.0 security"],
+    href: "/docs/api-documentation"
   },
   {
     icon: Database,
     title: "MCP Servers",
     description: "Model Context Protocol integration",
     code: "https://mcp.project-lattice.site/specs/user-management",
-    features: ["Real-time sync", "Multi-client support", "Event streaming", "State management"]
+    features: ["Real-time sync", "Multi-client support", "Event streaming", "State management"],
+    href: "/docs/mcp-servers"
   }
 ]
 
@@ -112,9 +117,11 @@ export default function DeveloperFeatures() {
                   </div>
 
                   <div className="pt-4 border-t border-slate-700">
-                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Documentation
+                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white" asChild>
+                      <Link href={feature.href}>
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Documentation
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -139,11 +146,15 @@ export default function DeveloperFeatures() {
               Start your free trial today - no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
-                Install VSCode Extension
+              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+                <Link href="/docs/vscode-extension">
+                  Install VSCode Extension
+                </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
-                View API Docs
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600" asChild>
+                <Link href="/docs/api-documentation">
+                  View API Docs
+                </Link>
               </Button>
             </div>
           </div>

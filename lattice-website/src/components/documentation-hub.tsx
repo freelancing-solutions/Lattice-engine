@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Book, Code, Terminal, Zap, ArrowRight, Star, Users, FileText } from "lucide-react"
+import Link from "next/link"
 
 const docCategories = [
   {
@@ -19,7 +20,8 @@ const docCategories = [
       "Webhook Integration",
       "Rate Limiting & Best Practices"
     ],
-    badge: "v2.1.0"
+    badge: "v2.1.0",
+    href: "/docs/api-documentation"
   },
   {
     icon: Terminal,
@@ -33,7 +35,8 @@ const docCategories = [
       "Debugging Tools",
       "Custom Workflows"
     ],
-    badge: "v1.5.2"
+    badge: "v1.5.2",
+    href: "/docs/vscode-extension"
   },
   {
     icon: Zap,
@@ -47,7 +50,8 @@ const docCategories = [
       "Event Streaming",
       "State Management"
     ],
-    badge: "v2.0.0"
+    badge: "v2.0.0",
+    href: "/docs/mcp-servers"
   },
   {
     icon: Book,
@@ -61,7 +65,8 @@ const docCategories = [
       "CI/CD Integration",
       "Best Practices"
     ],
-    badge: "Updated"
+    badge: "Updated",
+    href: "/docs/tutorials-and-guides"
   }
 ]
 
@@ -143,9 +148,11 @@ export default function DocumentationHub() {
                       </li>
                     ))}
                   </ul>
-                  <Button variant="outline" className="w-full">
-                    View Docs
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href={category.href}>
+                      View Docs
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -187,9 +194,11 @@ export default function DocumentationHub() {
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
-                  Start Quick Start Guide
-                  <ArrowRight className="h-5 w-5 ml-2" />
+                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+                  <Link href="/docs/quickstart">
+                    Start Quick Start Guide
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -243,8 +252,10 @@ export default function DocumentationHub() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  Read Blog
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/blog">
+                    Read Blog
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

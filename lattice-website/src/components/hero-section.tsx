@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Play, Download, Terminal, Code, GitBranch, Zap, FileText } from "lucide-react"
+import DemoPopup from "@/components/demo-popup"
 
 const codeSnippets = [
   "const mutation = await lattice.propose({...});",
@@ -22,6 +23,7 @@ export default function HeroSection() {
   const [mounted, setMounted] = useState(false)
   const [terminalText, setTerminalText] = useState("")
   const [showCursor, setShowCursor] = useState(true)
+  const [showDemo, setShowDemo] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -111,7 +113,11 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg">
+            <Button 
+              size="lg" 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 text-lg"
+              onClick={() => setShowDemo(true)}
+            >
               <Play className="mr-2 h-5 w-5" />
               Watch Demo
             </Button>
@@ -119,9 +125,15 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
               <Download className="mr-2 h-5 w-5" />
               Get Started Free
             </Button>
-          </motion.div>
+          </motion.div></div>
         </motion.div>
       </div>
+
+      {/* Demo Popup */}
+      <DemoPopup 
+        isOpen={showDemo} 
+        onClose={() => setShowDemo(false)} 
+      />
 
       {/* Terminal Preview */}
       <motion.div 
