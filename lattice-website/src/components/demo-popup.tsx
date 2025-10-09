@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -125,6 +125,44 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
     return () => clearInterval(interval)
   }, [isPlaying, currentStep, isOpen])
 
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case ' ':
+          e.preventDefault()
+          handlePlay()
+          break
+        case 'r':
+        case 'R':
+          e.preventDefault()
+          handleReset()
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          if (currentStep > 0) {
+            handleStepClick(currentStep - 1)
+          }
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          if (currentStep < workflowSteps.length - 1) {
+            handleStepClick(currentStep + 1)
+          }
+          break
+        case 'Escape':
+          e.preventDefault()
+          onClose()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, currentStep, isPlaying])
+
   const handlePlay = () => {
     if (currentStep === workflowSteps.length - 1 && progress === 100) {
       // Reset to beginning
@@ -150,7 +188,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="w-[95vw] h-[95vh] max-w-none overflow-hidden p-0 m-0 rounded-none border-none">
         <div className="flex flex-col h-full">
           {/* Header */}
           <DialogHeader className="p-6 pb-4 border-b border-border">
@@ -170,8 +208,9 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
           </DialogHeader>
 
           <div className="flex-1 flex overflow-hidden">
-            {/* Sidebar - Step Navigation */}
-            <div className="w-80 border-r border-border p-6 overflow-y-auto">
+            {/* Left Panel - Steps */}
+            <div className="w-80 lg:w-96 bg-gray-50 border-r border-gray-200 p-4 lg:p-6 overflow-y-auto hidden md:block">
+              <h3 className="text-lg font-semibold mb-4">Workflow Steps</h3>
               <div className="space-y-3">
                 {workflowSteps.map((step, index) => {
                   const Icon = step.icon
@@ -181,42 +220,28 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   return (
                     <motion.div
                       key={step.id}
-                      className={`relative p-4 rounded-lg border cursor-pointer transition-all ${
-                        isActive 
-                          ? 'border-primary bg-primary/5' 
-                          : isCompleted 
-                            ? 'border-green-200 bg-green-50' 
-                            : 'border-border hover:border-primary/50'
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        isActive
+                          ? 'bg-blue-100 border-blue-300 border'
+                          : 'bg-white border border-gray-200 hover:bg-gray-50'
                       }`}
                       onClick={() => handleStepClick(index)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-full bg-gradient-to-r ${step.color}`}>
-                          {isCompleted ? (
-                            <CheckCircle className="h-4 w-4 text-white" />
-                          ) : (
-                            <Icon className="h-4 w-4 text-white" />
-                          )}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                            isActive
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-200 text-gray-600'
+                          }`}
+                        >
+                          {index + 1}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm">{step.title}</h4>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {step.description}
-                          </p>
-                          {isActive && (
-                            <div className="mt-2">
-                              <div className="w-full bg-gray-200 rounded-full h-1">
-                                <motion.div
-                                  className="bg-gradient-to-r from-primary to-primary/80 h-1 rounded-full"
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${progress}%` }}
-                                  transition={{ duration: 0.1 }}
-                                />
-                              </div>
-                            </div>
-                          )}
+                        <div>
+                          <div className="font-medium text-sm">{step.title}</div>
+                          <div className="text-xs text-gray-500">{step.description}</div>
                         </div>
                       </div>
                     </motion.div>
@@ -225,69 +250,115 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
               </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col">
-              {/* Current Step Display */}
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className={`p-3 rounded-full bg-gradient-to-r ${currentStepData.color}`}>
-                    <currentStepData.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{currentStepData.title}</h3>
-                    <p className="text-muted-foreground">{currentStepData.description}</p>
-                  </div>
-                  <Badge variant="outline" className="ml-auto">
+            {/* Right Panel - Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Mobile Step Indicator */}
+              <div className="md:hidden p-4 border-b border-border bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">
                     Step {currentStep + 1} of {workflowSteps.length}
-                  </Badge>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {currentStepData.title}
+                  </span>
                 </div>
-
-                {/* Controls */}
-                <div className="flex items-center space-x-2">
-                  <Button onClick={handlePlay} size="sm">
-                    {isPlaying ? (
-                      <Pause className="h-4 w-4 mr-2" />
-                    ) : (
-                      <Play className="h-4 w-4 mr-2" />
-                    )}
-                    {isPlaying ? 'Pause' : 'Play'}
-                  </Button>
-                  <Button onClick={handleReset} variant="outline" size="sm">
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Reset
-                  </Button>
-                  <div className="flex items-center space-x-2 ml-4 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{Math.round(currentStepData.duration / 1000)}s duration</span>
-                  </div>
+                <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
+                  <div
+                    className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                    style={{ width: `${((currentStep + 1) / workflowSteps.length) * 100}%` }}
+                  />
                 </div>
               </div>
 
-              {/* Code/Animation Area */}
-              <div className="flex-1 p-6 bg-slate-50">
+              {/* Step Content */}
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="h-full"
                   >
-                    {/* Terminal-style Code Display */}
-                    <div className="bg-gray-900 rounded-lg h-full flex flex-col">
-                      <div className="flex items-center justify-between p-4 border-b border-gray-700">
-                        <div className="flex space-x-2">
-                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        </div>
-                        <span className="text-gray-400 text-sm font-mono">
-                          lattice-demo
-                        </span>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+                        {currentStep + 1}
                       </div>
-                      
-                      <div className="flex-1 p-6 font-mono text-sm overflow-auto">
+                      <div>
+                        <h2 className="text-xl font-semibold">{currentStepData.title}</h2>
+                        <p className="text-gray-600">{currentStepData.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Mobile Step Navigation */}
+                  <div className="md:hidden mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStepClick(Math.max(0, currentStep - 1))}
+                        disabled={currentStep === 0}
+                      >
+                        ← Previous
+                      </Button>
+                      <span className="text-sm font-medium">
+                        {currentStep + 1} / {workflowSteps.length}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStepClick(Math.min(workflowSteps.length - 1, currentStep + 1))}
+                        disabled={currentStep === workflowSteps.length - 1}
+                      >
+                        Next →
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Controls */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+                      <div className="flex items-center space-x-2">
+                        <Button onClick={handlePlay} size="sm">
+                          {isPlaying ? (
+                            <Pause className="h-4 w-4 mr-2" />
+                          ) : (
+                            <Play className="h-4 w-4 mr-2" />
+                          )}
+                          {isPlaying ? 'Pause' : 'Play'}
+                        </Button>
+                        <Button onClick={handleReset} variant="outline" size="sm">
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Reset
+                        </Button>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-4 w-4" />
+                          <span>{Math.round(currentStepData.duration / 1000)}s</span>
+                        </div>
+                        <Badge variant="outline" className="hidden md:inline-flex">
+                          Step {currentStep + 1} of {workflowSteps.length}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Keyboard Shortcuts Help */}
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200 hidden lg:block">
+                      <p className="text-xs text-blue-700">
+                        <strong>Keyboard shortcuts:</strong> Space (play/pause) • R (reset) • ← → (navigate steps) • Esc (close)
+                      </p>
+                    </div>
+
+                    {/* Terminal/Code Display */}
+                    <div className="flex-1 bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-hidden flex flex-col min-h-0">
+                      <div className="flex items-center gap-2 mb-3 flex-shrink-0">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span className="ml-2 text-gray-400">lattice-demo</span>
+                      </div>
+                      <div className="flex-1 overflow-y-auto">
                         <motion.pre
                           className="text-green-400 whitespace-pre-wrap"
                           initial={{ opacity: 0 }}
@@ -296,32 +367,48 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                         >
                           {currentStepData.code}
                         </motion.pre>
-                        
+
                         {/* Animated cursor */}
-                        <motion.span
-                          className="inline-block w-2 h-4 bg-green-400 ml-1"
-                          animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        />
+                        {isPlaying && (
+                          <motion.span
+                            className="inline-block w-2 h-4 bg-green-400 ml-1"
+                            animate={{ opacity: [1, 0, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          />
+                        )}
                       </div>
                     </div>
+
+                    {/* Progress bar for active step */}
+                    {isPlaying && (
+                      <div className="mt-4">
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <motion.div
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.1 }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-border bg-white">
-                <div className="flex items-center justify-between">
+              <div className="p-4 lg:p-6 border-t border-border bg-white">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <div className="text-sm text-muted-foreground">
                     Experience the full power of intelligent development workflows
                   </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                  <div className="flex space-x-2 sm:ml-auto">
+                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                       Learn More
                     </Button>
-                    <Button size="sm">
+                    <Button size="sm" className="flex-1 sm:flex-none">
                       Get Started
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRight className="h-4 w-4 ml-2 hidden sm:inline" />
                     </Button>
                   </div>
                 </div>

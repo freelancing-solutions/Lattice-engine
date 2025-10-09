@@ -1,0 +1,6 @@
+{
+  "api": {
+    "endpoint": "https://api.project-lattice.site",
+    "version": "v1"
+  }
+}

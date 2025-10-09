@@ -16,7 +16,7 @@ import {
 } from '@/types';
 
 // API base configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.lattice.dev';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.project-lattice.site';
 
 class APIClient {
   private client: AxiosInstance;

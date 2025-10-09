@@ -88,7 +88,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 ```typescript
 // API client configuration
 const apiClient = axios.create({
-  baseURL: 'https://api.lattice.dev',
+  baseURL: 'https://api.project-lattice.site',
   timeout: 30000,
 });
 

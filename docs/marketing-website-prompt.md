@@ -550,9 +550,9 @@ const VSCodeTutorial = {
     },
     {
       title: "Configure API Key",
-      code: `{
+  code: `{
   "lattice.apiKey": "your-api-key",
-  "lattice.baseUrl": "https://api.lattice.dev"
+  "lattice.baseUrl": "https://api.project-lattice.site"
 }`,
       description: "Add configuration to VSCode settings"
     },

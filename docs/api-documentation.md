@@ -563,7 +563,7 @@ import { Lattice } from '@lattice/engine';
 
 const lattice = new Lattice({
   apiKey: process.env.LATTICE_API_KEY,
-  baseUrl: 'https://api.lattice.dev'
+  baseUrl: 'https://api.project-lattice.site'
 });
 
 // Create mutation with retry logic

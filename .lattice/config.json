@@ -1,0 +1,19 @@
+{
+  "project": {
+    "id": "lattice-engine-cli",
+    "name": "Lattice Engine CLI",
+    "type": "javascript"
+  },
+  "api": {
+    "endpoint": "https://api.project-lattice.site",
+    "version": "v1"
+  },
+  "specs": {
+    "auto_sync": true,
+    "validation": "strict"
+  },
+  "notifications": {
+    "enabled": true,
+    "types": ["mutation_created", "review_requested", "spec_updated"]
+  }
+}

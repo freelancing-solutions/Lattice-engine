@@ -1,0 +1,17 @@
+{
+  "name": "@lattice/cli-node",
+  "version": "0.1.0",
+  "description": "Lattice CLI (Node.js) for interacting with the Lattice Engine backend.",
+  "bin": {
+    "lattice": "bin/lattice.js"
+  },
+  "type": "commonjs",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node bin/lattice.js --help"
+  },
+  "files": [
+    "bin",
+    "src"
+  ]
+}

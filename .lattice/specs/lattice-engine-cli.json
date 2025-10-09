@@ -1,0 +1,267 @@
+{
+  "name": "lattice-engine-cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for interacting with the Lattice Engine backend to manage OpenSpec specs, propose and resolve mutations, and orchestrate deployments.",
+  "global_flags": [
+    { "name": "project", "type": "string", "description": "Project identifier or path", "required": false },
+    { "name": "repo", "type": "string", "description": "Repository slug or URL", "required": false },
+    { "name": "env", "type": "string", "description": "Target environment (e.g., dev, staging, prod)", "required": false },
+    { "name": "output", "type": "string", "enum": ["json", "table"], "default": "json", "description": "Output format" },
+    { "name": "non-interactive", "type": "boolean", "default": true, "description": "Run without prompts" },
+    { "name": "strict", "type": "boolean", "default": true, "description": "Strict validation and failure on error" },
+    { "name": "api-url", "type": "string", "description": "Lattice backend base URL", "required": false },
+    { "name": "token", "type": "string", "description": "Auth token (overrides stored)", "required": false },
+    { "name": "dry-run", "type": "boolean", "default": false, "description": "Simulate action without committing" }
+  ],
+  "categories": ["auth", "project", "spec", "mutation", "deploy", "mcp"],
+  "commands": [
+    {
+      "name": "auth login",
+      "category": "auth",
+      "description": "Authenticate user and store token for backend access.",
+      "flags": [
+        { "name": "api-url", "type": "string", "required": true },
+        { "name": "username", "type": "string", "required": true },
+        { "name": "password", "type": "string", "required": true },
+        { "name": "output", "type": "string", "enum": ["json", "table"], "default": "json" }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice auth login --api-url https://api.project-lattice.site --username alice --password ****"]
+    },
+    {
+      "name": "auth logout",
+      "category": "auth",
+      "description": "Clear stored credentials and revoke session token.",
+      "flags": [],
+      "outputs": ["json"],
+      "examples": ["lattice auth logout"]
+    },
+    {
+      "name": "project init",
+      "category": "project",
+      "description": "Initialize repository and sync metadata with the Lattice backend.",
+      "flags": [
+        { "name": "project", "type": "string", "required": false },
+        { "name": "repo", "type": "string", "required": false },
+        { "name": "api-url", "type": "string", "required": true }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice project init --api-url https://api.project-lattice.site --repo org/app"]
+    },
+    {
+      "name": "spec create",
+      "category": "spec",
+      "description": "Create a local spec file from template or description.",
+      "flags": [
+        { "name": "name", "type": "string", "required": true },
+        { "name": "template", "type": "string", "required": false },
+        { "name": "description", "type": "string", "required": false },
+        { "name": "output", "type": "string", "enum": ["json", "table"], "default": "json" }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice spec create --name lattice-engine-cli --description 'CLI spec for Lattice'"]
+    },
+    {
+      "name": "spec validate",
+      "category": "spec",
+      "description": "Validate a spec against schema; strict mode fails on any error.",
+      "flags": [
+        { "name": "path", "type": "string", "required": true },
+        { "name": "strict", "type": "boolean", "default": true }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice spec validate --path .lattice/specs/lattice-engine-cli.json --strict"]
+    },
+    {
+      "name": "spec generate",
+      "category": "spec",
+      "description": "Request backend to generate a spec from description and context.",
+      "flags": [
+        { "name": "description", "type": "string", "required": true },
+        { "name": "context-path", "type": "string", "required": false },
+        { "name": "save", "type": "boolean", "default": true, "description": "Save returned spec under .lattice/specs/" }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice spec generate --description 'API for deploy flow' --save"]
+    },
+    {
+      "name": "spec sync",
+      "category": "spec",
+      "description": "Push/pull specs between local .lattice/specs and backend store.",
+      "flags": [
+        { "name": "direction", "type": "string", "enum": ["push", "pull"], "required": true },
+        { "name": "filter", "type": "string", "required": false }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice spec sync --direction pull"]
+    },
+    {
+      "name": "spec list",
+      "category": "spec",
+      "description": "List specs available locally and/or on backend.",
+      "flags": [
+        { "name": "source", "type": "string", "enum": ["local", "remote", "all"], "default": "all" },
+        { "name": "filter", "type": "string", "required": false },
+        { "name": "output", "type": "string", "enum": ["json", "table"], "default": "table" }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice spec list --source all --output table"]
+    },
+    {
+      "name": "spec show",
+      "category": "spec",
+      "description": "Show details for a specific spec.",
+      "flags": [
+        { "name": "name", "type": "string", "required": true },
+        { "name": "source", "type": "string", "enum": ["local", "remote"], "default": "local" }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice spec show --name lattice-engine-cli --source local"]
+    },
+    {
+      "name": "mutation propose",
+      "category": "mutation",
+      "description": "Propose a mutation to backend for automated conflict resolution and dependency checks.",
+      "flags": [
+        { "name": "spec", "type": "string", "required": true },
+        { "name": "change", "type": "string", "required": true, "description": "Description or path to change payload" },
+        { "name": "metadata", "type": "string", "required": false },
+        { "name": "auto-apply", "type": "boolean", "default": true, "description": "Apply if conflict-free per rules" }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice mutation propose --spec lattice-engine-cli --change ./changes/add-deploy.json --auto-apply"]
+    },
+    {
+      "name": "mutation status",
+      "category": "mutation",
+      "description": "Check status of a mutation proposal or approved change.",
+      "flags": [
+        { "name": "id", "type": "string", "required": true }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice mutation status --id mut_123"]
+    },
+    {
+      "name": "mutation approve",
+      "category": "mutation",
+      "description": "Approve a pending mutation that requires manual review.",
+      "flags": [
+        { "name": "id", "type": "string", "required": true },
+        { "name": "note", "type": "string", "required": false }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice mutation approve --id mut_123 --note 'LGTM'"]
+    },
+    {
+      "name": "mutation reject",
+      "category": "mutation",
+      "description": "Reject a pending mutation proposal.",
+      "flags": [
+        { "name": "id", "type": "string", "required": true },
+        { "name": "reason", "type": "string", "required": false }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice mutation reject --id mut_123 --reason 'Breaks constraints'"]
+    },
+    {
+      "name": "mutation list",
+      "category": "mutation",
+      "description": "List recent mutations with filters.",
+      "flags": [
+        { "name": "status", "type": "string", "enum": ["pending", "approved", "rejected", "applied"], "required": false },
+        { "name": "limit", "type": "number", "default": 50 }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice mutation list --status approved --output table"]
+    },
+    {
+      "name": "mutation show",
+      "category": "mutation",
+      "description": "Show details of a specific mutation.",
+      "flags": [
+        { "name": "id", "type": "string", "required": true }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice mutation show --id mut_123"]
+    },
+    {
+      "name": "deploy",
+      "category": "deploy",
+      "description": "Trigger deployment linked to a specific mutation and environment.",
+      "flags": [
+        { "name": "mutation-id", "type": "string", "required": true },
+        { "name": "env", "type": "string", "required": true },
+        { "name": "strategy", "type": "string", "enum": ["rolling", "blue-green", "canary"], "required": false },
+        { "name": "wait", "type": "boolean", "default": true, "description": "Wait for completion" }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice deploy --mutation-id mut_123 --env production --strategy rolling"]
+    },
+    {
+      "name": "risk assess",
+      "category": "mutation",
+      "description": "Request backend risk scoring/assessment for a mutation.",
+      "flags": [
+        { "name": "id", "type": "string", "required": true },
+        { "name": "policy", "type": "string", "required": false }
+      ],
+      "outputs": ["json"],
+      "examples": ["lattice risk assess --id mut_123 --policy default"]
+    },
+    {
+      "name": "mcp status",
+      "category": "mcp",
+      "description": "Report MCP server status and connectivity for this project.",
+      "flags": [
+        { "name": "profile", "type": "string", "required": false }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice mcp status --profile default"]
+    },
+    {
+      "name": "mcp sync",
+      "category": "mcp",
+      "description": "Batch sync MCP server metadata with backend.",
+      "flags": [
+        { "name": "direction", "type": "string", "enum": ["push", "pull"], "required": true },
+        { "name": "profile", "type": "string", "required": false }
+      ],
+      "outputs": ["json", "table"],
+      "examples": ["lattice mcp sync --direction push"]
+    }
+  ],
+  "spec_behavior": {
+    "storage": {
+      "generated_specs_dir": ".lattice/specs",
+      "note": "Generated specs SHOULD be saved under .lattice/specs/ when returned by backend"
+    },
+    "openspec_dir": "OpenSpec/openspec/specs",
+    "proposal_flow": {
+      "automated": true,
+      "auto_apply_on_conflict_free": true,
+      "manual_review_required_on_flags": ["breaking-change", "policy-violation"]
+    }
+  },
+  "integration": {
+    "backend_endpoints": {
+      "auth_login": { "method": "POST", "path": "/api/auth/login" },
+      "project_init": { "method": "POST", "path": "/api/projects/init" },
+      "spec_generate": { "method": "POST", "path": "/api/specs/generate" },
+      "spec_sync_push": { "method": "POST", "path": "/api/specs/sync/push" },
+      "spec_sync_pull": { "method": "POST", "path": "/api/specs/sync/pull" },
+      "mutation_propose": { "method": "POST", "path": "/api/mutations/propose" },
+      "mutation_status": { "method": "GET", "path": "/api/mutations/{id}" },
+      "mutation_approve": { "method": "POST", "path": "/api/approvals/{id}/respond" },
+      "mutation_reject": { "method": "POST", "path": "/api/approvals/{id}/respond" },
+      "deploy": { "method": "POST", "path": "/api/deployments/trigger" },
+      "risk_assess": { "method": "POST", "path": "/api/mutations/{id}/risk-assessment" },
+      "mcp_status": { "method": "GET", "path": "/api/mcp/status" },
+      "mcp_sync": { "method": "POST", "path": "/api/mcp/sync" }
+    }
+  },
+  "validation": {
+    "strict": true,
+    "required": ["name", "version", "commands"],
+    "schema_version": "2024-10"
+  }
+}

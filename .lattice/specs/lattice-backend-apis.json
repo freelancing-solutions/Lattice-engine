@@ -1,0 +1,257 @@
+{
+  "name": "lattice-backend-apis",
+  "version": "1.0.0",
+  "description": "Scaffolded API specification for Lattice Engine backend endpoints leveraged by the CLI.",
+  "base_url": "https://api.project-lattice.site",
+  "auth": {
+    "type": "bearer",
+    "header": "Authorization",
+    "prefix": "Bearer "
+  },
+  "endpoints": [
+    {
+      "id": "auth_login",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "input_schema": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["token"],
+        "properties": {
+          "token": { "type": "string" },
+          "expiresIn": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "project_init",
+      "method": "POST",
+      "path": "/api/projects/init",
+      "input_schema": {
+        "type": "object",
+        "required": ["repo"],
+        "properties": {
+          "repo": { "type": "string" },
+          "project": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["projectId"],
+        "properties": {
+          "projectId": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "spec_generate",
+      "method": "POST",
+      "path": "/api/specs/generate",
+      "input_schema": {
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+          "description": { "type": "string" },
+          "contextPath": { "type": "string" },
+          "projectId": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["name", "content"],
+        "properties": {
+          "name": { "type": "string" },
+          "content": { "type": "object" },
+          "savePath": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "spec_sync_push",
+      "method": "POST",
+      "path": "/api/specs/sync/push",
+      "input_schema": {
+        "type": "object",
+        "required": ["specs"],
+        "properties": {
+          "specs": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "synced": { "type": "number" },
+          "errors": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    {
+      "id": "spec_sync_pull",
+      "method": "POST",
+      "path": "/api/specs/sync/pull",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "filter": { "type": "string" },
+          "projectId": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "specs": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    {
+      "id": "mutation_propose",
+      "method": "POST",
+      "path": "/api/mutations/propose",
+      "input_schema": {
+        "type": "object",
+        "required": ["spec", "change"],
+        "properties": {
+          "spec": { "type": "string" },
+          "change": { "type": "object" },
+          "metadata": { "type": "object" },
+          "autoApply": { "type": "boolean" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["approved", "rejected", "pending"] },
+          "resolution": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "mutation_status",
+      "method": "GET",
+      "path": "/api/mutations/{id}",
+      "input_schema": { "type": "object", "properties": { "id": { "type": "string" } } },
+      "output_schema": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string" },
+          "details": { "type": "object" }
+        }
+      }
+    },
+    {
+      "id": "mutation_approve",
+      "method": "POST",
+      "path": "/api/approvals/{id}/respond",
+      "input_schema": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "id": { "type": "string" },
+          "action": { "type": "string", "enum": ["approve", "reject"] },
+          "note": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "deploy_trigger",
+      "method": "POST",
+      "path": "/api/deployments/trigger",
+      "input_schema": {
+        "type": "object",
+        "required": ["mutationId", "env"],
+        "properties": {
+          "mutationId": { "type": "string" },
+          "env": { "type": "string" },
+          "strategy": { "type": "string", "enum": ["rolling", "blue-green", "canary"] },
+          "wait": { "type": "boolean" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["deploymentId", "status"],
+        "properties": {
+          "deploymentId": { "type": "string" },
+          "status": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "risk_assess",
+      "method": "POST",
+      "path": "/api/mutations/{id}/risk-assessment",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "policy": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "riskScore": { "type": "number" },
+          "findings": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    {
+      "id": "mcp_status",
+      "method": "GET",
+      "path": "/api/mcp/status",
+      "input_schema": { "type": "object", "properties": { "profile": { "type": "string" } } },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "servers": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    {
+      "id": "mcp_sync",
+      "method": "POST",
+      "path": "/api/mcp/sync",
+      "input_schema": {
+        "type": "object",
+        "required": ["direction"],
+        "properties": {
+          "direction": { "type": "string", "enum": ["push", "pull"] },
+          "profile": { "type": "string" }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "synced": { "type": "number" },
+          "errors": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  ],
+  "notes": [
+    "Endpoints and schemas are scaffolds; exact fields may evolve with backend.",
+    "All responses SHOULD include machine-readable fields for non-interactive CLI operation.",
+    "Spec generation responses SHOULD be saved to .lattice/specs when save flag is true."
+  ]
+}
