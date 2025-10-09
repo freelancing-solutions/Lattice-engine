@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import Link from "next/link"
 import { createTicketSchema, type CreateTicketInput } from "@/lib/validations/ticket"
 import { 
   MessageCircle, 
@@ -90,25 +91,29 @@ const popularArticles = [
     title: "How to configure authentication",
     category: "API & SDK",
     views: "2.3k",
-    helpful: "89%"
+    helpful: "89%",
+    slug: "getting-started-with-lattice-engine"
   },
   {
     title: "VSCode extension not connecting",
     category: "VSCode Extension", 
     views: "1.8k",
-    helpful: "92%"
+    helpful: "92%",
+    slug: "vscode-extension-deep-dive"
   },
   {
     title: "Mutation approval workflow",
     category: "Getting Started",
     views: "1.5k",
-    helpful: "87%"
+    helpful: "87%",
+    slug: "ai-powered-code-mutations-explained"
   },
   {
     title: "MCP server connection issues",
     category: "MCP Servers",
     views: "1.2k",
-    helpful: "85%"
+    helpful: "85%",
+    slug: "mcp-server-integration-guide"
   }
 ]
 
@@ -252,17 +257,19 @@ export default function SupportPage() {
                   <CardContent>
                     <div className="space-y-4">
                       {popularArticles.map((article, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-foreground mb-1">{article.title}</h4>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>{article.category}</span>
-                              <span>{article.views} views</span>
-                              <span>{article.helpful} helpful</span>
+                        <Link key={index} href={`/blog/${article.slug}`} className="block">
+                          <div className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-foreground mb-1">{article.title}</h4>
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                <span>{article.category}</span>
+                                <span>{article.views} views</span>
+                                <span>{article.helpful} helpful</span>
+                              </div>
                             </div>
+                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
                           </div>
-                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   </CardContent>
@@ -327,10 +334,12 @@ export default function SupportPage() {
                       <p className="text-muted-foreground mb-4">
                         Stay updated with the latest features, tutorials, and best practices.
                       </p>
-                      <Button variant="outline" className="w-full">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Read Blog
-                      </Button>
+                      <Link href="/blog" className="w-full">
+                        <Button variant="outline" className="w-full">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Read Blog
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 </div>
@@ -598,22 +607,22 @@ export default function SupportPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <a href="#" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+                  <Link href="/docs" className="flex items-center text-sm text-muted-foreground hover:text-primary">
                     <Book className="h-4 w-4 mr-2" />
                     Documentation
-                  </a>
-                  <a href="#" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+                  </Link>
+                  <Link href="/docs/api-documentation" className="flex items-center text-sm text-muted-foreground hover:text-primary">
                     <Terminal className="h-4 w-4 mr-2" />
                     API Reference
-                  </a>
-                  <a href="#" className="flex items-center text-sm text-muted-foreground hover:text-primary">
-                    <Users className="h-4 w-4 mr-2" />
-                    Community Forum
-                  </a>
-                  <a href="#" className="flex items-center text-sm text-muted-foreground hover:text-primary">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Discord Server
-                  </a>
+                  </Link>
+                  <Link href="/blog" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Blog
+                  </Link>
+                  <Link href="/status" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Status
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -627,7 +636,7 @@ export default function SupportPage() {
                 <div className="space-y-3">
                   <div>
                     <p className="font-medium text-foreground">Email Support</p>
-                    <p className="text-sm text-muted-foreground">support@lattice.dev</p>
+                    <p className="text-sm text-muted-foreground">support@project-lattice.site</p>
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Response Time</p>
