@@ -1,4 +1,11 @@
 'use client';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Login',
+  description: 'Sign in to Lattice Portal to access your projects and mutations.',
+  alternates: { canonical: '/login' },
+};
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
