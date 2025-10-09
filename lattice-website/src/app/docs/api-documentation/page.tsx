@@ -641,13 +641,13 @@ export default function ApiDocumentationPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="p-3 bg-muted rounded">
-                        <code className="text-sm text-muted-foreground">
-                          curl -X POST http://localhost:8000/mutations/propose \<br/>
-&nbsp;&nbsp;-H "Content-Type: application/json" \<br/>
-&nbsp;&nbsp;-H "X-API-Key: your-api-key" \<br/>
-&nbsp;&nbsp;-d '{"spec_id":"spec-123","operation_type":"update","changes":{"title":"Add hashing"},"reason":"Security","initiated_by":"user-42"}'
-                        </code>
+                      <div className="p-3 bg-muted rounded overflow-x-auto">
+                        <pre className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          <code>{`curl -X POST http://localhost:8000/mutations/propose
+  -H "Content-Type: application/json"
+  -H "X-API-Key: your-api-key"
+  -d '{"spec_id":"spec-123","operation_type":"update","changes":{"title":"Add hashing"},"reason":"Security","initiated_by":"user-42"}'`}</code>
+                        </pre>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Start by proposing a mutation with your API key.
