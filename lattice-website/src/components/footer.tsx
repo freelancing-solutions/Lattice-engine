@@ -2,28 +2,28 @@ import { Github, Twitter, Linkedin, MessageCircle, Mail } from "lucide-react"
 
 const footerLinks = {
   product: [
-    { name: "Features", href: "#features" },
-    { name: "Documentation", href: "#docs" },
+    { name: "Features", href: "/features" },
+    { name: "Documentation", href: "/docs" },
     { name: "Downloads", href: "/downloads" },
     { name: "System Status", href: "/status" },
   ],
   documentation: [
-    { name: "API Reference", href: "#docs/api" },
-    { name: "VSCode Extension", href: "#docs/vscode" },
-    { name: "MCP Servers", href: "#docs/mcp" },
-    { name: "Tutorials", href: "#docs/tutorials" },
+    { name: "API Reference", href: "/docs/api-documentation" },
+    { name: "VSCode Extension", href: "/docs/vscode-extension" },
+    { name: "MCP Servers", href: "/docs/mcp-servers" },
+    { name: "Tutorials", href: "/docs/tutorials-and-guides" },
   ],
   support: [
     { name: "Help Center", href: "/support" },
     { name: "Contact Us", href: "/support" },
-    { name: "Community", href: "#community" },
+    { name: "Community", href: "/community" },
     { name: "Status Page", href: "/status" },
   ],
   company: [
-    { name: "About", href: "#about" },
-    { name: "Blog", href: "#blog" },
-    { name: "Privacy Policy", href: "#privacy" },
-    { name: "Terms of Service", href: "#terms" },
+    { name: "About", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
   ],
 }
 
@@ -144,13 +144,13 @@ export default function Footer() {
             </div>
             
             <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <a href="#privacy" className="hover:text-white transition-colors duration-200">
+              <a href="/privacy" className="hover:text-white transition-colors duration-200">
                 Privacy Policy
               </a>
-              <a href="#terms" className="hover:text-white transition-colors duration-200">
+              <a href="/terms" className="hover:text-white transition-colors duration-200">
                 Terms of Service
               </a>
-              <a href="#security" className="hover:text-white transition-colors duration-200">
+              <a href="/support" className="hover:text-white transition-colors duration-200">
                 Security
               </a>
             </div>

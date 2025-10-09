@@ -5,14 +5,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Github, Twitter } from "lucide-react"
+import { Menu, X, Github, Twitter, Shield } from "lucide-react"
 
 const navigation = [
-  { name: "Features", href: "#features" },
-  { name: "Documentation", href: "#docs" },
+  { name: "Home", href: "/" },
+  { name: "Features", href: "/features" },
+  { name: "Documentation", href: "/docs" },
   { name: "Downloads", href: "/downloads" },
   { name: "Status", href: "/status" },
   { name: "Support", href: "/support" },
+  { name: "Admin", href: "/admin/tickets", isAdmin: true },
 ]
 
 export default function Navigation() {
@@ -46,10 +48,13 @@ export default function Navigation() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">L</span>
-            </div>
-            <span className="text-foreground font-bold text-xl">Lattice Engine</span>
+            <a href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">L</span>
+              </div>
+              <span className="text-foreground font-bold text-xl hidden sm:block">Lattice Engine</span>
+              <span className="text-foreground font-bold text-xl sm:hidden">LR</span>
+            </a>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -58,9 +63,14 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
+                className={`transition-colors duration-200 text-sm font-medium flex items-center space-x-1 ${
+                  item.isAdmin
+                    ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {item.name}
+                {item.isAdmin && <Shield className="h-4 w-4" />}
+                <span>{item.name}</span>
               </a>
             ))}
           </nav>
@@ -71,8 +81,8 @@ export default function Navigation() {
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
               Sign In
             </Button>
-            <Button>
-              Get Started
+            <Button asChild>
+              <a href="/pricing">Get Started</a>
             </Button>
           </div>
 
@@ -89,10 +99,15 @@ export default function Navigation() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 text-lg font-medium"
+                    className={`transition-colors duration-200 text-lg font-medium flex items-center space-x-2 ${
+                      item.isAdmin
+                        ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
-                    {item.name}
+                    {item.isAdmin && <Shield className="h-4 w-4" />}
+                    <span>{item.name}</span>
                   </a>
                 ))}
                 <div className="flex flex-col space-y-4 pt-6 border-t border-border">
@@ -103,8 +118,8 @@ export default function Navigation() {
                   <Button variant="ghost" className="text-muted-foreground hover:text-foreground justify-start">
                     Sign In
                   </Button>
-                  <Button>
-                    Get Started
+                  <Button asChild>
+                    <a href="/pricing">Get Started</a>
                   </Button>
                 </div>
                 <div className="flex space-x-4 pt-6 border-t border-border">

@@ -52,31 +52,31 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.65 0.25 28); /* Monokai orange */
-  --primary-foreground: oklch(0.98 0.02 28);
-  --secondary: oklch(0.95 0.01 28);
+  --primary: oklch(0.72 0.15 35); /* Cloudflare-inspired lighter orange */
+  --primary-foreground: oklch(0.98 0.02 35);
+  --secondary: oklch(0.95 0.01 35);
   --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.96 0.01 28);
-  --muted-foreground: oklch(0.456 0.02 28);
-  --accent: oklch(0.96 0.02 28);
+  --muted: oklch(0.96 0.01 35);
+  --muted-foreground: oklch(0.456 0.02 35);
+  --accent: oklch(0.96 0.02 35);
   --accent-foreground: oklch(0.145 0 0);
   --destructive: oklch(0.65 0.25 0); /* Monokai red */
-  --border: oklch(0.92 0.01 28);
-  --input: oklch(0.92 0.01 28);
-  --ring: oklch(0.65 0.25 28);
-  --chart-1: oklch(0.65 0.25 28);    /* Orange */
+  --border: oklch(0.92 0.01 35);
+  --input: oklch(0.92 0.01 35);
+  --ring: oklch(0.72 0.15 35);
+  --chart-1: oklch(0.72 0.15 35);    /* Cloudflare orange */
   --chart-2: oklch(0.75 0.15 150);   /* Green */
   --chart-3: oklch(0.85 0.10 220);   /* Blue */
   --chart-4: oklch(0.75 0.20 330);   /* Pink */
   --chart-5: oklch(0.65 0.25 60);    /* Yellow */
-  --sidebar: oklch(0.98 0.01 28);
+  --sidebar: oklch(0.98 0.01 35);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.65 0.25 28);
-  --sidebar-primary-foreground: oklch(0.98 0.02 28);
-  --sidebar-accent: oklch(0.95 0.01 28);
+  --sidebar-primary: oklch(0.72 0.15 35);
+  --sidebar-primary-foreground: oklch(0.98 0.02 35);
+  --sidebar-accent: oklch(0.95 0.01 35);
   --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.92 0.01 28);
-  --sidebar-ring: oklch(0.65 0.25 28);
+  --sidebar-border: oklch(0.92 0.01 35);
+  --sidebar-ring: oklch(0.72 0.15 35);
   
   /* Code syntax colors (Monokai-inspired) */
   --code-keyword: oklch(0.75 0.20 330);    /* Pink */
@@ -89,37 +89,37 @@
 
 .dark {
   /* Dark mode - Monokai theme */
-  --background: oklch(0.16 0.02 28);     /* Dark background */
-  --foreground: oklch(0.95 0.02 28);     /* Light text */
-  --card: oklch(0.19 0.02 28);          /* Card background */
-  --card-foreground: oklch(0.95 0.02 28);
-  --popover: oklch(0.19 0.02 28);
-  --popover-foreground: oklch(0.95 0.02 28);
-  --primary: oklch(0.75 0.25 28);       /* Bright orange */
-  --primary-foreground: oklch(0.16 0.02 28);
-  --secondary: oklch(0.23 0.02 28);
-  --secondary-foreground: oklch(0.95 0.02 28);
-  --muted: oklch(0.23 0.02 28);
-  --muted-foreground: oklch(0.65 0.02 28);
-  --accent: oklch(0.23 0.02 28);
-  --accent-foreground: oklch(0.95 0.02 28);
+  --background: oklch(0.16 0.02 35);     /* Dark background */
+  --foreground: oklch(0.95 0.02 35);     /* Light text */
+  --card: oklch(0.19 0.02 35);          /* Card background */
+  --card-foreground: oklch(0.95 0.02 35);
+  --popover: oklch(0.19 0.02 35);
+  --popover-foreground: oklch(0.95 0.02 35);
+  --primary: oklch(0.78 0.18 35);       /* Brighter Cloudflare orange for dark mode */
+  --primary-foreground: oklch(0.16 0.02 35);
+  --secondary: oklch(0.23 0.02 35);
+  --secondary-foreground: oklch(0.95 0.02 35);
+  --muted: oklch(0.23 0.02 35);
+  --muted-foreground: oklch(0.65 0.02 35);
+  --accent: oklch(0.23 0.02 35);
+  --accent-foreground: oklch(0.95 0.02 35);
   --destructive: oklch(0.75 0.25 0);    /* Bright red */
-  --border: oklch(0.3 0.02 28);
-  --input: oklch(0.3 0.02 28);
-  --ring: oklch(0.75 0.25 28);
-  --chart-1: oklch(0.75 0.25 28);       /* Orange */
+  --border: oklch(0.3 0.02 35);
+  --input: oklch(0.3 0.02 35);
+  --ring: oklch(0.78 0.18 35);
+  --chart-1: oklch(0.78 0.18 35);       /* Cloudflare orange */
   --chart-2: oklch(0.85 0.15 150);      /* Green */
   --chart-3: oklch(0.75 0.10 220);      /* Blue */
   --chart-4: oklch(0.85 0.20 330);      /* Pink */
   --chart-5: oklch(0.75 0.25 60);       /* Yellow */
-  --sidebar: oklch(0.19 0.02 28);
-  --sidebar-foreground: oklch(0.95 0.02 28);
-  --sidebar-primary: oklch(0.75 0.25 28);
-  --sidebar-primary-foreground: oklch(0.16 0.02 28);
-  --sidebar-accent: oklch(0.23 0.02 28);
-  --sidebar-accent-foreground: oklch(0.95 0.02 28);
-  --sidebar-border: oklch(0.3 0.02 28);
-  --sidebar-ring: oklch(0.75 0.25 28);
+  --sidebar: oklch(0.19 0.02 35);
+  --sidebar-foreground: oklch(0.95 0.02 35);
+  --sidebar-primary: oklch(0.78 0.18 35);
+  --sidebar-primary-foreground: oklch(0.16 0.02 35);
+  --sidebar-accent: oklch(0.23 0.02 35);
+  --sidebar-accent-foreground: oklch(0.95 0.02 35);
+  --sidebar-border: oklch(0.3 0.02 35);
+  --sidebar-ring: oklch(0.78 0.18 35);
   
   /* Code syntax colors (Monokai-inspired) */
   --code-keyword: oklch(0.85 0.20 330);    /* Bright pink */
