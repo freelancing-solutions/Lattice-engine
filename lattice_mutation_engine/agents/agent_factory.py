@@ -190,7 +190,7 @@ class AgentFactory:
         """Create a PydanticAI-based impact analysis agent"""
         registration = AgentRegistration(
             agent_id="pydantic_impact_analyzer_001",
-            agent_type=AgentType.IMPACT_ANALYZER,
+            agent_type=AgentType.IMPACT,
             capabilities=[
                 AgentCapability(
                     name="analyze_change_impact",

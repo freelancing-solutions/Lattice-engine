@@ -1,6 +1,6 @@
-# 🚀 Welcome to Z.ai Code Scaffold
+# 🐛 BugSage Marketing Website
 
-A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
+A modern marketing website for BugSage - AI-powered debugging platform integrated with Project Lattice. Built with Next.js 15, TypeScript, Tailwind CSS, and shadcn/ui.
 
 ## ✨ Technology Stack
 
@@ -41,18 +41,18 @@ This scaffold provides a robust foundation built with:
 - **📅 Date-fns** - Modern JavaScript date utility library
 - **🪝 ReactUse** - Collection of essential React hooks for modern development
 
-## 🎯 Why This Scaffold?
+## 🎯 Features
 
-- **🏎️ Fast Development** - Pre-configured tooling and best practices
-- **🎨 Beautiful UI** - Complete shadcn/ui component library with advanced interactions
-- **🔒 Type Safety** - Full TypeScript configuration with Zod validation
-- **📱 Responsive** - Mobile-first design principles with smooth animations
-- **🗄️ Database Ready** - Prisma ORM configured for rapid backend development
-- **🔐 Auth Included** - NextAuth.js for secure authentication flows
-- **📊 Data Visualization** - Charts, tables, and drag-and-drop functionality
-- **🌍 i18n Ready** - Multi-language support with Next Intl
-- **🚀 Production Ready** - Optimized build and deployment settings
-- **🤖 AI-Friendly** - Structured codebase perfect for AI assistance
+- **🏠 Complete Marketing Site** - Homepage with hero, features, testimonials, and CTAs
+- **📚 Comprehensive Pages** - Features, pricing, docs, how-it-works, lattice-integration, beta-signup
+- **📝 Content Pages** - Blog, about, contact, support pages
+- **⚖️ Legal Pages** - Privacy policy, terms of service, security, compliance
+- **👥 Team Pages** - Careers and partners information
+- **🎨 Interactive Demos** - Demo section with video preview and testimonials carousel
+- **📱 Responsive Design** - Mobile-first design with smooth animations
+- **🔒 SEO Optimized** - Meta tags, Open Graph, and search engine friendly
+- **📊 Form Validation** - React Hook Form + Zod validation
+- **🌈 Beautiful UI** - shadcn/ui components with Framer Motion animations
 
 ## 🚀 Quick Start
 
@@ -70,27 +70,40 @@ npm run build
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your application running.
-
-## 🤖 Powered by Z.ai
-
-This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:
-
-- **💻 Code Generation** - Generate components, pages, and features instantly
-- **🎨 UI Development** - Create beautiful interfaces with AI assistance  
-- **🔧 Bug Fixing** - Identify and resolve issues with intelligent suggestions
-- **📝 Documentation** - Auto-generate comprehensive documentation
-- **🚀 Optimization** - Performance improvements and best practices
-
-Ready to build something amazing? Start chatting with Z.ai at [chat.z.ai](https://chat.z.ai) and experience the future of AI-powered development!
+Open [http://localhost:3000](http://localhost:3000) to see the BugSage website running.
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── app/                 # Next.js App Router pages
+│   ├── features/        # Features page
+│   ├── pricing/         # Pricing page
+│   ├── docs/           # Documentation hub
+│   ├── how-it-works/   # How it works page
+│   ├── lattice-integration/ # Lattice integration page
+│   ├── beta-signup/    # Beta signup page
+│   ├── blog/           # Blog page
+│   ├── about/          # About page
+│   ├── contact/        # Contact page
+│   ├── support/        # Support page
+│   ├── privacy/        # Privacy policy
+│   ├── terms/          # Terms of service
+│   ├── security/       # Security page
+│   ├── compliance/     # Compliance page
+│   ├── careers/        # Careers page
+│   └── partners/       # Partners page
 ├── components/          # Reusable React components
-│   └── ui/             # shadcn/ui components
+│   ├── ui/             # shadcn/ui components
+│   ├── navigation.tsx  # Navigation component
+│   ├── footer.tsx      # Footer component
+│   ├── hero-section.tsx # Hero section
+│   ├── problem-solution.tsx # Problem/solution section
+│   ├── features-grid.tsx # Features grid
+│   ├── cta-section.tsx # CTA section
+│   ├── testimonials-carousel.tsx # Testimonials carousel
+│   ├── demo-section.tsx # Demo section
+│   └── lattice-spotlight.tsx # Lattice integration spotlight
 ├── hooks/              # Custom React hooks
 └── lib/                # Utility functions and configurations
 ```
@@ -129,13 +142,32 @@ This scaffold includes a comprehensive set of modern web development tools:
 - **Type Safety**: End-to-end TypeScript with Zod validation
 - **Essential Hooks**: 100+ useful React hooks with ReactUse for common patterns
 
-## 🤝 Get Started with Z.ai
+## 🛠️ Development
 
-1. **Clone this scaffold** to jumpstart your project
-2. **Visit [chat.z.ai](https://chat.z.ai)** to access your AI coding assistant
-3. **Start building** with intelligent code generation and assistance
-4. **Deploy with confidence** using the production-ready setup
+### Common Commands
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript type checking
+```
+
+### Environment Variables
+Copy `.env.example` to `.env.local` and configure your environment variables.
+
+## 🚀 Deployment
+
+This BugSage website is optimized for deployment on Vercel:
+
+1. **Push to GitHub** - The site will automatically deploy on Vercel
+2. **Configure Environment Variables** - Set up any required environment variables
+3. **Custom Domain** - Configure your custom domain in Vercel settings
+
+## 📄 License
+
+This project is proprietary and owned by BugSage. All rights reserved.
 
 ---
 
-Built with ❤️ for the developer community. Supercharged by [Z.ai](https://chat.z.ai) 🚀
+Built with ❤️ for the BugSage team. 🐛

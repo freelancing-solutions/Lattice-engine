@@ -13,8 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class ApprovalManager:
-    def __init__(self, websocket_hub):
+    def __init__(self, websocket_hub, mutation_store=None):
         self.websocket_hub = websocket_hub
+        self.mutation_store = mutation_store
         self.pending_approvals: Dict[str, ApprovalRequest] = {}
         self.approval_responses: Dict[str, ApprovalResponse] = {}
         self.timeout_handlers: Dict[str, asyncio.Task] = {}
@@ -40,6 +41,13 @@ class ApprovalManager:
             expires_at=datetime.now() + timedelta(seconds=300),
             preferred_channel=channel,
         )
+
+        # Persist proposal if a store is available
+        if self.mutation_store:
+            try:
+                self.mutation_store.save_proposal(proposal)
+            except Exception:
+                logger.warning("Failed to persist proposal to mutation store")
 
         await self._route_approval(request)
         self.pending_approvals[request.request_id] = request
@@ -86,6 +94,13 @@ class ApprovalManager:
             warnings=[],
             execution_time_ms=100,
         )
+
+        # Persist result for later retrieval
+        if self.mutation_store:
+            try:
+                self.mutation_store.save_result(result)
+            except Exception:
+                logger.warning("Failed to persist mutation result to store")
 
         await self._notify_result(request.user_id, result)
         try:
@@ -137,6 +152,13 @@ class ApprovalManager:
             warnings=[],
             execution_time_ms=0,
         )
+
+        # Persist timeout result
+        if self.mutation_store:
+            try:
+                self.mutation_store.save_result(result)
+            except Exception:
+                logger.warning("Failed to persist timeout result to store")
 
         await self._notify_result(request.user_id, result)
         try:

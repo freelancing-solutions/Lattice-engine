@@ -22,7 +22,10 @@ logger = logging.getLogger(__name__)
 
 async def init_engine():
     websocket_hub = WebSocketHub(redis_url=engine_config.redis_url or None)
-    approval_manager = ApprovalManager(websocket_hub)
+    # Initialize mutation store and pass into approval manager for persistence
+    from .mutations.store import InMemoryMutationStore
+    mutation_store = InMemoryMutationStore()
+    approval_manager = ApprovalManager(websocket_hub, mutation_store=mutation_store)
     orchestrator = AgentOrchestrator(approval_manager, websocket_hub=websocket_hub)
     # Select graph backend
     if engine_config.graph_backend == "neo4j":
@@ -82,6 +85,7 @@ async def init_engine():
         "orchestrator": orchestrator,
         "websocket_hub": websocket_hub,
         "approval_manager": approval_manager,
+        "mutation_store": mutation_store,
         "graph_repo": graph_repo,
         "task_manager": task_manager,
         "semantic_index": semantic_index,

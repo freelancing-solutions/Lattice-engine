@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, WebSocket, Response, Header
+from fastapi import APIRouter
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from .graph_endpoints import router as graph_router
@@ -13,6 +14,7 @@ import logging
 from datetime import datetime
 
 from ..models.mutation_models import MutationRequest
+from ..models.mutation_models import MutationProposal, MutationResult
 from ..models.approval_models import ApprovalResponse
 from ..utils.errors import ValidationError
 from ..main import init_engine, shutdown_engine
@@ -46,6 +48,13 @@ app.include_router(graph_router)
 app.include_router(spec_router)
 app.include_router(task_router)
 app.include_router(spec_sync_router)
+
+# Mirror all routers under '/api' for CLI/extension compatibility
+api_router = APIRouter(prefix="/api")
+api_router.include_router(graph_router)
+api_router.include_router(spec_router)
+api_router.include_router(task_router)
+api_router.include_router(spec_sync_router)
 
 
 @app.on_event("startup")
@@ -98,6 +107,12 @@ def get_approval_manager():
     return components["approval_manager"]
 
 
+def get_mutation_store():
+    if not components:
+        raise HTTPException(status_code=503, detail="Engine not initialized")
+    return components["mutation_store"]
+
+
 def verify_api_key(x_api_key: Optional[str] = Header(None)):
     if engine_config.api_keys and x_api_key not in engine_config.api_keys:
         raise HTTPException(status_code=401, detail="Invalid API key")
@@ -110,38 +125,173 @@ async def propose_mutation(
     request: MutationRequest,
     background_tasks: BackgroundTasks,
     current_user: TenantContext = Depends(get_current_user),
-    mutation_engine=Depends(get_mutation_engine),
+    orchestrator=Depends(get_orchestrator),
+    mutation_store=Depends(get_mutation_store),
 ):
-    """Propose a mutation with multi-tenant context"""
+    """Propose a mutation with multi-tenant context and persist proposal."""
     try:
-        # Add user and organization context to the request
-        request_dict = request.dict()
-        request_dict.update({
-            "user_id": str(current_user.user_id),
-            "organization_id": str(current_user.organization_id) if current_user.organization_id else None,
-            "project_id": str(current_user.project_id) if current_user.project_id else None
-        })
-        
         # Check permissions
         if not current_user.has_permission("mutations:write"):
             raise HTTPException(status_code=403, detail="Insufficient permissions to propose mutations")
-        
-        proposal = await mutation_engine.propose_mutation(request_dict)
+
+        # Generate a proposal via orchestrator
+        proposal: MutationProposal = await orchestrator._generate_proposal(
+            spec_id=request.spec_id,
+            operation=request.operation_type,
+            changes=request.changes,
+        )
+
+        # Validate and analyze impact
+        validation = await orchestrator._validate_proposal(proposal)
+        if not validation.is_valid:
+            raise ValidationError("Proposal validation failed")
+        impact = await orchestrator._analyze_impact(proposal)
+        proposal.impact_analysis = impact
+
+        # Determine approval requirement
+        proposal.requires_approval = orchestrator._needs_user_approval(proposal)
+
+        # Persist proposal
+        mutation_store.save_proposal(proposal)
         mutations_proposed.inc()
-        
-        # Execute in background if auto-approved
+
+        # Check permissions
+        # Execute in background if auto-approved (no approval required)
         if not proposal.requires_approval:
-            background_tasks.add_task(
-                execute_mutation_workflow_task.delay,
-                proposal.proposal_id
+            async def _execute_and_store():
+                try:
+                    result: MutationResult = await orchestrator.execute_mutation_workflow(
+                        spec_id=request.spec_id,
+                        operation=request.operation_type,
+                        changes=request.changes,
+                        user_id=str(current_user.user_id),
+                    )
+                    mutation_store.save_result(result)
+                except Exception as e:
+                    logger.error(f"Background mutation workflow failed: {e}")
+
+            asyncio.create_task(_execute_and_store())
+
+        else:
+            # Request approval via approval manager
+            approval_manager = get_approval_manager()
+            await approval_manager.request_approval(
+                proposal=proposal,
+                user_id=str(current_user.user_id),
+                priority="normal",
             )
-        
+
         return {"status": "proposed", "proposal": proposal.dict()}
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Error proposing mutation: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Expose propose endpoint under '/api'
+api_router.add_api_route("/mutations/propose", propose_mutation, methods=["POST"])
+
+
+# ------------------- Mutation Query Endpoints -------------------
+
+@api_router.get("/mutations")
+async def list_mutations(
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+    kind: Optional[str] = None,
+):
+    if not current_user.has_permission("mutations:read"):
+        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
+    kind = (kind or "proposal").lower()
+    if kind == "result":
+        return {"results": [r.dict() for r in mutation_store.list_results()]}
+    if kind == "all":
+        return {
+            "proposals": [p.dict() for p in mutation_store.list_proposals()],
+            "results": [r.dict() for r in mutation_store.list_results()],
+        }
+    return {"proposals": [p.dict() for p in mutation_store.list_proposals()]}
+
+
+@api_router.get("/mutations/{identifier}")
+async def get_mutation(
+    identifier: str,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+):
+    if not current_user.has_permission("mutations:read"):
+        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
+    result = mutation_store.get_result(identifier)
+    if result:
+        return {"kind": "result", "result": result.dict()}
+    proposal = mutation_store.get_proposal(identifier)
+    if proposal:
+        return {"kind": "proposal", "proposal": proposal.dict()}
+    raise HTTPException(status_code=404, detail="Mutation not found")
+
+
+@api_router.get("/mutations/{identifier}/status")
+async def get_mutation_status(
+    identifier: str,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+):
+    if not current_user.has_permission("mutations:read"):
+        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
+    status = mutation_store.get_status(identifier)
+    if status["status"] == "not_found":
+        raise HTTPException(status_code=404, detail="Mutation not found")
+    return status
+
+
+# ------------------- Risk Assessment Endpoint -------------------
+from pydantic import BaseModel
+class RiskAssessmentRequest(BaseModel):
+    spec_id: str
+    operation_type: str
+    changes: Dict[str, Any]
+    context: Optional[Dict[str, Any]] = None
+
+
+@api_router.post("/mutations/risk-assess")
+async def risk_assess(
+    payload: RiskAssessmentRequest,
+    current_user: TenantContext = Depends(get_current_user),
+    orchestrator=Depends(get_orchestrator),
+):
+    if not current_user.has_permission("mutations:read"):
+        raise HTTPException(status_code=403, detail="Insufficient permissions to assess risk")
+
+    # Use first registered impact agent
+    from ..models.agent_models import AgentType, AgentTask
+    impact_ids = orchestrator.agent_types.get(AgentType.IMPACT, [])
+    if not impact_ids:
+        raise HTTPException(status_code=503, detail="Impact agent not available")
+    agent_id = impact_ids[0]
+    agent = orchestrator.agents.get(agent_id)
+    if not agent:
+        raise HTTPException(status_code=503, detail="Impact agent not available")
+
+    task = AgentTask(
+        task_id=f"task_{datetime.now().timestamp()}",
+        agent_id=agent_id,
+        operation="analyze_change_impact",
+        input_data={
+            "proposed_change": payload.changes,
+            "current_system": {"spec_id": payload.spec_id},
+            "context": payload.context or {},
+        },
+        status="pending",
+        created_at=datetime.now(),
+    )
+
+    await agent.assign_task(task)
+    while task.status in ["pending", "running"]:
+        await asyncio.sleep(0.05)
+
+    if task.status == "failed":
+        raise HTTPException(status_code=500, detail=task.error or "Risk assessment failed")
+    return {"risk_assessment": task.result}
 
 
 @app.post("/approvals/{request_id}/respond")
@@ -157,6 +307,9 @@ async def respond_to_approval(
         logger.error(f"Error processing approval response: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Expose approvals respond under '/api'
+api_router.add_api_route("/approvals/{request_id}/respond", respond_to_approval, methods=["POST"])
+
 
 @app.get("/approvals/pending")
 async def get_pending_approvals(user_id: str, approval_manager=Depends(get_approval_manager)):
@@ -168,6 +321,9 @@ async def get_pending_approvals(user_id: str, approval_manager=Depends(get_appro
     except Exception as e:
         logger.error(f"Error getting pending approvals: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Expose approvals pending under '/api'
+api_router.add_api_route("/approvals/pending", get_pending_approvals, methods=["GET"])
 
 
 @app.websocket("/ws/{user_id}/{client_type}")
@@ -210,8 +366,17 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, client_type: st
 async def health_check():
     return {"status": "healthy", "engine_initialized": bool(components)}
 
+# Expose health under '/api'
+api_router.add_api_route("/health", health_check, methods=["GET"])
+
 
 @app.get("/metrics")
 async def metrics():
     content, content_type = metrics_response()
     return Response(content=content, media_type=content_type)
+
+# Expose metrics under '/api'
+api_router.add_api_route("/metrics", metrics, methods=["GET"])
+
+# Finally include the '/api' router
+app.include_router(api_router)
