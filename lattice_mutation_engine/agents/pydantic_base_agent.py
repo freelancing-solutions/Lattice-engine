@@ -8,11 +8,15 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel
 from pydantic_ai import Agent
 from anthropic import Anthropic
+import sys
+import os
 
-from ..models.agent_models import AgentRegistration, AgentTask
-from .base_agent import BaseAgent
-from ..config.settings import config
-from ..config.claude_config import claude_config, get_claude_client
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from models.agent_models import AgentRegistration, AgentTask
+from agents.base_agent import BaseAgent
+from config.settings import config
+from config.claude_config import claude_config, get_claude_client
 
 logger = logging.getLogger(__name__)
 

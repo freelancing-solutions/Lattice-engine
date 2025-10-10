@@ -3,10 +3,14 @@ from typing import Dict, Optional, Any
 import asyncio
 import logging
 from datetime import datetime, timedelta
+import sys
+import os
 
-from ..models.approval_models import ApprovalRequest, ApprovalResponse
-from ..models.mutation_models import MutationProposal, MutationResult
-from ..observability.metrics import pending_approvals, mutations_completed
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from models.approval_models import ApprovalRequest, ApprovalResponse
+from models.mutation_models import MutationProposal, MutationResult
+from observability.metrics import pending_approvals, mutations_completed
 
 
 logger = logging.getLogger(__name__)

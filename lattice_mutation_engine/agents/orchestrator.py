@@ -2,13 +2,17 @@ from typing import Dict, Any, List, Optional
 import asyncio
 import logging
 from datetime import datetime
+import sys
+import os
 
-from .base_agent import BaseAgent
-from .pydantic_validator_agent import PydanticValidatorAgent
-from ..models.agent_models import AgentRegistration, AgentTask, AgentType, AgentCapability
-from ..models.mutation_models import MutationProposal, MutationResult
-from ..models.validation_models import ValidationResult
-from ..utils.errors import MutationError, ValidationError
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from agents.base_agent import BaseAgent
+from agents.pydantic_validator_agent import PydanticValidatorAgent
+from models.agent_models import AgentRegistration, AgentTask, AgentType, AgentCapability
+from models.mutation_models import MutationProposal, MutationResult
+from models.validation_models import ValidationResult
+from utils.errors import MutationError, ValidationError
 
 
 logger = logging.getLogger(__name__)

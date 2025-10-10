@@ -1,8 +1,12 @@
 import abc
 import asyncio
 from typing import Any
+import sys
+import os
 
-from ..models.agent_models import AgentRegistration, AgentTask
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from models.agent_models import AgentRegistration, AgentTask
 
 
 class BaseAgent(abc.ABC):

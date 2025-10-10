@@ -1,35 +1,24 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+import sys
+import os
 
-# Handle imports for both package and direct execution
-try:
-    from .utils.logging import setup_logging
-    from .approval.websocket_hub import WebSocketHub
-    from .approval.approval_manager import ApprovalManager
-    from .agents.orchestrator import AgentOrchestrator
-    from .agents.agent_factory import AgentFactory
-    from .models.agent_models import AgentRegistration, AgentCapability, AgentType
-    from .config.settings import config as engine_config
-    from .graph.repository import InMemoryGraphRepository
-    from .graph.neo4j_repository import Neo4jGraphRepository
-    from .graph.semantic_index import TfidfSemanticIndex
-    from .tasks.manager import TaskManager
-    from .spec_sync.daemon import SpecSyncDaemon
-except ImportError:
-    # Fallback for direct execution
-    from utils.logging import setup_logging
-    from approval.websocket_hub import WebSocketHub
-    from approval.approval_manager import ApprovalManager
-    from agents.orchestrator import AgentOrchestrator
-    from agents.agent_factory import AgentFactory
-    from models.agent_models import AgentRegistration, AgentCapability, AgentType
-    from config.settings import config as engine_config
-    from graph.repository import InMemoryGraphRepository
-    from graph.neo4j_repository import Neo4jGraphRepository
-    from graph.semantic_index import TfidfSemanticIndex
-    from tasks.manager import TaskManager
-    from spec_sync.daemon import SpecSyncDaemon
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from utils.logging import setup_logging
+from approval.websocket_hub import WebSocketHub
+from approval.approval_manager import ApprovalManager
+from agents.orchestrator import AgentOrchestrator
+from agents.agent_factory import AgentFactory
+from models.agent_models import AgentRegistration, AgentCapability, AgentType
+from config.settings import config as engine_config
+from graph.repository import InMemoryGraphRepository
+from graph.neo4j_repository import Neo4jGraphRepository
+from graph.semantic_index import TfidfSemanticIndex
+from tasks.manager import TaskManager
+from spec_sync.daemon import SpecSyncDaemon
 
 
 setup_logging()
@@ -39,10 +28,7 @@ logger = logging.getLogger(__name__)
 async def init_engine():
     websocket_hub = WebSocketHub(redis_url=engine_config.redis_url or None)
     # Initialize mutation store and pass into approval manager for persistence
-    try:
-        from .mutations.store import InMemoryMutationStore
-    except ImportError:
-        from mutations.store import InMemoryMutationStore
+    from mutations.store import InMemoryMutationStore
     mutation_store = InMemoryMutationStore()
     approval_manager = ApprovalManager(websocket_hub, mutation_store=mutation_store)
     orchestrator = AgentOrchestrator(approval_manager, websocket_hub=websocket_hub)
@@ -81,10 +67,7 @@ async def init_engine():
 
     # Initialize semantic index with factory (supports TF-IDF, Qdrant, etc.)
     try:
-        try:
-            from .graph.semantic_index_factory import EnhancedSemanticIndex
-        except ImportError:
-            from graph.semantic_index_factory import EnhancedSemanticIndex
+        from graph.semantic_index_factory import EnhancedSemanticIndex
         semantic_index = EnhancedSemanticIndex(graph_repo)
         logger.info(f"Initialized semantic search with backend: {semantic_index.primary_index.__class__.__name__}")
     except Exception as e:

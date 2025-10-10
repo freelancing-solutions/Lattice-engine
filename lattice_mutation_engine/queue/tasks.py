@@ -1,4 +1,14 @@
 import logging
+import sys
+import os
+from pathlib import Path
+
+# Import safe import utility
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from safe_imports import safe_import_celery
+
+# Get Celery using safe import, then import shared_task
+Celery = safe_import_celery()
 from celery import shared_task
 
 

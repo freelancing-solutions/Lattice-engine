@@ -1,4 +1,14 @@
-from celery import Celery
+import sys
+import os
+from pathlib import Path
+
+# Import safe import utility
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from safe_imports import safe_import_celery
+
+# Get Celery using safe import
+Celery = safe_import_celery()
+
 from ..config.settings import config
 
 

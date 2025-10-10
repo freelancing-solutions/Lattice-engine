@@ -6,10 +6,14 @@ This agent validates specification mutations and ensures schema compliance.
 import logging
 from typing import Dict, Any, List
 from pydantic import BaseModel, Field
+import sys
+import os
 
-from .pydantic_base_agent import PydanticBaseAgent, AgentContext
-from ..models.agent_models import AgentRegistration, AgentTask
-from ..models.validation_models import ValidationResult
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from agents.pydantic_base_agent import PydanticBaseAgent, AgentContext
+from models.agent_models import AgentRegistration, AgentTask
+from models.validation_models import ValidationResult
 
 
 logger = logging.getLogger(__name__)
