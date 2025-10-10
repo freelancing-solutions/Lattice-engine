@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, ExternalLink, CheckCircle, Star, Code, Terminal } from "lucide-react"
 import Navigation from "@/components/navigation"
+import Link from "next/link"
 import Footer from "@/components/footer"
 
 const downloads = [
@@ -54,11 +55,11 @@ const downloads = [
     description: "Command-line interface for automation and CI/CD",
     version: "v2.0.1",
     downloadUrl: "#",
-    documentation: "#",
+    documentation: "/docs/cli",
     size: "15.4 MB",
     platforms: ["Windows", "macOS", "Linux"],
     icon: Terminal,
-    features: ["Cross-platform", "Batch operations", "CI/CD integration", "Configuration management"],
+    features: ["Cross-platform", "Batch operations", "CI/CD integration", "Dry-run previews", "Proxy support"],
     rating: 4.6,
     downloads: "9.3k"
   }
@@ -189,10 +190,12 @@ export default function DownloadsPage() {
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </Button>
-                    <Button variant="outline">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Docs
-                    </Button>
+                    <Link href={download.documentation}>
+                      <Button variant="outline">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Docs
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

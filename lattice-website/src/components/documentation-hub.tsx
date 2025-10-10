@@ -25,6 +25,21 @@ const docCategories = [
   },
   {
     icon: Terminal,
+    title: "CLI Tools",
+    description: "Command-line interface for automation and CI/CD",
+    color: "bg-slate-600",
+    items: [
+      "Installation & global flags",
+      "Dry-run previews",
+      "Proxy support",
+      "CI usage",
+      "Examples"
+    ],
+    badge: "v2.0.1",
+    href: "/docs/cli"
+  },
+  {
+    icon: Terminal,
     title: "VSCode Extension",
     description: "Native IDE integration for seamless development workflow",
     color: "bg-purple-500",

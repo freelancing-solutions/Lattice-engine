@@ -228,6 +228,18 @@ SSL_KEY_PATH=/path/to/key.pem
 # Optional - Monitoring
 SENTRY_DSN=your-sentry-dsn
 LOG_LEVEL=info
+
+### Proxy Configuration
+
+For environments behind corporate proxies, set standard Node.js proxy variables to ensure outbound connectivity:
+
+```bash
+# Optional - Proxies
+HTTP_PROXY=http://proxy.company:8080
+HTTPS_PROXY=http://proxy.company:8080
+```
+
+These variables are respected by both the Node CLI and the MCP Server when making external HTTP(S) requests.
 ```
 
 ### Starting the Server

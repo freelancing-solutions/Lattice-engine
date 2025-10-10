@@ -392,7 +392,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
                     ease: "linear"
                   }}
                 >
-                  const mutation = await lattice.propose({...});
+                  {/* Code snippet placeholder */}
                 </motion.div>
               ))}
             </div>
