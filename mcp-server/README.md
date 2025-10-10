@@ -60,6 +60,7 @@ A Model Context Protocol (MCP) server that provides agent orchestration capabili
 | `NODE_ENV` | Environment mode | `development` |
 | `LOG_LEVEL` | Logging level | `info` |
 | `JWT_SECRET` | JWT signing secret | Required |
+| `HTTP_PROXY` / `HTTPS_PROXY` | Proxy for outbound HTTP(S) requests | unset |
 
 See `.env.example` for all available configuration options.
 

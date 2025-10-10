@@ -21,3 +21,8 @@ Configuration sources:
 - `cli/shared/config.json` fallback
 
 Default API endpoint: `https://api.project-lattice.site`
+
+Environment variables:
+- `LATTICE_API_URL` - Override API base URL
+- `NO_PROMPT=1` - Disable interactive prompts
+- `HTTP_PROXY` / `HTTPS_PROXY` - Use a proxy for outbound HTTP(S) requests
