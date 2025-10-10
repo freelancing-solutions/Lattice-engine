@@ -26,13 +26,13 @@ try:
     
     # Test the specific imports that were failing
     try:
-        from queue.celery_app import make_celery
+        from celery_queue.celery_app import make_celery
         print("✓ Celery app imported successfully")
     except Exception as e:
         print(f"✗ Celery app import failed: {e}")
     
     try:
-        from queue.tasks import execute_mutation_workflow_task
+        from celery_queue.tasks import execute_mutation_workflow_task
         print("✓ Celery tasks imported successfully")
     except Exception as e:
         print(f"✗ Celery tasks import failed: {e}")

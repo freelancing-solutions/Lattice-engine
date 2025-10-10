@@ -9,7 +9,7 @@ from safe_imports import safe_import_celery
 # Get Celery using safe import
 Celery = safe_import_celery()
 
-from ..config.settings import config
+from config.settings import config
 
 
 def make_celery() -> Celery:
@@ -20,7 +20,7 @@ def make_celery() -> Celery:
     )
     app.conf.update(
         task_routes={
-            "lattice_mutation_engine.queue.tasks.execute_mutation_workflow_task": {"queue": "mutations"}
+            "lattice_mutation_engine.celery_queue.tasks.execute_mutation_workflow_task": {"queue": "mutations"}
         },
         task_serializer="json",
         accept_content=["json"],
