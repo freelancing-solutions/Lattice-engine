@@ -3,35 +3,58 @@ import logging
 from contextlib import asynccontextmanager
 import sys
 import os
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add project root to Python path for absolute imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.logging import setup_logging
-from approval.websocket_hub import WebSocketHub
-from approval.approval_manager import ApprovalManager
-from agents.orchestrator import AgentOrchestrator
-from agents.agent_factory import AgentFactory
-from models.agent_models import AgentRegistration, AgentCapability, AgentType
-from config.settings import config as engine_config
-from graph.repository import InMemoryGraphRepository
-from graph.neo4j_repository import Neo4jGraphRepository
-from graph.semantic_index import TfidfSemanticIndex
-from tasks.manager import TaskManager
-from spec_sync.daemon import SpecSyncDaemon
-
+from lattice_mutation_engine.utils.logging import setup_logging
+from lattice_mutation_engine.approval.websocket_hub import WebSocketHub
+from lattice_mutation_engine.approval.approval_manager import ApprovalManager
+from lattice_mutation_engine.agents.orchestrator import AgentOrchestrator
+from lattice_mutation_engine.agents.agent_factory import AgentFactory
+from lattice_mutation_engine.models.agent_models import AgentRegistration, AgentCapability, AgentType
+from lattice_mutation_engine.config.settings import config as engine_config
+from lattice_mutation_engine.graph.repository import InMemoryGraphRepository
+from lattice_mutation_engine.graph.neo4j_repository import Neo4jGraphRepository
+from lattice_mutation_engine.graph.semantic_index import TfidfSemanticIndex
+from lattice_mutation_engine.tasks.manager import TaskManager
+from lattice_mutation_engine.spec_sync.daemon import SpecSyncDaemon
+from lattice_mutation_engine.core.dependencies import (
+    container, 
+    register_service_singleton, 
+    service_lifespan
+)
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
 
 async def init_engine():
+    """
+    Initialize the Lattice Mutation Engine with proper dependency injection.
+    
+    Returns:
+        dict: Dictionary of initialized components for backward compatibility
+    """
+    logger.info("Initializing Lattice Mutation Engine...")
+    
+    # Initialize core services
     websocket_hub = WebSocketHub(redis_url=engine_config.redis_url or None)
+    register_service_singleton("websocket_hub", websocket_hub)
+    
     # Initialize mutation store and pass into approval manager for persistence
-    from mutations.store import InMemoryMutationStore
+    from lattice_mutation_engine.mutations.store import InMemoryMutationStore
     mutation_store = InMemoryMutationStore()
+    register_service_singleton("mutation_store", mutation_store)
+    
     approval_manager = ApprovalManager(websocket_hub, mutation_store=mutation_store)
+    register_service_singleton("approval_manager", approval_manager)
+    
     orchestrator = AgentOrchestrator(approval_manager, websocket_hub=websocket_hub)
+    register_service_singleton("orchestrator", orchestrator)
+    
     # Select graph backend
     if engine_config.graph_backend == "neo4j":
         try:
@@ -46,7 +69,11 @@ async def init_engine():
             graph_repo = InMemoryGraphRepository()
     else:
         graph_repo = InMemoryGraphRepository()
+    
+    register_service_singleton("graph", graph_repo)
+    
     task_manager = TaskManager(websocket_hub)
+    register_service_singleton("task_manager", task_manager)
 
     # Register PydanticAI agents with orchestrator
     AgentFactory.register_agents_with_orchestrator(orchestrator)
@@ -60,14 +87,17 @@ async def init_engine():
         try:
             spec_sync_daemon = SpecSyncDaemon(graph_repo, engine_config.spec_sync_dir)
             spec_sync_daemon.start()
+            register_service_singleton("spec_sync_daemon", spec_sync_daemon)
             logger.info(f"Spec sync daemon started for directory: {engine_config.spec_sync_dir}")
         except Exception as e:
             logger.error(f"Failed to start spec sync daemon: {e}")
-    logger.info("Lattice Mutation Engine started")
+    
+    logger.info("Lattice Mutation Engine core services initialized")
 
     # Initialize semantic index with factory (supports TF-IDF, Qdrant, etc.)
+    semantic_index = None
     try:
-        from graph.semantic_index_factory import EnhancedSemanticIndex
+        from lattice_mutation_engine.graph.semantic_index_factory import EnhancedSemanticIndex
         semantic_index = EnhancedSemanticIndex(graph_repo)
         logger.info(f"Initialized semantic search with backend: {semantic_index.primary_index.__class__.__name__}")
     except Exception as e:
@@ -79,6 +109,9 @@ async def init_engine():
         except Exception:
             semantic_index = None
             logger.error("No semantic search available")
+    
+    if semantic_index:
+        register_service_singleton("semantic_index", semantic_index)
 
     # Wire index refresh callback into spec sync daemon
     if semantic_index and spec_sync_daemon:
@@ -86,6 +119,12 @@ async def init_engine():
             semantic_index.refresh()
         spec_sync_daemon.index_rebuild_callback = refresh_index
 
+    # Initialize the dependency injection container
+    await container.initialize()
+    
+    logger.info("Lattice Mutation Engine fully initialized")
+
+    # Return components for backward compatibility
     return {
         "orchestrator": orchestrator,
         "websocket_hub": websocket_hub,
@@ -100,18 +139,33 @@ async def init_engine():
 
 
 async def shutdown_engine(components):
+    """
+    Gracefully shutdown the Lattice Mutation Engine.
+    
+    Args:
+        components: Dictionary of components (for backward compatibility)
+    """
+    logger.info("Shutting down Lattice Mutation Engine...")
+    
+    # Use dependency injection container for graceful shutdown
+    await container.shutdown()
+    
+    # Fallback to manual shutdown for backward compatibility
     try:
-        await components["orchestrator"].stop()
-    except Exception:
-        pass
+        if "orchestrator" in components:
+            await components["orchestrator"].stop()
+    except Exception as e:
+        logger.error(f"Error stopping orchestrator: {e}")
+    
     try:
         daemon = components.get("spec_sync_daemon")
         if daemon:
             daemon.stop()
             logger.info("Spec sync daemon stopped")
-    except Exception:
-        pass
-    logger.info("Lattice Mutation Engine stopped")
+    except Exception as e:
+        logger.error(f"Error stopping spec sync daemon: {e}")
+    
+    logger.info("Lattice Mutation Engine shutdown complete")
 
 
 async def main():

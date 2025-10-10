@@ -14,7 +14,7 @@ from collections import deque, defaultdict
 from enum import Enum
 from dataclasses import dataclass
 
-from ...models.spec_graph_models import Node, Edge, RelationshipType
+from lattice_mutation_engine.models.spec_graph_models import Node, Edge, RelationshipType
 
 logger = logging.getLogger(__name__)
 

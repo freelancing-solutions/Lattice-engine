@@ -7,8 +7,8 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from agents.base_agent import BaseAgent
-from agents.pydantic_validator_agent import PydanticValidatorAgent
+from lattice_mutation_engine.agents.base_agent import BaseAgent
+from lattice_mutation_engine.agents.pydantic_validator_agent import PydanticValidatorAgent
 from models.agent_models import AgentRegistration, AgentTask, AgentType, AgentCapability
 from models.mutation_models import MutationProposal, MutationResult
 from models.validation_models import ValidationResult

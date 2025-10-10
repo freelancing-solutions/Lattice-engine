@@ -10,9 +10,9 @@ from collections import defaultdict, deque
 from datetime import datetime
 import networkx as nx
 
-from ..models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
-from ..models.validation_models import ValidationResult, DependencyGraph
-from .validation_rules import ValidationContext, RuleSeverity
+from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
+from lattice_mutation_engine.models.validation_models import ValidationResult, DependencyGraph
+from lattice_mutation_engine.validation.validation_rules import ValidationContext, RuleSeverity
 
 
 class CircularDependencyError(Exception):

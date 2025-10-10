@@ -7,10 +7,10 @@ import logging
 import asyncio
 from typing import List, Dict, Any
 
-from ..models.spec_graph_models import Node, NodeType, Status
-from ..graph.semantic_index_factory import SemanticIndexFactory, EnhancedSemanticIndex
-from ..graph.repository import InMemoryGraphRepository
-from ..config.settings import config
+from lattice_mutation_engine.models.spec_graph_models import Node, NodeType, Status
+from lattice_mutation_engine.graph.semantic_index_factory import SemanticIndexFactory, EnhancedSemanticIndex
+from lattice_mutation_engine.graph.repository import InMemoryGraphRepository
+from lattice_mutation_engine.config.settings import config
 
 logger = logging.getLogger(__name__)
 

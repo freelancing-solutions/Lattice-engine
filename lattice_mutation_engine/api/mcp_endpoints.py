@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 import asyncio
 
-from ..models.mcp_models import (
+from lattice_mutation_engine.models.mcp_models import (
     MCPStatusResponse,
     MCPSyncRequest,
     MCPSyncResponse,
@@ -17,7 +17,7 @@ from ..models.mcp_models import (
     MCPStatus,
     MCPHealthCheck
 )
-from ..auth import verify_api_key, get_current_user, TenantContext
+from lattice_mutation_engine.auth import verify_api_key, get_current_user, TenantContext
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/mcp", tags=["mcp"])
@@ -28,7 +28,7 @@ sync_operations: Dict[str, MCPSyncResponse] = {}
 
 
 def _get_components():
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     return components
 
 

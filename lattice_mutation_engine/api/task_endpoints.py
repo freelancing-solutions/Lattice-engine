@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from .endpoints import verify_api_key
-from ..models.task_models import (
+from lattice_mutation_engine.api.endpoints import verify_api_key
+from lattice_mutation_engine.models.task_models import (
     TaskRequestPayload,
     TaskClarificationPayload,
     TaskCompletionPayload,
@@ -20,7 +20,7 @@ def get_task_manager(components):
 
 @router.post("/request")
 async def request_task(payload: TaskRequestPayload, _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     tm = get_task_manager(components)
     record = tm.request_task(payload)
     return {"status": "requested", "task": record.dict()}
@@ -28,7 +28,7 @@ async def request_task(payload: TaskRequestPayload, _auth=Depends(verify_api_key
 
 @router.post("/clarify")
 async def clarify_task(payload: TaskClarificationPayload, _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     tm = get_task_manager(components)
     record = tm.clarify_task(payload)
     if not record:
@@ -38,7 +38,7 @@ async def clarify_task(payload: TaskClarificationPayload, _auth=Depends(verify_a
 
 @router.post("/complete")
 async def complete_task(payload: TaskCompletionPayload, _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     tm = get_task_manager(components)
     record = tm.complete_task(payload)
     if not record:
@@ -48,7 +48,7 @@ async def complete_task(payload: TaskCompletionPayload, _auth=Depends(verify_api
 
 @router.get("/status/{task_id}")
 async def task_status(task_id: str, _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     tm = get_task_manager(components)
     record = tm.get_status(task_id)
     if not record:

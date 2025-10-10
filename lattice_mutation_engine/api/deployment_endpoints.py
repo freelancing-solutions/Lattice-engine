@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime, timedelta
 import asyncio
 
-from ..models.deployment_models import (
+from lattice_mutation_engine.models.deployment_models import (
     DeploymentRequest,
     DeploymentResponse,
     DeploymentListResponse,
@@ -19,7 +19,7 @@ from ..models.deployment_models import (
     DeploymentEnvironment,
     DeploymentStrategy
 )
-from ..auth import verify_api_key, get_current_user, TenantContext
+from lattice_mutation_engine.auth import verify_api_key, get_current_user, TenantContext
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/deployments", tags=["deployments"])
@@ -50,7 +50,7 @@ def _validate_deployment_request(request: DeploymentRequest) -> None:
 
 
 def _get_components():
-    from ..api.endpoints import components
+    from lattice_mutation_engine.api.endpoints import components
     return components
 
 

@@ -8,9 +8,9 @@ import logging
 from typing import Dict, Any
 from pydantic import BaseModel
 
-from ..config.claude_config import claude_config, get_claude_client, is_claude_available
-from ..agents.agent_factory import AgentFactory
-from ..models.agent_models import AgentTask
+from lattice_mutation_engine.config.claude_config import claude_config, get_claude_client, is_claude_available
+from lattice_mutation_engine.agents.agent_factory import AgentFactory
+from lattice_mutation_engine.models.agent_models import AgentTask
 
 logger = logging.getLogger(__name__)
 

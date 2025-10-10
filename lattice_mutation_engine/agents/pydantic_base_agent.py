@@ -3,8 +3,9 @@ This module provides the base class for all PydanticAI-based agents.
 """
 
 import logging
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Type, TypeVar, Generic
 from abc import ABC, abstractmethod
+from datetime import datetime
 from pydantic import BaseModel
 from pydantic_ai import Agent
 from anthropic import Anthropic
@@ -14,7 +15,7 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.agent_models import AgentRegistration, AgentTask
-from agents.base_agent import BaseAgent
+from lattice_mutation_engine.agents.base_agent import BaseAgent
 from config.settings import config
 from config.claude_config import claude_config, get_claude_client
 
@@ -33,7 +34,7 @@ class AgentContext(BaseModel):
     retry_count: int = 0
 
 
-class PydanticBaseAgent(BaseAgent, ABC):
+class PydanticBaseAgent(BaseAgent, Generic[T], ABC):
     """
     Base class for PydanticAI-based agents in the Lattice Mutation Engine.
     

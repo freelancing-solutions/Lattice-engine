@@ -5,13 +5,13 @@ This module provides factory methods to create and configure PydanticAI-based ag
 import logging
 from typing import Dict, Any, List
 
-from .pydantic_validator_agent import PydanticValidatorAgent
-from .pydantic_dependency_agent import PydanticDependencyAgent
-from .pydantic_semantic_agent import PydanticSemanticAgent
-from .pydantic_mutation_agent import PydanticMutationAgent
-from .pydantic_impact_agent import PydanticImpactAgent
-from .pydantic_conflict_agent import PydanticConflictAgent
-from ..models.agent_models import AgentRegistration, AgentType, AgentCapability
+from lattice_mutation_engine.agents.pydantic_validator_agent import PydanticValidatorAgent
+from lattice_mutation_engine.agents.pydantic_dependency_agent import PydanticDependencyAgent
+from lattice_mutation_engine.agents.pydantic_semantic_agent import PydanticSemanticAgent
+from lattice_mutation_engine.agents.pydantic_mutation_agent import PydanticMutationAgent
+from lattice_mutation_engine.agents.pydantic_impact_agent import PydanticImpactAgent
+from lattice_mutation_engine.agents.pydantic_conflict_agent import PydanticConflictAgent
+from lattice_mutation_engine.models.agent_models import AgentRegistration, AgentType, AgentCapability
 
 
 logger = logging.getLogger(__name__)

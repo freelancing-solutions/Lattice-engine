@@ -2,8 +2,8 @@ import uuid
 from datetime import datetime
 from typing import Dict, Optional, Any, List
 
-from ..approval.websocket_hub import WebSocketHub
-from ..models.task_models import (
+from lattice_mutation_engine.approval.websocket_hub import WebSocketHub
+from lattice_mutation_engine.models.task_models import (
     TaskRecord,
     TaskRequestPayload,
     TaskClarificationPayload,

@@ -1,61 +1,163 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
+from fastapi import APIRouter, HTTPException, Depends
+from typing import Dict, Any, List, Optional
+from pydantic import BaseModel
+import logging
+import time
 
-from ..models.spec_graph_models import NodeType
-from .endpoints import verify_api_key
+from lattice_mutation_engine.auth import verify_api_key
+from lattice_mutation_engine.models.graph_models import GraphQuery, SemanticSearchRequest
 
+logger = logging.getLogger(__name__)
 
+# Response Models
+class GraphQueryResponse(BaseModel):
+    """Response model for graph queries"""
+    results: List[Dict[str, Any]]
+    query_time_ms: float
+    total_results: int
+
+class SemanticSearchResponse(BaseModel):
+    """Response model for semantic search"""
+    results: List[Dict[str, Any]]
+    query: str
+    similarity_threshold: float
+    search_time_ms: float
+
+class SemanticSearchStatsResponse(BaseModel):
+    """Response model for semantic search statistics"""
+    available: bool
+    backend: str
+    total_documents: Optional[int] = None
+    index_size_mb: Optional[float] = None
+    last_updated: Optional[str] = None
+
+# Router configuration
 router = APIRouter(prefix="/graph", tags=["graph"])
 
+def get_components():
+    """Get the global components - dependency injection"""
+    from lattice_mutation_engine.api.endpoints import components
+    if not components:
+        raise HTTPException(status_code=503, detail="Engine components not initialized")
+    return components
 
-def get_repo(components):
-    repo = components.get("graph_repo")
-    if not repo:
-        raise HTTPException(status_code=500, detail="Graph repository not initialized")
-    return repo
-
-
-@router.post("/query")
-async def query_graph(body: Dict[str, Any], _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
-    repo = get_repo(components)
-    node_type_val = body.get("node_type")
-    node_type = NodeType(node_type_val) if node_type_val else None
-    filters = body.get("filters", {})
-    nodes = repo.query_nodes(node_type=node_type, filters=filters)
-    return {"nodes": [n.dict() for n in nodes]}
-
-
-@router.post("/semantic-search")
-async def semantic_search(body: Dict[str, Any], _auth=Depends(verify_api_key)):
-    from ..api.endpoints import components
-    repo = get_repo(components)
-    query = body.get("query")
-    top_k = int(body.get("top_k", 5))
-    filters = body.get("filters")  # Support metadata filters for Qdrant
-    
-    # Use enhanced semantic index if available
-    index = components.get("semantic_index")
-    if index:
-        # Enhanced index supports filters
-        if filters and hasattr(index, 'search'):
-            nodes = index.search(query=query or "", top_k=top_k, filters=filters)
+@router.post("/query", response_model=GraphQueryResponse)
+async def query_graph(
+    query: GraphQuery,
+    _auth=Depends(verify_api_key),
+    components=Depends(get_components)
+) -> GraphQueryResponse:
+    """Execute a graph query and return results"""
+    try:
+        logger.info(f"Executing graph query: {query.query_type}")
+        
+        graph = components.get("graph")
+        if not graph:
+            raise HTTPException(status_code=503, detail="Graph service not available")
+        
+        # Execute the query based on type
+        start_time = time.time()
+        
+        if query.query_type == "cypher":
+            results = await graph.execute_cypher(query.query, query.parameters or {})
+        elif query.query_type == "traversal":
+            results = await graph.traverse(
+                start_node=query.start_node,
+                relationship_types=query.relationship_types,
+                max_depth=query.max_depth or 3
+            )
+        elif query.query_type == "neighbors":
+            results = await graph.get_neighbors(
+                node_id=query.node_id,
+                relationship_types=query.relationship_types
+            )
         else:
-            nodes = index.search(query=query or "", top_k=top_k)
-    else:
-        # Fallback to basic repo search
-        nodes = repo.semantic_search(query=query or "", top_k=top_k)
-    
-    return {"results": [n.dict() for n in nodes]}
+            raise HTTPException(status_code=400, detail=f"Unsupported query type: {query.query_type}")
+        
+        query_time_ms = (time.time() - start_time) * 1000
+        
+        return GraphQueryResponse(
+            results=results,
+            query_time_ms=query_time_ms,
+            total_results=len(results)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error executing graph query: {e}")
+        raise HTTPException(status_code=500, detail="Graph query execution failed")
 
+@router.post("/semantic-search", response_model=SemanticSearchResponse)
+async def semantic_search(
+    request: SemanticSearchRequest,
+    _auth=Depends(verify_api_key),
+    components=Depends(get_components)
+) -> SemanticSearchResponse:
+    """Perform semantic search on the graph"""
+    try:
+        logger.info(f"Performing semantic search: {request.query[:50]}...")
+        
+        index = components.get("semantic_index")
+        if not index:
+            raise HTTPException(status_code=503, detail="Semantic search not available")
+        
+        start_time = time.time()
+        
+        # Perform the semantic search
+        results = await index.search(
+            query=request.query,
+            limit=request.limit or 10,
+            similarity_threshold=request.similarity_threshold or 0.7,
+            filters=request.filters or {}
+        )
+        
+        search_time_ms = (time.time() - start_time) * 1000
+        
+        return SemanticSearchResponse(
+            results=results,
+            query=request.query,
+            similarity_threshold=request.similarity_threshold or 0.7,
+            search_time_ms=search_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in semantic search: {e}")
+        raise HTTPException(status_code=500, detail="Semantic search failed")
 
-@router.get("/semantic-search/stats")
-async def get_semantic_search_stats(_auth=Depends(verify_api_key)):
+@router.get("/semantic-search/stats", response_model=SemanticSearchStatsResponse)
+async def get_semantic_search_stats(
+    _auth=Depends(verify_api_key),
+    components=Depends(get_components)
+) -> SemanticSearchStatsResponse:
     """Get semantic search statistics and backend information"""
-    from ..api.endpoints import components
-    
-    index = components.get("semantic_index")
-    if index and hasattr(index, 'get_stats'):
-        return index.get_stats()
-    else:
-        return {"available": False, "backend": "none"}
+    try:
+        index = components.get("semantic_index")
+        
+        if not index:
+            return SemanticSearchStatsResponse(
+                available=False,
+                backend="none"
+            )
+        
+        # Get statistics from the index if available
+        if hasattr(index, 'get_stats'):
+            stats = index.get_stats()
+            return SemanticSearchStatsResponse(
+                available=True,
+                backend=stats.get("backend", "unknown"),
+                total_documents=stats.get("total_documents"),
+                index_size_mb=stats.get("index_size_mb"),
+                last_updated=stats.get("last_updated")
+            )
+        else:
+            return SemanticSearchStatsResponse(
+                available=True,
+                backend="unknown"
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting semantic search stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get search statistics")

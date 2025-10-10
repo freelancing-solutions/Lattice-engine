@@ -17,7 +17,7 @@ except ImportError as e:
     docker = None
     logging.warning(f"Qdrant setup dependencies not available: {e}")
 
-from .settings import config
+from lattice_mutation_engine.config.settings import config
 
 logger = logging.getLogger(__name__)
 

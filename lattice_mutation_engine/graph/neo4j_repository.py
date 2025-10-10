@@ -5,7 +5,7 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     GraphDatabase = None
 
-from ..models.spec_graph_models import Node, Edge, NodeType, Status, RelationshipType, GraphSnapshot
+from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, Status, RelationshipType, GraphSnapshot
 
 
 class Neo4jGraphRepository:

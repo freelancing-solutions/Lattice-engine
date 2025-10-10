@@ -6,22 +6,30 @@ This script properly handles imports and provides a clean way to start the engin
 
 import sys
 import os
+import asyncio
+import logging
 from pathlib import Path
 
-# Add the current directory to Python path to handle imports correctly
-current_dir = Path(__file__).parent.absolute()
-sys.path.insert(0, str(current_dir))
+# Add the project root to Python path for absolute imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-# Now import and run the main function
-from main import main
-import asyncio
+# Now import and run the main function using absolute imports
+from lattice_mutation_engine.main import main
+
+# Setup basic logging for the entry point
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    print("Starting Lattice Mutation Engine...")
+    logger.info("Starting Lattice Mutation Engine...")
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nShutting down Lattice Mutation Engine...")
+        logger.info("Shutting down Lattice Mutation Engine...")
     except Exception as e:
-        print(f"Error running Lattice Mutation Engine: {e}")
+        logger.error(f"Error running Lattice Mutation Engine: {e}")
         sys.exit(1)

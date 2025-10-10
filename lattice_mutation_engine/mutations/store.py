@@ -1,7 +1,7 @@
 import threading
 from typing import Dict, List, Optional, Tuple
 
-from ..models.mutation_models import MutationProposal, MutationResult
+from lattice_mutation_engine.models.mutation_models import MutationProposal, MutationResult
 
 
 class InMemoryMutationStore:

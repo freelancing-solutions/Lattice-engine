@@ -6,7 +6,7 @@ This package provides various graph algorithms for:
 - Topological sorting and ordering
 """
 
-from .dependency_resolver import (
+from lattice_mutation_engine.graph.algorithms.dependency_resolver import (
     DependencyResolver,
     CircularDependencyError,
     DependencyType,
@@ -14,14 +14,14 @@ from .dependency_resolver import (
     CircularDependency
 )
 
-from .graph_traversal import (
+from lattice_mutation_engine.graph.algorithms.graph_traversal import (
     GraphTraversal,
     TraversalStrategy,
     TraversalResult,
     PathResult
 )
 
-from .topological_sorter import (
+from lattice_mutation_engine.graph.algorithms.topological_sorter import (
     TopologicalSorter,
     SortAlgorithm,
     TopologicalResult,

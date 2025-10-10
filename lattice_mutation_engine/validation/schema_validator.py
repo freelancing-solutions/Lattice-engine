@@ -11,9 +11,9 @@ from typing import Dict, List, Any, Optional, Union
 from pydantic import BaseModel, ValidationError
 from datetime import datetime
 
-from ..models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
-from ..models.validation_models import ValidationResult
-from .validation_rules import ValidationContext, RuleSeverity
+from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
+from lattice_mutation_engine.models.validation_models import ValidationResult
+from lattice_mutation_engine.validation.validation_rules import ValidationContext, RuleSeverity
 
 
 class SchemaValidationError(Exception):

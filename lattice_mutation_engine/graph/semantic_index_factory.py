@@ -7,10 +7,10 @@ based on configuration and available dependencies.
 import logging
 from typing import Protocol, List, Optional, Dict, Any
 
-from ..models.spec_graph_models import Node
-from ..config.settings import config
-from .semantic_index import TfidfSemanticIndex
-from .qdrant_semantic_index import QdrantSemanticIndex
+from lattice_mutation_engine.models.spec_graph_models import Node
+from lattice_mutation_engine.config.settings import config
+from lattice_mutation_engine.graph.semantic_index import TfidfSemanticIndex
+from lattice_mutation_engine.graph.qdrant_semantic_index import QdrantSemanticIndex
 
 logger = logging.getLogger(__name__)
 

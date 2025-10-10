@@ -7,7 +7,7 @@ from typing import Optional
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
 
-from ..models.spec_graph_models import Node, NodeType, Status
+from lattice_mutation_engine.models.spec_graph_models import Node, NodeType, Status
 
 
 def stable_spec_id(path: Path) -> str:

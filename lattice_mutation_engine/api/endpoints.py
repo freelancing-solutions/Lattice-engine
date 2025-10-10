@@ -3,29 +3,38 @@ from fastapi import APIRouter
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from .graph_endpoints import router as graph_router
-from .spec_endpoints import router as spec_router
-from .task_endpoints import router as task_router
-from .spec_sync_endpoints import router as spec_sync_router
-from .deployment_endpoints import router as deployment_router
-from .mcp_endpoints import router as mcp_router
-from typing import Dict, Any, Optional
+from lattice_mutation_engine.api.graph_endpoints import router as graph_router
+from lattice_mutation_engine.api.spec_endpoints import router as spec_router
+from lattice_mutation_engine.api.task_endpoints import router as task_router
+from lattice_mutation_engine.api.spec_sync_endpoints import router as spec_sync_router
+from lattice_mutation_engine.api.deployment_endpoints import router as deployment_router
+from lattice_mutation_engine.api.mcp_endpoints import router as mcp_router
+from typing import Dict, Any, Optional, List
 import json
 import asyncio
 import uuid
 import logging
 from datetime import datetime
+from pydantic import BaseModel
 
-from ..models.mutation_models import MutationRequest
-from ..models.mutation_models import MutationProposal, MutationResult
-from ..models.approval_models import ApprovalResponse
-from ..utils.errors import ValidationError
-from ..main import init_engine, shutdown_engine
-from ..config.settings import config as engine_config
-from ..observability.metrics import mutations_proposed, websocket_connections, metrics_response
-from ..queue.celery_app import make_celery
-from ..queue.tasks import execute_mutation_workflow_task
-from ..auth import (
+from lattice_mutation_engine.core.dependencies import (
+    get_orchestrator,
+    get_approval_manager, 
+    get_mutation_store,
+    get_health_status,
+    HealthStatus
+)
+
+from lattice_mutation_engine.models.mutation_models import MutationRequest
+from lattice_mutation_engine.models.mutation_models import MutationProposal, MutationResult
+from lattice_mutation_engine.models.approval_models import ApprovalResponse
+from lattice_mutation_engine.utils.errors import ValidationError
+from lattice_mutation_engine.main import init_engine, shutdown_engine
+from lattice_mutation_engine.config.settings import config as engine_config
+from lattice_mutation_engine.observability.metrics import mutations_proposed, websocket_connections, metrics_response
+from lattice_mutation_engine.celery_queue.celery_app import make_celery
+from lattice_mutation_engine.celery_queue.tasks import execute_mutation_workflow_task
+from lattice_mutation_engine.auth import (
     get_current_user, 
     get_current_user_optional, 
     TenantContext, 
@@ -34,9 +43,42 @@ from ..auth import (
     init_auth_service
 )
 
-
 logger = logging.getLogger(__name__)
 
+# Response Models
+class MutationResponse(BaseModel):
+    """Response model for mutation operations"""
+    mutation_id: str
+    status: str
+    message: str
+    timestamp: datetime
+
+class MutationListResponse(BaseModel):
+    """Response model for listing mutations"""
+    mutations: List[Dict[str, Any]]
+    total: int
+
+class HealthResponse(BaseModel):
+    """Response model for health check"""
+    status: str
+    timestamp: datetime
+    version: str
+
+class RiskAssessmentRequest(BaseModel):
+    """Request model for risk assessment"""
+    spec_id: str
+    operation_type: str
+    changes: Dict[str, Any]
+    context: Optional[Dict[str, Any]] = None
+
+class RiskAssessmentResponse(BaseModel):
+    """Response model for risk assessment"""
+    risk_level: str
+    confidence: float
+    factors: List[str]
+    recommendations: List[str]
+
+# FastAPI app configuration
 app = FastAPI(
     title="Lattice Mutation Engine API",
     description="API for the Lattice Mutation Engine",
@@ -52,10 +94,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Global components storage
 components = {}
 
-# Serve demo static files
+# Static files and router setup
 app.mount("/demo", StaticFiles(directory="demo"), name="demo")
+
+# Main API router
+api_router = APIRouter(prefix="/api", tags=["api"])
+
+# Include sub-routers
 app.include_router(graph_router)
 app.include_router(spec_router)
 app.include_router(task_router)
@@ -63,8 +111,6 @@ app.include_router(spec_sync_router)
 app.include_router(deployment_router)
 app.include_router(mcp_router)
 
-# Mirror all routers under '/api' for CLI/extension compatibility
-api_router = APIRouter(prefix="/api")
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
 api_router.include_router(task_router)
@@ -72,70 +118,43 @@ api_router.include_router(spec_sync_router)
 api_router.include_router(deployment_router)
 api_router.include_router(mcp_router)
 
-
+# Lifecycle events
 @app.on_event("startup")
 async def startup_event():
-    """Initialize the application on startup"""
+    """Initialize the engine components on startup"""
+    logger.info("Starting Lattice Mutation Engine API...")
     try:
-        # Initialize authentication service
-        await init_auth_service()
-        
-        # Initialize mutation engine
         global components
         components = await init_engine()
         
-        # Initialize Celery if configured
-        if engine_config.celery_enabled:
-            components["celery_app"] = make_celery()
-            
+        # Initialize auth service
+        await init_auth_service()
+        
+        # Start background task to keep engine running
         asyncio.create_task(_keep_engine_running())
-        logger.info("Lattice Engine API started successfully")
+        
+        logger.info("Lattice Mutation Engine API started successfully")
     except Exception as e:
-        logger.error(f"Failed to start Lattice Engine API: {str(e)}")
+        logger.error(f"Failed to start engine: {e}")
         raise
-
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    """Cleanup on shutdown"""
+    logger.info("Shutting down Lattice Mutation Engine API...")
     await shutdown_engine(components)
 
-
 async def _keep_engine_running():
+    """Background task to keep the engine running"""
     while True:
-        await asyncio.sleep(1)
+        await asyncio.sleep(60)
 
+def verify_api_key_header(x_api_key: Optional[str] = Header(None)):
+    """Verify API key from header"""
+    return verify_api_key(x_api_key)
 
-def get_orchestrator():
-    if not components:
-        raise HTTPException(status_code=503, detail="Engine not initialized")
-    return components["orchestrator"]
-
-
-def get_websocket_hub():
-    if not components:
-        raise HTTPException(status_code=503, detail="Engine not initialized")
-    return components["websocket_hub"]
-
-
-def get_approval_manager():
-    if not components:
-        raise HTTPException(status_code=503, detail="Engine not initialized")
-    return components["approval_manager"]
-
-
-def get_mutation_store():
-    if not components:
-        raise HTTPException(status_code=503, detail="Engine not initialized")
-    return components["mutation_store"]
-
-
-def verify_api_key(x_api_key: Optional[str] = Header(None)):
-    if engine_config.api_keys and x_api_key not in engine_config.api_keys:
-        raise HTTPException(status_code=401, detail="Invalid API key")
-    return True
-
-
-@app.post("/mutations/propose")
+# Mutation endpoints
+@api_router.post("/mutations/propose", response_model=MutationResponse)
 @rate_limit(requests_per_minute=30)
 async def propose_mutation(
     request: MutationRequest,
@@ -143,256 +162,224 @@ async def propose_mutation(
     current_user: TenantContext = Depends(get_current_user),
     orchestrator=Depends(get_orchestrator),
     mutation_store=Depends(get_mutation_store),
-):
-    """Propose a mutation with multi-tenant context and persist proposal."""
+) -> MutationResponse:
+    """Propose a new mutation"""
     try:
-        # Check permissions
-        if not current_user.has_permission("mutations:write"):
-            raise HTTPException(status_code=403, detail="Insufficient permissions to propose mutations")
-
-        # Generate a proposal via orchestrator
-        proposal: MutationProposal = await orchestrator._generate_proposal(
-            spec_id=request.spec_id,
-            operation=request.operation_type,
+        logger.info(f"Received mutation request: {request.operation}")
+        
+        # Generate unique mutation ID
+        mutation_id = str(uuid.uuid4())
+        
+        # Create mutation proposal
+        proposal = MutationProposal(
+            mutation_id=mutation_id,
+            operation=request.operation,
+            target_spec=request.target_spec,
             changes=request.changes,
+            context=request.context or {},
+            tenant_id=current_user.tenant_id,
+            user_id=current_user.user_id,
+            timestamp=datetime.utcnow()
         )
-
-        # Validate and analyze impact
-        validation = await orchestrator._validate_proposal(proposal)
-        if not validation.is_valid:
-            raise ValidationError("Proposal validation failed")
-        impact = await orchestrator._analyze_impact(proposal)
-        proposal.impact_analysis = impact
-
-        # Determine approval requirement
-        proposal.requires_approval = orchestrator._needs_user_approval(proposal)
-
-        # Persist proposal
-        mutation_store.save_proposal(proposal)
-        mutations_proposed.inc()
-
-        # Check permissions
-        # Execute in background if auto-approved (no approval required)
-        if not proposal.requires_approval:
-            async def _execute_and_store():
-                try:
-                    result: MutationResult = await orchestrator.execute_mutation_workflow(
-                        spec_id=request.spec_id,
-                        operation=request.operation_type,
-                        changes=request.changes,
-                        user_id=str(current_user.user_id),
-                    )
-                    mutation_store.save_result(result)
-                except Exception as e:
-                    logger.error(f"Background mutation workflow failed: {e}")
-
-            asyncio.create_task(_execute_and_store())
-
-        else:
-            # Request approval via approval manager
-            approval_manager = get_approval_manager()
-            await approval_manager.request_approval(
-                proposal=proposal,
-                user_id=str(current_user.user_id),
-                priority="normal",
+        
+        # Store the proposal
+        mutation_store.store_proposal(proposal)
+        
+        # Execute mutation workflow in background
+        if engine_config.use_celery:
+            execute_mutation_workflow_task.delay(
+                mutation_id=mutation_id,
+                proposal_data=proposal.dict()
             )
-
-        return {"status": "proposed", "proposal": proposal.dict()}
+        else:
+            background_tasks.add_task(
+                orchestrator.execute_mutation_workflow,
+                proposal
+            )
+        
+        # Update metrics
+        mutations_proposed.inc()
+        
+        logger.info(f"Mutation {mutation_id} queued for processing")
+        
+        return MutationResponse(
+            mutation_id=mutation_id,
+            status="queued",
+            message="Mutation proposal submitted successfully",
+            timestamp=datetime.utcnow()
+        )
+        
     except ValidationError as e:
+        logger.error(f"Validation error in mutation proposal: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Error proposing mutation: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error processing mutation proposal: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-# Expose propose endpoint under '/api'
-api_router.add_api_route("/mutations/propose", propose_mutation, methods=["POST"])
-
-
-# ------------------- Mutation Query Endpoints -------------------
-
-@api_router.get("/mutations")
+@api_router.get("/mutations", response_model=MutationListResponse)
 async def list_mutations(
     current_user: TenantContext = Depends(get_current_user),
     mutation_store=Depends(get_mutation_store),
     kind: Optional[str] = None,
-):
-    if not current_user.has_permission("mutations:read"):
-        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
-    kind = (kind or "proposal").lower()
-    if kind == "result":
-        return {"results": [r.dict() for r in mutation_store.list_results()]}
-    if kind == "all":
-        return {
-            "proposals": [p.dict() for p in mutation_store.list_proposals()],
-            "results": [r.dict() for r in mutation_store.list_results()],
-        }
-    return {"proposals": [p.dict() for p in mutation_store.list_proposals()]}
-
+) -> MutationListResponse:
+    """List mutations for the current tenant"""
+    try:
+        mutations = mutation_store.list_mutations(
+            tenant_id=current_user.tenant_id,
+            kind=kind
+        )
+        return MutationListResponse(
+            mutations=mutations,
+            total=len(mutations)
+        )
+    except Exception as e:
+        logger.error(f"Error listing mutations: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/mutations/{identifier}")
 async def get_mutation(
     identifier: str,
     current_user: TenantContext = Depends(get_current_user),
     mutation_store=Depends(get_mutation_store),
-):
-    if not current_user.has_permission("mutations:read"):
-        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
-    result = mutation_store.get_result(identifier)
-    if result:
-        return {"kind": "result", "result": result.dict()}
-    proposal = mutation_store.get_proposal(identifier)
-    if proposal:
-        return {"kind": "proposal", "proposal": proposal.dict()}
-    raise HTTPException(status_code=404, detail="Mutation not found")
-
+) -> Dict[str, Any]:
+    """Get a specific mutation by ID"""
+    try:
+        mutation = mutation_store.get_mutation(identifier, current_user.tenant_id)
+        if not mutation:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+        return mutation
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting mutation {identifier}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/mutations/{identifier}/status")
 async def get_mutation_status(
     identifier: str,
     current_user: TenantContext = Depends(get_current_user),
     mutation_store=Depends(get_mutation_store),
-):
-    if not current_user.has_permission("mutations:read"):
-        raise HTTPException(status_code=403, detail="Insufficient permissions to read mutations")
-    status = mutation_store.get_status(identifier)
-    if status["status"] == "not_found":
-        raise HTTPException(status_code=404, detail="Mutation not found")
-    return status
+) -> Dict[str, Any]:
+    """Get the status of a specific mutation"""
+    try:
+        status = mutation_store.get_mutation_status(identifier, current_user.tenant_id)
+        if not status:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+        return {"status": status, "mutation_id": identifier}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting mutation status {identifier}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-
-# ------------------- Risk Assessment Endpoint -------------------
-from pydantic import BaseModel
-class RiskAssessmentRequest(BaseModel):
-    spec_id: str
-    operation_type: str
-    changes: Dict[str, Any]
-    context: Optional[Dict[str, Any]] = None
-
-
-@api_router.post("/mutations/risk-assess")
+@api_router.post("/mutations/risk-assess", response_model=RiskAssessmentResponse)
 async def risk_assess(
     payload: RiskAssessmentRequest,
     current_user: TenantContext = Depends(get_current_user),
     orchestrator=Depends(get_orchestrator),
-):
-    if not current_user.has_permission("mutations:read"):
-        raise HTTPException(status_code=403, detail="Insufficient permissions to assess risk")
+) -> RiskAssessmentResponse:
+    """Assess the risk of a proposed mutation"""
+    try:
+        logger.info(f"Risk assessment request for spec: {payload.spec_id}")
+        
+        # Perform risk assessment using orchestrator
+        assessment = await orchestrator.assess_mutation_risk(
+            spec_id=payload.spec_id,
+            operation_type=payload.operation_type,
+            changes=payload.changes,
+            context=payload.context or {},
+            tenant_id=current_user.tenant_id
+        )
+        
+        return RiskAssessmentResponse(
+            risk_level=assessment.get("risk_level", "unknown"),
+            confidence=assessment.get("confidence", 0.0),
+            factors=assessment.get("factors", []),
+            recommendations=assessment.get("recommendations", [])
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in risk assessment: {e}")
+        raise HTTPException(status_code=500, detail="Risk assessment failed")
 
-    # Use first registered impact agent
-    from ..models.agent_models import AgentType, AgentTask
-    impact_ids = orchestrator.agent_types.get(AgentType.IMPACT, [])
-    if not impact_ids:
-        raise HTTPException(status_code=503, detail="Impact agent not available")
-    agent_id = impact_ids[0]
-    agent = orchestrator.agents.get(agent_id)
-    if not agent:
-        raise HTTPException(status_code=503, detail="Impact agent not available")
-
-    task = AgentTask(
-        task_id=f"task_{datetime.now().timestamp()}",
-        agent_id=agent_id,
-        operation="analyze_change_impact",
-        input_data={
-            "proposed_change": payload.changes,
-            "current_system": {"spec_id": payload.spec_id},
-            "context": payload.context or {},
-        },
-        status="pending",
-        created_at=datetime.now(),
-    )
-
-    await agent.assign_task(task)
-    while task.status in ["pending", "running"]:
-        await asyncio.sleep(0.05)
-
-    if task.status == "failed":
-        raise HTTPException(status_code=500, detail=task.error or "Risk assessment failed")
-    return {"risk_assessment": task.result}
-
-
-@app.post("/approvals/{request_id}/respond")
+# Approval endpoints
+@api_router.post("/approvals/{request_id}/respond")
 async def respond_to_approval(
     request_id: str,
     response: ApprovalResponse,
     approval_manager=Depends(get_approval_manager),
-):
+) -> Dict[str, str]:
+    """Respond to an approval request"""
     try:
-        result = await approval_manager.handle_response(response)
-        return {"status": "processed", "result": result.dict()}
+        await approval_manager.respond_to_approval(request_id, response)
+        return {"status": "success", "message": "Response recorded"}
     except Exception as e:
-        logger.error(f"Error processing approval response: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error responding to approval {request_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-# Expose approvals respond under '/api'
-api_router.add_api_route("/approvals/{request_id}/respond", respond_to_approval, methods=["POST"])
-
-
-@app.get("/approvals/pending")
-async def get_pending_approvals(user_id: str, approval_manager=Depends(get_approval_manager)):
+@api_router.get("/approvals/pending")
+async def get_pending_approvals(
+    user_id: str, 
+    approval_manager=Depends(get_approval_manager)
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Get pending approvals for a user"""
     try:
-        pending = [
-            req.dict() for req in approval_manager.pending_approvals.values() if req.user_id == user_id
-        ]
-        return {"pending_approvals": pending}
+        approvals = await approval_manager.get_pending_approvals(user_id)
+        return {"pending_approvals": approvals}
     except Exception as e:
-        logger.error(f"Error getting pending approvals: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error getting pending approvals for {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-# Expose approvals pending under '/api'
-api_router.add_api_route("/approvals/pending", get_pending_approvals, methods=["GET"])
-
-
+# WebSocket endpoint
 @app.websocket("/ws/{user_id}/{client_type}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str, client_type: str):
-    websocket_hub = get_websocket_hub()
-    # Simple token-based auth via query parameter 'token'
-    token = websocket.query_params.get("token")
-    if engine_config.api_keys and token not in engine_config.api_keys:
-        await websocket.close(code=1008)
+    """WebSocket endpoint for real-time communication"""
+    hub = components.get("websocket_hub")
+    if not hub:
+        await websocket.close(code=1011, reason="WebSocket hub not available")
         return
+    
     await websocket.accept()
     websocket_connections.inc()
-    websocket_id = str(uuid.uuid4())
-    await websocket_hub.register_client(
-        user_id=user_id,
-        client_type=client_type,
-        websocket_id=websocket_id,
-        metadata={"connected_at": str(datetime.now())},
-        socket=websocket,
-    )
+    
     try:
+        await hub.connect(websocket, user_id, client_type)
         while True:
-            data = await websocket.receive_text()
-            message = json.loads(data)
-            event = message.get("event")
-            payload = message.get("data", {})
-            if event == "approval:response":
-                response = ApprovalResponse(**payload)
-                await components["approval_manager"].handle_response(response)
-    except WebSocketDisconnect:
-        await websocket_hub.unregister_client(user_id, websocket_id)
-        websocket_connections.dec()
-        logger.info(f"WebSocket disconnected: {websocket_id}")
+            try:
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                await hub.handle_message(websocket, user_id, message)
+            except WebSocketDisconnect:
+                break
+            except json.JSONDecodeError:
+                await websocket.send_text(json.dumps({
+                    "error": "Invalid JSON format"
+                }))
     except Exception as e:
-        logger.error(f"WebSocket error: {str(e)}")
-        await websocket.close()
+        logger.error(f"WebSocket error for user {user_id}: {e}")
+    finally:
+        websocket_connections.dec()
+        await hub.disconnect(websocket, user_id)
 
+# Health and metrics endpoints
+@api_router.get("/health", response_model=HealthResponse)
+async def health_check(health_status: HealthStatus = Depends(get_health_status)) -> HealthResponse:
+    """
+    Health check endpoint that provides system status information.
+    
+    Returns:
+        HealthResponse: Current system health status
+    """
+    return HealthResponse(
+        status=health_status.status,
+        timestamp=health_status.timestamp,
+        version="1.1.0"
+    )
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "engine_initialized": bool(components)}
+@api_router.get("/metrics")
+async def metrics() -> Response:
+    """Prometheus metrics endpoint"""
+    return metrics_response()
 
-# Expose health under '/api'
-api_router.add_api_route("/health", health_check, methods=["GET"])
-
-
-@app.get("/metrics")
-async def metrics():
-    content, content_type = metrics_response()
-    return Response(content=content, media_type=content_type)
-
-# Expose metrics under '/api'
-api_router.add_api_route("/metrics", metrics, methods=["GET"])
-
-# Finally include the '/api' router
+# Include the API router
 app.include_router(api_router)

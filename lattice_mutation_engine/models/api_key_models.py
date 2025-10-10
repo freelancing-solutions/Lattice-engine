@@ -18,7 +18,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-from .user_models import Base
+from lattice_mutation_engine.models.user_models import Base
 
 
 class APIKeyScope(str, Enum):
