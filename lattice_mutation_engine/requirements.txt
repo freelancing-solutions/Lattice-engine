@@ -1,0 +1,177 @@
+# Lattice Mutation Engine - Python Dependencies
+# Complete requirements for the lattice-mutation-engine
+
+# =============================================================================
+# CORE FRAMEWORK & WEB
+# =============================================================================
+
+# FastAPI web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# CORS middleware
+fastapi-cors==0.0.6
+
+# =============================================================================
+# DATA VALIDATION & SERIALIZATION
+# =============================================================================
+
+# Pydantic for data validation and settings
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# JSON Schema validation
+jsonschema==4.20.0
+
+# =============================================================================
+# AI/ML & LANGUAGE PROCESSING
+# =============================================================================
+
+# Anthropic Claude API
+anthropic==0.7.8
+
+# OpenAI API (fallback)
+openai==1.3.7
+
+# PydanticAI for structured AI agents
+pydantic-ai==0.1.0
+
+# Sentence transformers for embeddings
+sentence-transformers==2.2.2
+
+# NumPy for numerical operations
+numpy==1.24.3
+
+# =============================================================================
+# DATABASE & GRAPH STORAGE
+# =============================================================================
+
+# Neo4j graph database driver
+neo4j==5.15.0
+
+# PostgreSQL with async support
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# SQLAlchemy ORM
+sqlalchemy==2.0.23
+
+# Alembic for database migrations
+alembic==1.12.1
+
+# =============================================================================
+# VECTOR DATABASE
+# =============================================================================
+
+# Qdrant vector database client
+qdrant-client==1.6.9
+
+# =============================================================================
+# CACHING & MESSAGE QUEUE
+# =============================================================================
+
+# Redis client with async support
+redis==5.0.1
+redis[hiredis]==5.0.1
+
+# Celery for distributed task processing
+celery==5.3.4
+
+# =============================================================================
+# AUTHENTICATION & SECURITY
+# =============================================================================
+
+# JWT token handling
+pyjwt==2.8.0
+
+# Password hashing and security
+cryptography==41.0.7
+
+# =============================================================================
+# MONITORING & OBSERVABILITY
+# =============================================================================
+
+# Prometheus metrics
+prometheus-client==0.19.0
+
+# =============================================================================
+# FILE SYSTEM & MONITORING
+# =============================================================================
+
+# File system monitoring for spec sync
+watchdog==3.0.0
+
+# Path utilities
+pathlib2==2.3.7
+
+# =============================================================================
+# NETWORK & GRAPH ALGORITHMS
+# =============================================================================
+
+# NetworkX for graph algorithms
+networkx==3.2.1
+
+# =============================================================================
+# DEVELOPMENT & TESTING
+# =============================================================================
+
+# Python type hints
+typing-extensions==4.8.0
+
+# Async utilities
+asyncio-mqtt==0.13.0
+
+# Environment variable management
+python-dotenv==1.0.0
+
+# Logging enhancements
+structlog==23.2.0
+
+# Testing framework (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# =============================================================================
+# UTILITIES & HELPERS
+# =============================================================================
+
+# Date/time utilities
+python-dateutil==2.8.2
+
+# UUID utilities
+uuid==1.30
+
+# JSON utilities
+orjson==3.9.10
+
+# HTTP client for external API calls
+httpx==0.25.2
+
+# Docker client (for Qdrant setup)
+docker==6.1.3
+
+# =============================================================================
+# OPTIONAL DEPENDENCIES (Install as needed)
+# =============================================================================
+
+# For production deployment
+gunicorn==21.2.0
+
+# For development
+ipython==8.18.1
+jupyter==1.0.0
+
+# For documentation
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+
+# =============================================================================
+# PLATFORM SPECIFIC
+# =============================================================================
+
+# Windows-specific (if needed)
+pywin32==306; sys_platform == "win32"
+
+# Linux-specific (if needed)
+python-systemd==0.0.9; sys_platform == "linux"
