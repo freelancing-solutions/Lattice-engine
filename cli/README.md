@@ -1,17 +1,58 @@
 # Lattice CLI (Monorepo)
 
-This `cli/` folder contains two CLI implementations (Node.js and Python) with a shared environment.
+This `cli/` folder contains two CLI implementations (Node.js and Python) with a shared environment for interacting with the Lattice Engine backend.
 
-Structure:
-- `shared/`: Common configuration and docs
-- `node-cli/`: NPM-based CLI tool (`lattice`)
-- `python-cli/`: Python-based CLI tool (`lattice`)
+## Architecture Overview
 
-Both tools read `.lattice/config.json` at the repository root for defaults, including `api.endpoint`.
+The Lattice CLI provides a unified interface for managing Lattice Engine resources through two parallel implementations:
 
-Packaging:
-- Node: Uses `package.json` `bin` field to expose `lattice` executable
-- Python: Uses `pyproject.toml` console scripts to expose `lattice`
+- **Node.js CLI** (`lattice`): Full-featured CLI with comprehensive command coverage
+- **Python CLI** (`lattice-py`): Lightweight Python alternative with core functionality
+- **Shared Configuration**: Common configuration and defaults used by both implementations
+
+### Project Structure
+
+```
+cli/
+├── shared/          # Common configuration and shared resources
+├── node-cli/        # Node.js implementation (lattice command)
+└── python-cli/      # Python implementation (lattice-py command)
+```
+
+### Key Features
+
+Both CLI implementations provide:
+- **Authentication**: Secure login/logout with token management
+- **Project Management**: Initialize and configure Lattice projects
+- **Spec Management**: Create, validate, generate, and sync API specifications
+- **Mutation Workflow**: Propose, approve, reject, and track changes
+- **Deployment**: Deploy mutations to different environments with strategies
+- **MCP Integration**: Manage Model Context Protocol servers and sync
+- **Risk Assessment**: Analyze deployment risks and dependencies
+- **Dry-Run Mode**: Preview commands without executing them
+- **Auto-Correction**: Intelligent typo detection and suggestions
+- **Multiple Output Formats**: JSON, table, and human-readable formats
+
+### Configuration System
+
+Both tools read configuration from multiple sources in priority order:
+
+1. **Environment Variables**: `LATTICE_API_URL` overrides API endpoint
+2. **Repository Config**: `.lattice/config.json` at repository root
+3. **Shared Config**: `cli/shared/config.json` as fallback defaults
+
+The configuration includes:
+- API endpoint and authentication tokens
+- Deployment preferences and strategies
+- Spec validation and sync settings
+- Default behaviors for various commands
+
+### Packaging & Distribution
+
+- **Node.js**: Distributed as `@lattice/cli-node` npm package with `lattice` binary
+- **Python**: Distributed as `lattice-py` package with `lattice-py` console script
+
+Both provide the same core functionality with language-specific optimizations and idioms.
 
 ## Node CLI Usage
 
@@ -52,12 +93,18 @@ Read from `.lattice/config.json`:
     "endpoint": "https://api.project-lattice.site",
     "token": "your-auth-token"
   },
-  "deploy": {
-    "wait": true
+  "project": {
+    "id": "my-project-id",
+    "name": "My Project",
+    "type": "javascript"
   },
   "specs": {
     "auto_sync": true,
     "validation": "strict"
+  },
+  "notifications": {
+    "enabled": true,
+    "types": ["mutation_created", "review_requested", "spec_updated"]
   }
 }
 ```
@@ -65,9 +112,13 @@ Read from `.lattice/config.json`:
 Options:
 - `api.endpoint` - API base URL (override with `LATTICE_API_URL`)
 - `api.token` - Set via `lattice auth login`
-- `deploy.wait` - Default for `deploy --wait`
+- `project.id` - Project identifier
+- `project.name` - Project display name
+- `project.type` - Project type (javascript, python, etc.)
 - `specs.auto_sync` - Auto-sync specs on changes
 - `specs.validation` - Validation level (strict, loose)
+- `notifications.enabled` - Enable notifications
+- `notifications.types` - Array of notification types to receive
 
 See more details in `docs/cli-configuration.md`.
 
@@ -130,7 +181,9 @@ lattice spec sync --direction push --dry-run --output table
 lattice mutation propose --spec payments-api --change "Rate limit increase" --dry-run
 ```
 
-Supported: `auth login`, `auth logout`, `deploy`, `spec sync`, `spec show`, `mutation propose`, `mutation status`, `mutation approve`, `mutation reject`, `mutation list`, `mutation show`, `risk assess`, `mcp status`, `mcp sync`
+**Note**: Dry-run mode is only available in the Node.js CLI (`lattice`). The Python CLI (`lattice-py`) does not support dry-run functionality.
+
+Supported dry-run commands (Node.js CLI only): `auth login`, `auth logout`, `deploy`, `spec sync`, `spec show`, `mutation propose`, `mutation status`, `mutation approve`, `mutation reject`, `mutation list`, `mutation show`, `risk assess`, `mcp status`, `mcp sync`
 
 ### Short Aliases
 
@@ -156,7 +209,7 @@ Common flags have short aliases:
 
 ### Auto-Correction
 
-The CLI auto-corrects common typos and suggests alternatives. Use `--auto-fix` to apply the first suggestion automatically.
+The CLI auto-corrects common typos and suggests alternatives.
 
 ### Output Formats
 
@@ -169,8 +222,6 @@ Select with `--output`:
 - `--help`, `-h` - Show help
 - `--version`, `-v` - Show version
 - `--no-color` - Disable colored output
-- `--non-interactive` - Disable interactive prompts
-- `--auto-fix` - Auto-apply corrections without prompting
 - `--api-url <url>` - Override API endpoint
 
 ### Environment Variables

@@ -1,15 +1,40 @@
 {
   "name": "@lattice/cli-node",
   "version": "0.1.0",
-  "description": "Lattice CLI (Node.js) for interacting with the Lattice Engine backend.",
+  "description": "Lattice CLI (Node.js) - Command-line interface for managing Lattice Engine resources, specs, mutations, and deployments",
+  "keywords": [
+    "lattice",
+    "cli",
+    "api-management",
+    "deployment",
+    "specification",
+    "mutation",
+    "devops",
+    "infrastructure"
+  ],
+  "homepage": "https://github.com/lattice-engine/lattice/tree/main/cli/node-cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lattice-engine/lattice.git",
+    "directory": "cli/node-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/lattice-engine/lattice/issues"
+  },
+  "license": "MIT",
+  "author": "Lattice Engine Team",
   "bin": {
     "lattice": "bin/lattice.js"
   },
   "type": "commonjs",
-  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "start": "node bin/lattice.js --help",
-    "test": "node --test"
+    "test": "node --test",
+    "lint": "echo 'No linter configured'",
+    "format": "echo 'No formatter configured'"
   },
   "files": [
     "bin",
