@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, WebSocket,
 from fastapi import APIRouter
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from .graph_endpoints import router as graph_router
 from .spec_endpoints import router as spec_router
 from .task_endpoints import router as task_router
@@ -40,6 +41,15 @@ app = FastAPI(
     title="Lattice Mutation Engine API",
     description="API for the Lattice Mutation Engine",
     version="1.1.0",
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=engine_config.cors_origins.split(",") if hasattr(engine_config, "cors_origins") and engine_config.cors_origins else ["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 components = {}

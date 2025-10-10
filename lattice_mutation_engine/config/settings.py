@@ -64,5 +64,12 @@ class EngineConfig(BaseModel):
     embedding_model: str = "all-MiniLM-L6-v2"  # SentenceTransformer model
     embedding_dimension: int = 384  # Dimension for all-MiniLM-L6-v2
 
+    # Application URLs
+    api_base_url: str = Field(default="https://api.project-lattice.site")
+    website_url: str = Field(default="https://www.project-lattice.site")
+    user_dashboard_url: str = Field(default="https://app.project-lattice.site")
+    admin_dashboard_url: str = Field(default="https://admin.project-lattice.site")
+    cors_origins: str = Field(default="http://localhost:3000,http://localhost:8000,https://api.project-lattice.site,https://www.project-lattice.site,https://app.project-lattice.site,https://admin.project-lattice.site")
+
 
 config = EngineConfig()
