@@ -6,6 +6,8 @@ from .graph_endpoints import router as graph_router
 from .spec_endpoints import router as spec_router
 from .task_endpoints import router as task_router
 from .spec_sync_endpoints import router as spec_sync_router
+from .deployment_endpoints import router as deployment_router
+from .mcp_endpoints import router as mcp_router
 from typing import Dict, Any, Optional
 import json
 import asyncio
@@ -48,6 +50,8 @@ app.include_router(graph_router)
 app.include_router(spec_router)
 app.include_router(task_router)
 app.include_router(spec_sync_router)
+app.include_router(deployment_router)
+app.include_router(mcp_router)
 
 # Mirror all routers under '/api' for CLI/extension compatibility
 api_router = APIRouter(prefix="/api")
@@ -55,6 +59,8 @@ api_router.include_router(graph_router)
 api_router.include_router(spec_router)
 api_router.include_router(task_router)
 api_router.include_router(spec_sync_router)
+api_router.include_router(deployment_router)
+api_router.include_router(mcp_router)
 
 
 @app.on_event("startup")
