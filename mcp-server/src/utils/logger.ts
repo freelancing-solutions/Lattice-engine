@@ -1,5 +1,6 @@
 import winston from 'winston';
 import { loggingConfig } from '../config/index.js';
+import type { HealthStatus } from '../types/index.js';
 
 // Custom log format
 const logFormat = winston.format.combine(
@@ -44,13 +45,13 @@ const consoleFormat = winston.format.combine(
 const transports: winston.transport[] = [
   // Console transport
   new winston.transports.Console({
-    format: process.env.NODE_ENV === 'production' ? logFormat : consoleFormat,
+    format: process.env['NODE_ENV'] === 'production' ? logFormat : consoleFormat,
     level: loggingConfig.level,
   }),
 ];
 
 // File transport for production
-if (process.env.NODE_ENV === 'production') {
+if (process.env['NODE_ENV'] === 'production') {
   transports.push(
     new winston.transports.File({
       filename: loggingConfig.filePath,

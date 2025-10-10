@@ -1,19 +1,21 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import WebSocket from 'ws';
 import { EventEmitter } from 'events';
-import { latticeEngineConfig, wsConfig } from '../config/index.js';
+import { WebSocket } from 'ws';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { config } from '../config/index.js';
 import { componentLoggers } from '../utils/logger.js';
-import {
-  LatticeEngineError,
-  AgentOrchestrationRequest,
-  AgentOrchestrationResponse,
-  SpecGraph,
-  SpecNode,
-  SpecEdge,
-  ApprovalRequest,
-  ValidationResult,
-  WSMessage,
+import type { 
+  SpecGraph, 
+  SpecNode, 
+  SpecEdge, 
+  AgentOrchestrationRequest, 
+  AgentOrchestrationResponse, 
+  ApprovalRequest, 
+  ValidationResult, 
+  HealthStatus,
+  LatticeEngineError 
 } from '../types/index.js';
+import { latticeEngineConfig, wsConfig } from '../config/index.js';
 
 const logger = componentLoggers.lattice;
 

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import { ServerConfig, LatticeEngineConfig } from '../types/index.js';
+import type { ServerConfig, LatticeEngineConfig } from '../types/index.js';
 
 // Load environment variables
 dotenv.config();

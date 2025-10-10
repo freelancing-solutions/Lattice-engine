@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { LatticeEngineClient } from './lattice-client.js';
 import { componentLoggers } from '../utils/logger.js';
 import { healthConfig } from '../config/index.js';
-import { HealthStatus } from '../types/index.js';
+import type { HealthStatus } from '../types/index.js';
 
 const logger = componentLoggers.health;
 
@@ -133,7 +133,7 @@ export class HealthMonitor extends EventEmitter {
       status,
       timestamp: new Date().toISOString(),
       uptime,
-      version: process.env.npm_package_version || '1.0.0',
+      version: process.env['npm_package_version'] || '1.0.0',
       services,
       metrics,
     };

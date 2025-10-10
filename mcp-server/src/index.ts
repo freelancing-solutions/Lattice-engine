@@ -44,7 +44,7 @@ async function main() {
   try {
     logger.info('Starting Lattice MCP Server', {
       nodeEnv: serverConfig.nodeEnv,
-      version: process.env.npm_package_version || '1.0.0',
+      version: process.env['npm_package_version'] || '1.0.0',
       nodeVersion: process.version,
       platform: process.platform,
       arch: process.arch,

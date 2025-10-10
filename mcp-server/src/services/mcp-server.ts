@@ -14,8 +14,9 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { LatticeEngineClient } from './lattice-client.js';
 import { componentLoggers } from '../utils/logger.js';
-import { mcpConfig } from '../config/index.js';
-import {
+import { config } from '../config/index.js';
+import type { McpServer, McpTool, McpResource, McpPrompt } from '../types/index.js';
+import type {
   AgentOrchestrationRequest,
   SpecNode,
   SpecEdge,
@@ -94,8 +95,8 @@ export class LatticeEngineServer {
   constructor() {
     this.server = new Server(
       {
-        name: mcpConfig.serverName,
-        version: mcpConfig.serverVersion,
+        name: config.mcpConfig.serverName,
+        version: config.mcpConfig.serverVersion,
       },
       {
         capabilities: {
@@ -602,8 +603,8 @@ export class LatticeEngineServer {
 
   // Prompt handlers
   private async handleImpactAnalysisPrompt(args: Record<string, unknown>) {
-    const changes = args.changes as string;
-    const scope = (args.scope as string) || 'graph';
+    const changes = args['changes'] as string;
+    const scope = (args['scope'] as string) || 'graph';
 
     const request: AgentOrchestrationRequest = {
       id: uuidv4(),

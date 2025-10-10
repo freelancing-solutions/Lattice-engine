@@ -16,7 +16,7 @@ from app.database.connection import init_database, close_database
 from app.core.exceptions import setup_exception_handlers
 from app.core.events import setup_event_handlers
 from app.core.middleware import setup_middleware
-from app.api.v1.router import api_router
+from app.api.v1.api import api_router
 from app.utils.logger import setup_logging
 
 
