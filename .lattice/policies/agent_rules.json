@@ -1,0 +1,5 @@
+{
+  "R-001": { "enforced": true, "mcp_command": "github.issues.create" },
+  "R-002": { "enforced": true, "commit_trailer": "Related-Issue" },
+  "R-003": { "enforced": true, "requires_approval": true }
+}
