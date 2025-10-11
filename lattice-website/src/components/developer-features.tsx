@@ -73,10 +73,10 @@ export default function DeveloperFeatures() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full bg-slate-800 border-slate-700 hover:border-purple-500 transition-colors duration-300">
+              <Card className="h-full bg-slate-800 border-slate-700 hover:border-orange-500 transition-colors duration-300">
                 <CardHeader>
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                       <feature.icon className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -109,7 +109,7 @@ export default function DeveloperFeatures() {
                     <ul className="space-y-2">
                       {feature.features.map((item, itemIndex) => (
                         <li key={itemIndex} className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>
                           <span className="text-gray-300 text-sm">{item}</span>
                         </li>
                       ))}
@@ -117,7 +117,7 @@ export default function DeveloperFeatures() {
                   </div>
 
                   <div className="pt-4 border-t border-slate-700">
-                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white" asChild>
+                    <Button variant="outline" className="w-full border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white" asChild>
                       <Link href={feature.href}>
                         <ExternalLink className="h-4 w-4 mr-2" />
                         View Documentation
@@ -137,21 +137,21 @@ export default function DeveloperFeatures() {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 rounded-2xl">
+          <div className="bg-gradient-to-r from-primary to-orange-600 p-8 rounded-2xl">
             <h3 className="text-2xl font-bold text-white mb-4">
               Ready to Get Started?
             </h3>
-            <p className="text-purple-100 mb-6 max-w-2xl mx-auto">
+            <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
               Join thousands of developers who are already building better software with Lattice. 
               Start your free trial today - no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+              <Button size="lg" className="bg-white text-primary hover:bg-gray-100" asChild>
                 <Link href="/docs/vscode-extension">
                   Install VSCode Extension
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600" asChild>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary" asChild>
                 <Link href="/docs/api-documentation">
                   View API Docs
                 </Link>

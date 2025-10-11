@@ -89,13 +89,12 @@ class Neo4jGraphRepository:
 
     def delete_node(self, node_id: str) -> bool:
         with self._driver.session() as session:
-            res = session.execute_write(
+            result = session.execute_write(
                 lambda tx: tx.run(
-                    "MATCH (n:SpecNode {id: $id}) DETACH DELETE n RETURN COUNT(n)", id=node_id
+                    "MATCH (n:SpecNode {id: $id}) DETACH DELETE n", id=node_id
                 ).consume()
             )
-        # consume() doesn't return count; we assume success
-        return True
+        return result.summary.counters.nodes_deleted > 0
 
     # Edge operations
     def create_edge(self, edge: Edge) -> Edge:
@@ -145,6 +144,117 @@ class Neo4jGraphRepository:
                 )
             )
         return edges
+
+    def query_edges(self, relationship_type: Optional[RelationshipType] = None, filters: Optional[Dict[str, str]] = None) -> List[Edge]:
+        """Query edges with optional relationship type and filters"""
+        cypher = "MATCH (a:SpecNode)-[r:SPEC_REL]->(b:SpecNode)"
+        conditions = []
+        params: Dict[str, any] = {}
+
+        if relationship_type:
+            conditions.append("r.type = $rel_type")
+            params["rel_type"] = relationship_type.value
+
+        if filters:
+            source_id = filters.get("source_id")
+            if source_id:
+                conditions.append("a.id = $source_id")
+                params["source_id"] = source_id
+
+            target_id = filters.get("target_id")
+            if target_id:
+                conditions.append("b.id = $target_id")
+                params["target_id"] = target_id
+
+            confidence_min = filters.get("confidence_min")
+            if confidence_min:
+                conditions.append("r.confidence >= $confidence_min")
+                params["confidence_min"] = float(confidence_min)
+
+        if conditions:
+            cypher += " WHERE " + " AND ".join(conditions)
+
+        cypher += " RETURN r, a.id AS source_id, b.id AS target_id"
+
+        with self._driver.session() as session:
+            results = session.execute_read(lambda tx: tx.run(cypher, **params).data())
+
+        edges: List[Edge] = []
+        for rec in results:
+            r = rec["r"]
+            props = dict(r)
+            try:
+                edge_type = RelationshipType(props.get("type")) if props.get("type") else None
+            except (ValueError, TypeError):
+                edge_type = None
+
+            edges.append(
+                Edge(
+                    id=props.get("id"),
+                    source_id=rec["source_id"],
+                    target_id=rec["target_id"],
+                    type=edge_type,
+                    metadata=props.get("metadata") or {},
+                )
+            )
+        return edges
+
+    def list_edges(self) -> List[Edge]:
+        """Return list of all edges"""
+        return self.query_edges()
+
+    def delete_edge(self, edge_id: str) -> bool:
+        """Delete edge by ID"""
+        with self._driver.session() as session:
+            result = session.execute_write(
+                lambda tx: tx.run(
+                    "MATCH ()-[r:SPEC_REL {id: $edge_id}]-() DELETE r",
+                    edge_id=edge_id
+                ).consume()
+            )
+        return result.summary.counters.relationships_deleted > 0
+
+    def update_edge(self, edge_id: str, updates: Dict) -> Optional[Edge]:
+        """Update edge with given updates"""
+        with self._driver.session() as session:
+            session.execute_write(
+                lambda tx: tx.run(
+                    "MATCH ()-[r:SPEC_REL {id: $edge_id}]-() SET r += $updates",
+                    edge_id=edge_id,
+                    updates=_serialize_updates(updates)
+                )
+            )
+        return self.get_edge_by_id(edge_id)
+
+    def get_edge_by_id(self, edge_id: str) -> Optional[Edge]:
+        """Get edge by ID"""
+        with self._driver.session() as session:
+            result = session.execute_read(
+                lambda tx: tx.run(
+                    """
+                    MATCH (a:SpecNode)-[r:SPEC_REL {id: $edge_id}]->(b:SpecNode)
+                    RETURN r, a.id AS source_id, b.id AS target_id
+                    """,
+                    edge_id=edge_id
+                ).single()
+            )
+            if not result:
+                return None
+
+            r = result[0]
+            props = dict(r)
+            try:
+                edge_type = RelationshipType(props.get("type")) if props.get("type") else None
+            except (ValueError, TypeError):
+                edge_type = None
+
+            return Edge(
+                id=props.get("id"),
+                source_id=result["source_id"],
+                target_id=result["target_id"],
+                type=edge_type,
+                metadata=props.get("metadata") or {},
+            )
 
     # Query operations
     def query_nodes(self, node_type: Optional[NodeType] = None, filters: Optional[Dict[str, str]] = None) -> List[Node]:

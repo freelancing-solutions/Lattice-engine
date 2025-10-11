@@ -38,6 +38,52 @@ class InMemoryGraphRepository:
     def get_edges_for_node(self, node_id: str) -> List[Edge]:
         return [e for e in self.edges.values() if e.source_id == node_id or e.target_id == node_id]
 
+    def query_edges(self, relationship_type: Optional[RelationshipType] = None, filters: Optional[Dict[str, str]] = None) -> List[Edge]:
+        """Query edges with optional relationship type and filters"""
+        edges = list(self.edges.values())
+
+        # Filter by relationship type
+        if relationship_type:
+            edges = [e for e in edges if e.type == relationship_type]
+
+        # Apply additional filters
+        if filters:
+            source_id = filters.get("source_id")
+            if source_id:
+                edges = [e for e in edges if e.source_id == source_id]
+
+            target_id = filters.get("target_id")
+            if target_id:
+                edges = [e for e in edges if e.target_id == target_id]
+
+            confidence_min = filters.get("confidence_min")
+            if confidence_min:
+                try:
+                    min_conf = float(confidence_min)
+                    edges = [e for e in edges if e.confidence >= min_conf]
+                except (ValueError, TypeError):
+                    pass
+
+        return edges
+
+    def list_edges(self) -> List[Edge]:
+        """Return list of all edges"""
+        return list(self.edges.values())
+
+    def delete_edge(self, edge_id: str) -> bool:
+        """Delete edge by ID"""
+        return self.edges.pop(edge_id, None) is not None
+
+    def update_edge(self, edge_id: str, updates: Dict) -> Optional[Edge]:
+        """Update edge with given updates"""
+        edge = self.edges.get(edge_id)
+        if not edge:
+            return None
+        for k, v in updates.items():
+            setattr(edge, k, v)
+        self.edges[edge_id] = edge
+        return edge
+
     # Query operations
     def query_nodes(
         self,

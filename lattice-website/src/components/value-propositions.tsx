@@ -70,8 +70,8 @@ export default function ValuePropositions() {
             >
               <Card className="h-full hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
                 <CardHeader>
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <proposition.icon className="h-6 w-6 text-purple-600" />
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+            <proposition.icon className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-xl text-gray-900">
                     {proposition.title}

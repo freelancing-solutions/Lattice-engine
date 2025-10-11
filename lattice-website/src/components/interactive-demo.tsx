@@ -269,7 +269,7 @@ export default function InteractiveDemo() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Teams using Lattice report an average 80% reduction in time from code commit to production deployment.
                 </p>
-                <Button className="bg-purple-600 hover:bg-purple-700">
+                <Button className="bg-primary hover:bg-orange-600">
                   Start Free Trial
                 </Button>
               </div>

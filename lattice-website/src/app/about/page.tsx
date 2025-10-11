@@ -25,10 +25,41 @@ import {
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
 // Metadata for the About page
-// export const metadata: Metadata = {
-//   title: "About - Lattice Engine",
-//   description: "Learn about Lattice Engine's mission to revolutionize software development through agentic coding and AI-powered tools.",
-// }
+export const metadata: Metadata = {
+  title: "About - Lattice Engine | AI-Powered Development Platform",
+  description: "Learn about Lattice Engine's mission to revolutionize software development through agentic coding and AI-powered tools. Discover our core values, technology stack, and vision for the future.",
+  keywords: "about lattice engine, AI development platform, agentic coding, software development, artificial intelligence, developer tools, automation",
+  authors: [{ name: "Lattice Engine Team" }],
+  creator: "Lattice Engine",
+  publisher: "Lattice Engine",
+  robots: "index, follow",
+  openGraph: {
+    title: "About - Lattice Engine | AI-Powered Development Platform",
+    description: "Learn about Lattice Engine's mission to revolutionize software development through agentic coding and AI-powered tools.",
+    url: `${baseUrl}/about`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine - About Us"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About - Lattice Engine | AI-Powered Development Platform",
+    description: "Learn about Lattice Engine's mission to revolutionize software development through agentic coding and AI-powered tools.",
+    images: [`${baseUrl}/og-image.jpg`],
+    creator: "@latticeengine"
+  },
+  alternates: {
+    canonical: `${baseUrl}/about`
+  }
+}
 
 const coreValues = [
   {

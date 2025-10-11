@@ -42,7 +42,7 @@ const docCategories = [
     icon: Terminal,
     title: "VSCode Extension",
     description: "Native IDE integration for seamless development workflow",
-    color: "bg-purple-500",
+    color: "bg-primary",
     items: [
       "Installation & Setup",
       "Code Completion & IntelliSense",
@@ -183,12 +183,12 @@ export default function DocumentationHub() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <Card className="bg-gradient-to-r from-purple-600 to-pink-600 border-0 text-white">
+          <Card className="bg-gradient-to-r from-primary to-orange-600 border-0 text-white">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
                 🚀 Quick Start Guide
               </CardTitle>
-              <CardDescription className="text-purple-100 text-lg">
+              <CardDescription className="text-orange-100 text-lg">
                 Get up and running with Lattice Engine in under 5 minutes
               </CardDescription>
             </CardHeader>
@@ -202,14 +202,14 @@ export default function DocumentationHub() {
                     <h4 className="font-semibold text-white mb-2">
                       Step {index + 1}
                     </h4>
-                    <p className="text-purple-100 text-sm">
+                    <p className="text-orange-100 text-sm">
                       {step.title}
                     </p>
                   </div>
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+                <Button size="lg" className="bg-white text-primary hover:bg-gray-100" asChild>
                   <Link href="/docs/quickstart">
                     Start Quick Start Guide
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -230,7 +230,7 @@ export default function DocumentationHub() {
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center border-0 shadow-md">
               <CardHeader>
-                <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Community Forum</CardTitle>
                 <CardDescription>
                   Join thousands of developers sharing tips and best practices
@@ -245,7 +245,7 @@ export default function DocumentationHub() {
 
             <Card className="text-center border-0 shadow-md">
               <CardHeader>
-                <Star className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <Star className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>GitHub Discussions</CardTitle>
                 <CardDescription>
                   Contribute to the project and engage with the core team
@@ -260,7 +260,7 @@ export default function DocumentationHub() {
 
             <Card className="text-center border-0 shadow-md">
               <CardHeader>
-                <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Blog & Tutorials</CardTitle>
                 <CardDescription>
                   Latest insights, tutorials, and product updates

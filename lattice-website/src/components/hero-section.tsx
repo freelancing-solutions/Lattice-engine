@@ -56,7 +56,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
   if (!mounted) return null
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
       {/* Animated Code Background */}
       <div className="absolute inset-0 overflow-hidden opacity-10">
         {codeSnippets.map((snippet, i) => (
@@ -92,7 +92,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
         >
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             Agentic Coding
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 block">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-600 block">
               Redefined
             </span>
           </h1>
@@ -105,7 +105,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           >
             Automate your development workflow with intelligent mutation management,
             spec-driven development, and collaborative code evolution.
-            <span className="block text-purple-300 mt-2">
+            <span className="block text-orange-300 mt-2">
               Experience a real security fix from problem to production in just 8 minutes.
             </span>
           </motion.p>
@@ -118,13 +118,13 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-primary to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               onClick={() => setShowDemo(true)}
             >
               <Play className="mr-2 h-5 w-5" />
               Watch Cinematic Demo
             </Button>
-            <Button size="lg" variant="outline" className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-3 text-lg">
+            <Button size="lg" variant="outline" className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-8 py-3 text-lg">
               <Download className="mr-2 h-5 w-5" />
               Get Started Free
             </Button>
@@ -175,7 +175,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 0.5,
           }}
         >
-          <Terminal className="h-6 w-6 text-purple-400 mb-2" />
+          <Terminal className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">CLI Tools</h4>
         </motion.div>
 
@@ -190,7 +190,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 1,
           }}
         >
-          <GitBranch className="h-6 w-6 text-purple-400 mb-2" />
+          <GitBranch className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Smart Mutations</h4>
         </motion.div>
 
@@ -205,7 +205,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 1.5,
           }}
         >
-          <Zap className="h-6 w-6 text-purple-400 mb-2" />
+          <Zap className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Real-time Sync</h4>
         </motion.div>
 
@@ -220,7 +220,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 2,
           }}
         >
-          <FileText className="h-6 w-6 text-purple-400 mb-2" />
+          <FileText className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Living Specs</h4>
         </motion.div>
       </div>

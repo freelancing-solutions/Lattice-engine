@@ -265,7 +265,7 @@ export default function PrivacyPage() {
       <Navigation />
       <main className="pt-16">
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
+        <section className="py-20 bg-gradient-to-br from-blue-900 via-slate-800 to-slate-900">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -280,7 +280,7 @@ export default function PrivacyPage() {
               </div>
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Privacy
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Policy</span>
+                <span className="bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"> Policy</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
                 Your privacy is important to us. This policy explains how we collect, use, and protect 
@@ -295,7 +295,7 @@ export default function PrivacyPage() {
                   <CheckCircle className="h-3 w-3 mr-1" />
                   GDPR Compliant
                 </Badge>
-                <Badge variant="secondary" className="bg-purple-600 text-white">
+                <Badge variant="secondary" className="bg-primary text-white">
                   <Lock className="h-3 w-3 mr-1" />
                   Data Protected
                 </Badge>

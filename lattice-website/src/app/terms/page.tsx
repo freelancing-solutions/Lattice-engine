@@ -317,7 +317,7 @@ export default function TermsPage() {
               </div>
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Terms of
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Service</span>
+                <span className="bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent"> Service</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
                 These terms govern your use of Lattice Engine. Please read them carefully to understand 
@@ -332,7 +332,7 @@ export default function TermsPage() {
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Legally Binding
                 </Badge>
-                <Badge variant="secondary" className="bg-purple-600 text-white">
+                <Badge variant="secondary" className="bg-primary text-white">
                   <Gavel className="h-3 w-3 mr-1" />
                   User Agreement
                 </Badge>

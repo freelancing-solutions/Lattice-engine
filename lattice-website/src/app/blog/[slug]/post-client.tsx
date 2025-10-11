@@ -143,8 +143,8 @@ export default function PostClient({
                 <div className="bg-gray-50 rounded-lg p-8 mb-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <BookOpen className="h-6 w-6 text-purple-600" />
+                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <BookOpen className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{post.author}</h3>
@@ -163,7 +163,7 @@ export default function PostClient({
                 </div>
 
                 <div
-                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-purple-600 prose-pre:bg-gray-900 prose-pre:text-gray-100"
+                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-code:text-primary prose-pre:bg-gray-900 prose-pre:text-gray-100"
                   dangerouslySetInnerHTML={{
                     __html: post.content.replace(/\n/g, "<br />"),
                   }}
@@ -172,7 +172,7 @@ export default function PostClient({
                 <Separator className="my-12" />
 
                 {/* Share Section */}
-                <div className="bg-purple-50 rounded-lg p-8 mb-12">
+                <div className="bg-orange-50 rounded-lg p-8 mb-12">
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     Share this article
                   </h3>
@@ -211,7 +211,7 @@ export default function PostClient({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-purple-600 hover:text-purple-700"
+                              className="text-primary hover:text-orange-600"
                             >
                               Read More
                               <ArrowLeft className="ml-2 h-3 w-3 rotate-180" />

@@ -3,6 +3,7 @@ This module provides the base class for all PydanticAI-based agents.
 """
 
 import logging
+import asyncio
 from typing import Any, Dict, Optional, Type, TypeVar, Generic
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -37,22 +38,23 @@ class AgentContext(BaseModel):
 class PydanticBaseAgent(BaseAgent, Generic[T], ABC):
     """
     Base class for PydanticAI-based agents in the Lattice Mutation Engine.
-    
+
     This class provides:
     - Integration with PydanticAI for structured LLM interactions
     - Anthropic Claude client management
     - Structured input/output handling
     - Error handling and fallback mechanisms
     """
-    
-    def __init__(self, registration: AgentRegistration):
+
+    def __init__(self, registration: AgentRegistration, response_model_type: Type[BaseModel] = None):
         super().__init__(registration)
         self.claude_client = get_claude_client()
         self.agent_type = registration.agent_type.value if hasattr(registration.agent_type, 'value') else str(registration.agent_type)
-        
+        self.response_model_type = response_model_type
+
         # Initialize PydanticAI agent with Claude
         self.pydantic_agent = self._create_pydantic_agent()
-        
+
         logger.info(f"Initialized PydanticBaseAgent: {registration.agent_id}")
     
     def _create_pydantic_agent(self) -> Optional[Agent]:
@@ -69,7 +71,7 @@ class PydanticBaseAgent(BaseAgent, Generic[T], ABC):
             agent = Agent(
                 model=self.claude_client,
                 result_type=self.get_response_model(),
-                system_prompt=self.get_system_prompt()
+                system_prompt=self._get_system_prompt()
             )
             
             return agent
@@ -78,23 +80,29 @@ class PydanticBaseAgent(BaseAgent, Generic[T], ABC):
             logger.error(f"Failed to create PydanticAI agent for {self.registration.agent_id}: {e}")
             return None
     
-    @abstractmethod
     def get_response_model(self) -> Type[BaseModel]:
         """Get the Pydantic model for structured responses"""
-        pass
-    
+        if self.response_model_type:
+            return self.response_model_type
+        return self._get_response_model()
+
     @abstractmethod
-    def get_system_prompt(self) -> str:
+    def _get_response_model(self) -> Type[BaseModel]:
+        """Get the Pydantic model for structured responses"""
+        pass
+
+    @abstractmethod
+    def _get_system_prompt(self) -> str:
         """Get the system prompt for the agent"""
         pass
-    
+
     @abstractmethod
-    def prepare_user_message(self, task: AgentTask) -> str:
+    def _prepare_user_message(self, task: AgentTask) -> str:
         """Prepare the user message based on the task"""
         pass
-    
+
     @abstractmethod
-    def handle_fallback(self, task: AgentTask, error: Exception) -> Dict[str, Any]:
+    def _handle_fallback(self, task: AgentTask, error: Exception) -> Dict[str, Any]:
         """Handle fallback when PydanticAI fails"""
         pass
     
@@ -108,17 +116,17 @@ class PydanticBaseAgent(BaseAgent, Generic[T], ABC):
                 return await self._execute_with_pydantic(task)
             else:
                 logger.info(f"PydanticAI not available for {self.registration.agent_id}, using fallback")
-                return self.handle_fallback(task, Exception("PydanticAI not configured"))
+                return self._handle_fallback(task, Exception("PydanticAI not configured"))
                 
         except Exception as e:
             logger.error(f"Error in PydanticAI execution for {self.registration.agent_id}: {e}")
-            return self.handle_fallback(task, e)
+            return self._handle_fallback(task, e)
     
     async def _execute_with_pydantic(self, task: AgentTask) -> Dict[str, Any]:
         """Execute task using PydanticAI"""
         try:
             # Prepare the user message
-            user_message = self.prepare_user_message(task)
+            user_message = self._prepare_user_message(task)
             
             # Run the PydanticAI agent
             result = await self.pydantic_agent.run(user_message)
@@ -140,11 +148,27 @@ class MockLLMAgent(PydanticBaseAgent[T]):
     Provides basic rule-based responses for each agent type.
     """
     
+    def _get_response_model(self) -> Type[BaseModel]:
+        """Mock response model - return basic BaseModel"""
+        return BaseModel
+
     def _get_system_prompt(self) -> str:
         return f"You are a mock {self.registration.agent_type} agent for development purposes."
-    
+
     def _prepare_user_message(self, task: AgentTask) -> str:
         return f"Mock execution of {task.operation} with data: {task.input_data}"
+
+    def _handle_fallback(self, task: AgentTask, error: Exception) -> Dict[str, Any]:
+        """Mock fallback implementation"""
+        return {
+            "success": True,
+            "agent_id": self.registration.agent_id,
+            "task_id": task.task_id,
+            "mock_response": True,
+            "operation": task.operation,
+            "timestamp": datetime.utcnow().isoformat(),
+            "fallback_mode": True
+        }
     
     async def execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Provide mock responses based on agent type"""
