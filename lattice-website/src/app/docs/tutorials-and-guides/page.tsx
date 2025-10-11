@@ -226,10 +226,11 @@ const featuredTutorials = [
   {
     title: "Building a Complete Application with Lattice Engine",
     description: "End-to-end project from setup to production deployment",
-    duration: "2 hours",
+    duration: "4 hours",
     level: "Intermediate",
     icon: Rocket,
-    featured: true
+    featured: true,
+    link: "/docs/tutorials-and-guides/build-complete-application"
   },
   {
     title: "Microservices Architecture with Lattice",
@@ -237,7 +238,8 @@ const featuredTutorials = [
     duration: "1.5 hours",
     level: "Advanced",
     icon: Globe,
-    featured: true
+    featured: true,
+    link: "#"
   }
 ]
 
@@ -423,9 +425,11 @@ export default function TutorialsAndGuidesPage() {
                           <CardDescription className="text-base">{tutorial.description}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                            Start Tutorial <ArrowRight className="h-4 w-4 ml-2" />
-                          </Button>
+                          <Link href={tutorial.link} className="w-full">
+                            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                              Start Tutorial <ArrowRight className="h-4 w-4 ml-2" />
+                            </Button>
+                          </Link>
                         </CardContent>
                       </Card>
                     </motion.div>
