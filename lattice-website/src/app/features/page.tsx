@@ -1,45 +1,4 @@
 "use client"
-
-import { Metadata } from "next";
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://lattice-engine.com";
-
-// Metadata for the Features page
-export const metadata: Metadata = {
-  title: "Features - Lattice Engine | AI-Powered Development Tools",
-  description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, automated testing, and advanced debugging capabilities.",
-  keywords: "AI development tools, code generation, automated testing, version control, performance optimization, cloud deployment, team collaboration, developer tools",
-  authors: [{ name: "Lattice Engine Team" }],
-  creator: "Lattice Engine",
-  publisher: "Lattice Engine",
-  robots: "index, follow",
-  openGraph: {
-    title: "Features - Lattice Engine | AI-Powered Development Tools",
-    description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, and advanced debugging capabilities.",
-    url: `${baseUrl}/features`,
-    siteName: "Lattice Engine",
-    images: [
-      {
-        url: `${baseUrl}/og-image.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Lattice Engine - Features"
-      }
-    ],
-    locale: "en_US",
-    type: "website"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Features - Lattice Engine | AI-Powered Development Tools",
-    description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, and advanced debugging capabilities.",
-    images: [`${baseUrl}/og-image.jpg`],
-    creator: "@latticeengine"
-  },
-  alternates: {
-    canonical: `${baseUrl}/features`
-  }
-}
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { motion } from "framer-motion"
