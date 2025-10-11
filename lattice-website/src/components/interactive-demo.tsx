@@ -161,9 +161,9 @@ export default function InteractiveDemo() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="bg-blue-50 p-4 rounded border border-blue-200">
-                        <h4 className="font-semibold text-blue-900 mb-2">Authentication Spec v2.1</h4>
-                        <ul className="text-sm text-blue-800 space-y-1">
+                      <div className="bg-primary/10 p-4 rounded border border-primary/20">
+                        <h4 className="font-semibold text-primary mb-2">Authentication Spec v2.1</h4>
+                        <ul className="text-sm text-foreground space-y-1">
                           <li>• Passwords must be hashed using bcrypt</li>
                           <li>• All authentication events must be logged</li>
                           <li>• Rate limiting applies to login attempts</li>
@@ -171,7 +171,7 @@ export default function InteractiveDemo() {
                         </ul>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">Last updated: 2 minutes ago</span>
+                        <span className="text-sm text-muted-foreground">Last updated: 2 minutes ago</span>
                         <Badge variant="outline">In Sync</Badge>
                       </div>
                     </div>
@@ -189,22 +189,22 @@ export default function InteractiveDemo() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded">
                         <div className="flex items-center space-x-3">
-                          <AlertCircle className="h-5 w-5 text-yellow-500" />
+                          <AlertCircle className="h-5 w-5 text-primary" />
                           <div>
                             <p className="font-medium text-sm">Security Review Required</p>
-                            <p className="text-xs text-gray-500">Assigned to: security-team@company.com</p>
+                            <p className="text-xs text-muted-foreground">Assigned to: security-team@company.com</p>
                           </div>
                         </div>
                         <Badge variant="outline">Pending</Badge>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-green-50 rounded">
+                      <div className="flex items-center justify-between p-3 bg-primary/10 rounded">
                         <div className="flex items-center space-x-3">
-                          <CheckCircle className="h-5 w-5 text-green-500" />
+                          <CheckCircle className="h-5 w-5 text-primary" />
                           <div>
                             <p className="font-medium text-sm">Automated Tests Passed</p>
-                            <p className="text-xs text-gray-500">15/15 tests successful</p>
+                            <p className="text-xs text-muted-foreground">15/15 tests successful</p>
                           </div>
                         </div>
                         <Badge variant="secondary">Completed</Badge>
@@ -244,13 +244,13 @@ export default function InteractiveDemo() {
                 >
                   <div className="flex-shrink-0 mt-1">
                     {step.status === "completed" && (
-                      <CheckCircle className="h-6 w-6 text-green-500" />
+                      <CheckCircle className="h-6 w-6 text-primary" />
                     )}
                     {step.status === "current" && (
-                      <Clock className="h-6 w-6 text-blue-500" />
+                      <Clock className="h-6 w-6 text-primary" />
                     )}
                     {step.status === "pending" && (
-                      <ArrowRight className="h-6 w-6 text-gray-400" />
+                      <ArrowRight className="h-6 w-6 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -260,16 +260,15 @@ export default function InteractiveDemo() {
                 </motion.div>
               ))}
             </div>
-
             <div className="pt-6 border-t">
-              <div className="bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-900 dark:to-blue-900 p-6 rounded-lg border border-orange-200 dark:border-orange-800">
+              <div className="bg-primary/10 p-6 rounded-lg border border-primary/20">
                 <h4 className="font-semibold text-foreground mb-2">
                   🚀 80% Faster Deployment Cycle
                 </h4>
                 <p className="text-sm text-muted-foreground mb-4">
                   Teams using Lattice report an average 80% reduction in time from code commit to production deployment.
                 </p>
-                <Button className="bg-primary hover:bg-orange-600">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                   Start Free Trial
                 </Button>
               </div>

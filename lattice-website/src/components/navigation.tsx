@@ -65,7 +65,7 @@ export default function Navigation() {
                 href={item.href}
                 className={`transition-colors duration-200 text-sm font-medium flex items-center space-x-1 ${
                   item.isAdmin
-                    ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                    ? "text-primary hover:text-primary/80"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -101,7 +101,7 @@ export default function Navigation() {
                     href={item.href}
                     className={`transition-colors duration-200 text-lg font-medium flex items-center space-x-2 ${
                       item.isAdmin
-                        ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                        ? "text-primary hover:text-primary/80"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                     onClick={() => setIsOpen(false)}

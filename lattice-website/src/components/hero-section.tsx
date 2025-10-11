@@ -56,13 +56,13 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
   if (!mounted) return null
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/50 to-background overflow-hidden">
       {/* Animated Code Background */}
       <div className="absolute inset-0 overflow-hidden opacity-10">
         {codeSnippets.map((snippet, i) => (
           <motion.div
             key={i}
-            className="absolute text-green-400 font-mono text-sm whitespace-nowrap"
+            className="absolute text-primary font-mono text-sm whitespace-nowrap"
             initial={{ x: -200, y: Math.random() * 100 }}
             animate={{ 
               x: "100vw",
@@ -90,22 +90,22 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
             Agentic Coding
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-600 block">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/80 block">
               Redefined
             </span>
           </h1>
           
           <motion.p
-            className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Automate your development workflow with intelligent mutation management,
             spec-driven development, and collaborative code evolution.
-            <span className="block text-orange-300 mt-2">
+            <span className="block text-primary mt-2">
               Experience a real security fix from problem to production in just 8 minutes.
             </span>
           </motion.p>
@@ -118,13 +118,13 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-primary to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               onClick={() => setShowDemo(true)}
             >
               <Play className="mr-2 h-5 w-5" />
               Watch Cinematic Demo
             </Button>
-            <Button size="lg" variant="outline" className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-8 py-3 text-lg">
+            <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
               <Download className="mr-2 h-5 w-5" />
               Get Started Free
             </Button>
@@ -140,24 +140,24 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
 
       {/* Terminal Preview */}
       <motion.div 
-        className="absolute bottom-10 right-10 w-96 bg-gray-900 rounded-lg shadow-2xl border border-gray-700 hidden lg:block"
+        className="absolute bottom-10 right-10 w-96 bg-card rounded-lg shadow-2xl border border-border hidden lg:block"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
       >
-        <div className="flex items-center justify-between p-3 border-b border-gray-700">
+        <div className="flex items-center justify-between p-3 border-b border-border">
           <div className="flex space-x-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
-          <span className="text-gray-400 text-sm font-mono">lattice-cli</span>
+          <span className="text-muted-foreground text-sm font-mono">lattice-cli</span>
         </div>
         
-        <div className="p-4 font-mono text-sm text-green-400">
+        <div className="p-4 font-mono text-sm text-primary">
           <pre className="whitespace-pre-wrap">
             {terminalText}
-            <span className={`inline-block w-2 h-4 bg-green-400 ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'}`}></span>
+            <span className={`inline-block w-2 h-4 bg-primary ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'}`}></span>
           </pre>
         </div>
       </motion.div>

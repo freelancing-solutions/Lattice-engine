@@ -12,7 +12,7 @@ const docCategories = [
     icon: Code,
     title: "API Documentation",
     description: "Complete REST API reference with examples and SDKs",
-    color: "bg-blue-500",
+    color: "bg-primary",
     items: [
       "Authentication & Security",
       "Mutation Management", 
@@ -27,7 +27,7 @@ const docCategories = [
     icon: Terminal,
     title: "CLI Tools",
     description: "Command-line interface for automation and CI/CD",
-    color: "bg-slate-600",
+    color: "bg-muted",
     items: [
       "Installation & global flags",
       "Dry-run previews",
@@ -57,7 +57,7 @@ const docCategories = [
     icon: Zap,
     title: "MCP Servers",
     description: "Model Context Protocol integration for advanced workflows",
-    color: "bg-green-500",
+    color: "bg-primary/80",
     items: [
       "Server Configuration",
       "Real-time Synchronization",
@@ -128,45 +128,42 @@ export default function DocumentationHub() {
         </motion.div>
 
         {/* Documentation Categories */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {docCategories.map((category, index) => (
             <motion.div
-              key={index}
+              key={category.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
+              <Card className="h-full bg-card border-border shadow-md hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 ${category.color} rounded-lg flex items-center justify-center`}>
-                      <category.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
+                  <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center mb-4`}>
+                    <category.icon className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg text-foreground">{category.title}</CardTitle>
+                    <Badge variant="secondary" className="text-sm">
                       {category.badge}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg text-gray-900">
-                    {category.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 text-sm">
+                  <CardDescription className="text-muted-foreground">
                     {category.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 mb-4">
+                  <ul className="space-y-2 mb-6">
                     {category.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="text-sm text-gray-600 flex items-center">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                      <li key={itemIndex} className="text-sm text-muted-foreground flex items-center">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3" />
                         {item}
                       </li>
                     ))}
                   </ul>
                   <Button variant="outline" className="w-full" asChild>
                     <Link href={category.href}>
-                      View Docs
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      Explore Documentation
                     </Link>
                   </Button>
                 </CardContent>
@@ -183,12 +180,12 @@ export default function DocumentationHub() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <Card className="bg-gradient-to-r from-primary to-orange-600 border-0 text-white">
+          <Card className="bg-primary text-primary-foreground">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
                 🚀 Quick Start Guide
               </CardTitle>
-              <CardDescription className="text-orange-100 text-lg">
+              <CardDescription className="text-primary-foreground/80 text-lg">
                 Get up and running with Lattice Engine in under 5 minutes
               </CardDescription>
             </CardHeader>
@@ -196,20 +193,20 @@ export default function DocumentationHub() {
               <div className="grid md:grid-cols-4 gap-6">
                 {quickStartSteps.map((step, index) => (
                   <div key={index} className="text-center">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <step.icon className="h-8 w-8 text-white" />
+                    <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <step.icon className="h-8 w-8 text-primary-foreground" />
                     </div>
-                    <h4 className="font-semibold text-white mb-2">
+                    <h4 className="font-semibold text-primary-foreground mb-2">
                       Step {index + 1}
                     </h4>
-                    <p className="text-orange-100 text-sm">
+                    <p className="text-primary-foreground/80 text-sm">
                       {step.title}
                     </p>
                   </div>
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" className="bg-white text-primary hover:bg-gray-100" asChild>
+                <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90" asChild>
                   <Link href="/docs/quickstart">
                     Start Quick Start Guide
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -228,7 +225,7 @@ export default function DocumentationHub() {
           viewport={{ once: true }}
         >
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Community Forum</CardTitle>
@@ -243,7 +240,7 @@ export default function DocumentationHub() {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
                 <Star className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>GitHub Discussions</CardTitle>
@@ -258,7 +255,7 @@ export default function DocumentationHub() {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
                 <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Blog & Tutorials</CardTitle>

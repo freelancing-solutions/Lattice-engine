@@ -10,6 +10,7 @@ import Footer from "@/components/footer"
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Lattice Engine - AI-Powered Development Platform",
   description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment for modern applications.",
   keywords: [
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
     "lattice engine",
     "development automation"
   ],
+  authors: [{ name: "Lattice Engine Team" }],
   openGraph: {
     title: "Lattice Engine - AI-Powered Development Platform",
     description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment.",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Lattice Engine",
     images: [
       {
-        url: `${baseUrl}/og-home.png`,
+        url: `${baseUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Lattice Engine - AI-Powered Development Platform",
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Lattice Engine - AI-Powered Development Platform", 
     description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment.",
-    images: [`${baseUrl}/twitter-home.png`],
+    images: [`${baseUrl}/og-image.png`],
   },
   alternates: {
     canonical: baseUrl,

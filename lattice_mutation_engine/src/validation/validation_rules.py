@@ -260,22 +260,237 @@ class ValidationRuleRegistry:
     def _validate_no_circular_dependencies(self, context: ValidationContext) -> List[Dict[str, Any]]:
         """Validate no circular dependencies exist"""
         errors = []
-        # This would be implemented with graph traversal algorithms
-        # For now, return empty list
+
+        try:
+            if not context.graph_nodes or not context.graph_edges:
+                return errors
+
+            # Build dependency graph from edges
+            graph = {}
+            for node_id, node in context.graph_nodes.items():
+                graph[node_id] = []
+
+            # Add dependencies based on edges
+            for edge_id, edge in context.graph_edges.items():
+                if edge.type == RelationshipType.DEPENDS_ON:
+                    if edge.target_id not in graph[edge.source_id]:
+                        graph[edge.source_id].append(edge.target_id)
+
+            # Detect cycles using DFS
+            visited = set()
+            rec_stack = set()
+
+            def has_cycle(node, path):
+                if node in rec_stack:
+                    # Found cycle, return the cycle path
+                    cycle_start = path.index(node)
+                    cycle_path = path[cycle_start:] + [node]
+                    return cycle_path
+                if node in visited:
+                    return None
+
+                visited.add(node)
+                rec_stack.add(node)
+                path.append(node)
+
+                for neighbor in graph.get(node, []):
+                    cycle = has_cycle(neighbor, path.copy())
+                    if cycle:
+                        return cycle
+
+                rec_stack.remove(node)
+                return None
+
+            # Check each node for cycles
+            for node_id in graph:
+                if node_id not in visited:
+                    cycle = has_cycle(node_id, [])
+                    if cycle:
+                        errors.append({
+                            'code': 'CIRCULAR_DEPENDENCY',
+                            'message': f'Circular dependency detected: {" -> ".join(cycle)}',
+                            'severity': 'error',
+                            'field_path': 'dependencies',
+                            'cycle_path': cycle
+                        })
+                        break  # Stop after first cycle found
+
+        except Exception as e:
+            errors.append({
+                'code': 'CIRCULAR_DEPENDENCY_ERROR',
+                'message': f'Error checking circular dependencies: {str(e)}',
+                'severity': 'error'
+            })
+
         return errors
     
     def _validate_semantic_consistency(self, context: ValidationContext) -> List[Dict[str, Any]]:
         """Validate semantic consistency"""
         errors = []
-        # This would use semantic analysis and NLP
-        # For now, return empty list
+
+        try:
+            if not context.node:
+                return errors
+
+            node = context.node
+
+            # Check node name matches type conventions
+            if node.type == NodeType.MODULE:
+                if not (node.name.islower() or '_' in node.name):
+                    errors.append({
+                        'code': 'NAMING_CONVENTION',
+                        'message': f'Module name "{node.name}" should follow snake_case convention',
+                        'severity': 'warning',
+                        'field_path': 'name'
+                    })
+
+            elif node.type == NodeType.CLASS:
+                if not node.name.replace('_', '').isalnum() or not node.name[0].isupper():
+                    errors.append({
+                        'code': 'NAMING_CONVENTION',
+                        'message': f'Class name "{node.name}" should follow PascalCase convention',
+                        'severity': 'warning',
+                        'field_path': 'name'
+                    })
+
+            elif node.type == NodeType.FUNCTION:
+                if not node.name.replace('_', '').isalnum() or not node.name[0].islower():
+                    errors.append({
+                        'code': 'NAMING_CONVENTION',
+                        'message': f'Function name "{node.name}" should follow snake_case convention',
+                        'severity': 'warning',
+                        'field_path': 'name'
+                    })
+
+            # Check required metadata fields
+            if node.type in [NodeType.SPEC, NodeType.MODULE]:
+                if 'version' not in node.metadata:
+                    errors.append({
+                        'code': 'MISSING_METADATA',
+                        'message': f'{node.type.value} nodes should have version information',
+                        'severity': 'warning',
+                        'field_path': 'metadata.version'
+                    })
+
+                if 'author' not in node.metadata:
+                    errors.append({
+                        'code': 'MISSING_METADATA',
+                        'message': f'{node.type.value} nodes should have author information',
+                        'severity': 'warning',
+                        'field_path': 'metadata.author'
+                    })
+
+            # Check description quality
+            if node.description:
+                # Basic quality checks
+                if len(node.description) < 10:
+                    errors.append({
+                        'code': 'DESCRIPTION_TOO_SHORT',
+                        'message': 'Description should be more descriptive (at least 10 characters)',
+                        'severity': 'warning',
+                        'field_path': 'description'
+                    })
+
+                if node.name.lower() in node.description.lower():
+                    errors.append({
+                        'code': 'REDUNDANT_DESCRIPTION',
+                        'message': 'Description should not just repeat the name',
+                        'severity': 'info',
+                        'field_path': 'description'
+                    })
+
+        except Exception as e:
+            errors.append({
+                'code': 'SEMANTIC_VALIDATION_ERROR',
+                'message': f'Error during semantic validation: {str(e)}',
+                'severity': 'error'
+            })
+
         return errors
     
     def _validate_business_rules(self, context: ValidationContext) -> List[Dict[str, Any]]:
         """Validate business rule compliance"""
         errors = []
-        # This would check against configured business rules
-        # For now, return empty list
+
+        try:
+            if not context.node:
+                return errors
+
+            node = context.node
+
+            # Business rule: Spec nodes should have descriptions
+            if node.type == NodeType.SPEC:
+                if not node.description or len(node.description.strip()) == 0:
+                    errors.append({
+                        'code': 'MISSING_DESCRIPTION',
+                        'message': 'Spec nodes must have descriptions',
+                        'severity': 'error',
+                        'field_path': 'description'
+                    })
+
+            # Business rule: Active status nodes should be properly connected
+            if node.status == Status.ACTIVE:
+                if context.graph_edges:
+                    connected_edges = [
+                        edge for edge in context.graph_edges.values()
+                        if edge.source_id == node.id or edge.target_id == node.id
+                    ]
+                    if len(connected_edges) == 0:
+                        errors.append({
+                            'code': 'ISOLATED_NODE',
+                            'message': f'Active node "{node.name}" should have connections to other nodes',
+                            'severity': 'warning',
+                            'field_path': 'connections'
+                        })
+
+            # Business rule: Metadata contains required business fields
+            business_required_fields = {
+                NodeType.SPEC: ['version', 'category'],
+                NodeType.MODULE: ['file_path', 'language'],
+                NodeType.CLASS: ['file_path', 'package'],
+                NodeType.FUNCTION: ['file_path', 'complexity']
+            }
+
+            if node.type in business_required_fields:
+                for field in business_required_fields[node.type]:
+                    if field not in node.metadata or not node.metadata[field]:
+                        errors.append({
+                            'code': 'MISSING_BUSINESS_FIELD',
+                            'message': f'{node.type.value} nodes must have metadata field: {field}',
+                            'severity': 'warning',
+                            'field_path': f'metadata.{field}'
+                        })
+
+            # Business rule: Version format validation
+            if 'version' in node.metadata:
+                version = node.metadata['version']
+                if not re.match(r'^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$', version):
+                    errors.append({
+                        'code': 'INVALID_VERSION_FORMAT',
+                        'message': f'Version "{version}" should follow semantic versioning (e.g., 1.0.0)',
+                        'severity': 'warning',
+                        'field_path': 'metadata.version'
+                    })
+
+            # Business rule: File path validation for certain node types
+            if node.type in [NodeType.MODULE, NodeType.CLASS, NodeType.FUNCTION]:
+                if 'file_path' in node.metadata:
+                    file_path = node.metadata['file_path']
+                    if not file_path.endswith(('.py', '.js', '.ts', '.java', '.cs', '.go', '.rs')):
+                        errors.append({
+                            'code': 'INVALID_FILE_EXTENSION',
+                            'message': f'File path "{file_path}" should have valid code file extension',
+                            'severity': 'warning',
+                            'field_path': 'metadata.file_path'
+                        })
+
+        except Exception as e:
+            errors.append({
+                'code': 'BUSINESS_RULE_ERROR',
+                'message': f'Error during business rule validation: {str(e)}',
+                'severity': 'error'
+            })
+
         return errors
 
 
