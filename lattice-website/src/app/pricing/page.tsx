@@ -111,7 +111,7 @@ const pricingPlans = [
     ],
     cta: "Start Team Trial",
     popular: false,
-    color: "border-purple-500"
+    color: "border-orange-500"
   },
   {
     name: "Enterprise",
@@ -225,7 +225,7 @@ export default function PricingPage() {
                 <Star className="w-4 h-4 mr-1" />
                 Pricing Plans
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">
                 Choose Your Plan
               </h1>
               <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">

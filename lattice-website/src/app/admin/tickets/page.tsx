@@ -281,7 +281,7 @@ export default function AdminTicketsPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-purple-500" />
+                    <TrendingUp className="h-5 w-5 text-primary" />
                     <div>
                       <p className="text-2xl font-bold">{stats.data.today}</p>
                       <p className="text-xs text-muted-foreground">Today</p>

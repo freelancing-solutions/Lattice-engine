@@ -125,7 +125,7 @@ export class Auth {
     ],
     duration: 4500,
     icon: GitBranch,
-    iconColor: "from-purple-500 to-pink-500"
+    iconColor: "from-primary to-orange-500"
   },
   {
     id: 4,
@@ -369,7 +369,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
           className="fixed inset-0 z-50 bg-black"
         >
           {/* Cinematic Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
             {/* Animated code particles */}
             <div className="absolute inset-0 overflow-hidden opacity-20">
               {[...Array(20)].map((_, i) => (
@@ -409,7 +409,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
             >
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-primary to-orange-500 rounded-lg flex items-center justify-center">
                     <Code className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -427,7 +427,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
                   </div>
                   <div className="w-48 bg-gray-700 rounded-full h-2">
                     <motion.div
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                      className="bg-gradient-to-r from-primary to-orange-500 h-2 rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
                       transition={{ duration: 0.3 }}
@@ -457,7 +457,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
               >
                 {/* Developer Avatar */}
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-orange-500 rounded-full flex items-center justify-center">
                     <User className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -507,7 +507,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
                         transition={{ duration: 0.3, delay: index * 0.1 }}
                         className="flex items-start space-x-2"
                       >
-                        <Zap className="h-3 w-3 text-purple-400 mt-1 flex-shrink-0" />
+                        <Zap className="h-3 w-3 text-primary mt-1 flex-shrink-0" />
                         <p className="text-xs text-gray-300">{insight}</p>
                       </motion.div>
                     ))}
@@ -608,7 +608,7 @@ export default function CinematicDemo({ isOpen, onClose }: CinematicDemoProps) {
                   <Button
                     size="lg"
                     onClick={handlePlay}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8"
+                    className="bg-gradient-to-r from-primary to-orange-500 hover:from-orange-600 hover:to-orange-700 text-white px-8"
                   >
                     {isPlaying ? (
                       <>

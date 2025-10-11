@@ -54,7 +54,7 @@ export default function PostClient({
                   The blog post you're looking for doesn't exist.
                 </p>
                 <Link href="/blog">
-                  <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Blog
                   </Button>
@@ -73,7 +73,7 @@ export default function PostClient({
       <Navigation />
       <main className="pt-16">
         {/* Article Header */}
-        <section className="py-16 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <section className="py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -83,23 +83,23 @@ export default function PostClient({
             >
               <Link
                 href="/blog"
-                className="inline-flex items-center text-purple-200 hover:text-white mb-8 transition-colors"
+                className="inline-flex items-center text-orange-200 hover:text-white mb-8 transition-colors"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Blog
               </Link>
 
-              <Badge className="mb-6 bg-purple-600">{post.category}</Badge>
+              <Badge className="mb-6 bg-primary text-primary-foreground">{post.category}</Badge>
 
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
                 {post.title}
               </h1>
 
-              <p className="text-xl text-purple-100 mb-8 leading-relaxed">
+              <p className="text-xl text-orange-100 mb-8 leading-relaxed">
                 {post.excerpt}
               </p>
 
-              <div className="flex flex-wrap justify-center items-center gap-6 text-purple-200">
+              <div className="flex flex-wrap justify-center items-center gap-6 text-orange-200">
                 <div className="flex items-center space-x-2">
                   <User className="h-5 w-5" />
                   <span>{post.author}</span>
@@ -119,7 +119,7 @@ export default function PostClient({
                   <Badge
                     key={index}
                     variant="secondary"
-                    className="bg-purple-700 text-purple-100"
+                    className="bg-orange-700 text-orange-100"
                   >
                     {tag}
                   </Badge>
@@ -247,9 +247,9 @@ export default function PostClient({
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <Button className="bg-purple-600 hover:bg-purple-700">Subscribe</Button>
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Subscribe</Button>
               </div>
             </motion.div>
           </div>

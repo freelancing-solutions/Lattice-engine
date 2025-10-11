@@ -82,7 +82,7 @@ const tutorialCategories = [
     title: "Advanced Workflows",
     description: "Master complex patterns and advanced techniques for experienced developers.",
     icon: Rocket,
-    color: "bg-purple-500",
+    color: "bg-primary",
     tutorials: [
       {
         title: "Custom Workflow Automation",
@@ -202,7 +202,7 @@ const learningPaths = [
     duration: "4 hours",
     tutorials: 8,
     icon: Award,
-    color: "bg-purple-500"
+    color: "bg-primary"
   },
   {
     title: "DevOps Engineer",

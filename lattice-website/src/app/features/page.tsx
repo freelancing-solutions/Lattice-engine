@@ -125,7 +125,7 @@ export default function FeaturesPage() {
       <Navigation />
       <main>
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -135,14 +135,14 @@ export default function FeaturesPage() {
             >
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
                 Powerful Features for
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Modern Development</span>
+                <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Modern Development</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
                 Discover the comprehensive suite of AI-powered tools and features that make Lattice Engine 
                 the ultimate development platform for teams of all sizes.
               </p>
               <div className="flex flex-wrap justify-center gap-2 mb-8">
-                <Badge variant="secondary" className="bg-purple-600 text-white">AI-Powered</Badge>
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">AI-Powered</Badge>
                 <Badge variant="secondary" className="bg-blue-600 text-white">Cloud-Native</Badge>
                 <Badge variant="secondary" className="bg-green-600 text-white">Team-Ready</Badge>
                 <Badge variant="secondary" className="bg-orange-600 text-white">Enterprise-Grade</Badge>
@@ -320,8 +320,8 @@ export default function FeaturesPage() {
                 >
                   <Card className="h-full hover:shadow-lg transition-shadow duration-300">
                     <CardHeader>
-                      <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
-                        <feature.icon className="h-6 w-6 text-white" />
+                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
+                        <feature.icon className="h-6 w-6 text-primary-foreground" />
                       </div>
                       <CardTitle className="text-xl text-gray-900">
                         {feature.title}
@@ -334,7 +334,7 @@ export default function FeaturesPage() {
                       <ul className="space-y-2">
                         {(feature.metrics || feature.integrations)?.map((item, itemIndex) => (
                           <li key={itemIndex} className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
                             <span className="text-gray-700 text-sm">{item}</span>
                           </li>
                         ))}
@@ -348,7 +348,7 @@ export default function FeaturesPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-purple-600 to-pink-600">
+        <section className="py-20 bg-gradient-to-r from-primary to-orange-600">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -360,15 +360,15 @@ export default function FeaturesPage() {
               <h2 className="text-4xl font-bold text-white mb-4">
                 Ready to Experience These Features?
               </h2>
-              <p className="text-xl text-purple-100 mb-8 max-w-3xl mx-auto">
+              <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
                 Join thousands of developers who are already building better software with Lattice Engine. 
                 Start your free trial today - no credit card required.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
+                <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
                   Start Free Trial
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                   Schedule Demo
                 </Button>
               </div>

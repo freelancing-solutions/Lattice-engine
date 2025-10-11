@@ -262,7 +262,7 @@ export default function InteractiveDemo() {
             </div>
 
             <div className="pt-6 border-t">
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 p-6 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-900 dark:to-blue-900 p-6 rounded-lg border border-orange-200 dark:border-orange-800">
                 <h4 className="font-semibold text-foreground mb-2">
                   🚀 80% Faster Deployment Cycle
                 </h4>

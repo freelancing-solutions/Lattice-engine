@@ -120,7 +120,7 @@ const documentationCategories = [
     title: "VSCode Extension",
     description: "Native IDE integration with IntelliSense support and real-time validation.",
     icon: Code,
-    color: "bg-purple-500",
+    color: "bg-primary",
     items: [
       {
         title: "Extension Guide v1.5.2",

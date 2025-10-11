@@ -60,7 +60,7 @@ const mutation = await lattice.propose({
     title: "Spec Validation",
     description: "Changes are validated against living specifications",
     icon: FileText,
-    color: "from-purple-500 to-pink-500",
+    color: "from-primary to-orange-500",
     duration: 1800,
     code: `spec.validate(mutation) {
   ✓ Authentication requirements met
@@ -87,7 +87,7 @@ const mutation = await lattice.propose({
     title: "Deployment",
     description: "Automated deployment with real-time monitoring",
     icon: Zap,
-    color: "from-indigo-500 to-blue-500",
+    color: "from-blue-500 to-primary",
     duration: 1600,
     code: `🚀 Deploying to production...
 ✓ Tests passed (127/127)
