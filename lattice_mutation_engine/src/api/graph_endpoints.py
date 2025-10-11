@@ -1,8 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel
-import logging
+from fastapi import APIRouter, HTTPException, Depends, Query
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
 import time
+import logging
+
+from lattice_mutation_engine.core.dependencies import (
+    get_graph_service,
+    get_semantic_index
+)
 
 from lattice_mutation_engine.auth import verify_api_key
 from lattice_mutation_engine.models.graph_models import GraphQuery, SemanticSearchRequest
