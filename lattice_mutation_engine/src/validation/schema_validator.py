@@ -56,16 +56,16 @@ class SchemaValidator:
         """Register a custom validator function"""
         self.custom_validators[name] = validator_func
     
-    def validate_node(self, node: Node) -> ValidationResult:
+    def validate_node(self, node: Node) -> List[ValidationResult]:
         """Validate a node against its schema"""
         errors = []
         warnings = []
         suggestions = []
-        
+
         try:
             # Get applicable schemas for the node type
             applicable_schemas = self._get_schemas_for_node_type(node.type)
-            
+
             if not applicable_schemas:
                 warnings.append({
                     'code': 'NO_SCHEMA',
@@ -73,48 +73,48 @@ class SchemaValidator:
                     'field_path': 'type',
                     'severity': RuleSeverity.WARNING
                 })
-            
+
             for schema in applicable_schemas:
                 schema_errors, schema_warnings, schema_suggestions = self._validate_against_schema(node, schema)
                 errors.extend(schema_errors)
                 warnings.extend(schema_warnings)
                 suggestions.extend(schema_suggestions)
-            
+
             # Perform additional validations
             additional_errors, additional_warnings, additional_suggestions = self._perform_additional_validations(node)
             errors.extend(additional_errors)
             warnings.extend(additional_warnings)
             suggestions.extend(additional_suggestions)
-            
+
         except Exception as e:
             errors.append({
                 'code': 'VALIDATION_ERROR',
                 'message': f'Validation failed: {str(e)}',
                 'severity': RuleSeverity.ERROR
             })
-        
-        return ValidationResult(
+
+        return [ValidationResult(
             spec_id=node.id,
             is_valid=len(errors) == 0,
             errors=errors,
             warnings=warnings,
             suggestions=suggestions,
             validation_timestamp=datetime.utcnow()
-        )
+        )]
     
-    def validate_edge(self, edge: Edge, source_node: Node = None, target_node: Node = None) -> ValidationResult:
+    def validate_edge(self, edge: Edge, source_node: Node = None, target_node: Node = None) -> List[ValidationResult]:
         """Validate an edge against its schema"""
         errors = []
         warnings = []
         suggestions = []
-        
+
         try:
             # Validate edge structure
             edge_errors, edge_warnings, edge_suggestions = self._validate_edge_structure(edge)
             errors.extend(edge_errors)
             warnings.extend(edge_warnings)
             suggestions.extend(edge_suggestions)
-            
+
             # Validate edge relationships
             if source_node and target_node:
                 rel_errors, rel_warnings, rel_suggestions = self._validate_edge_relationships(
@@ -123,22 +123,22 @@ class SchemaValidator:
                 errors.extend(rel_errors)
                 warnings.extend(rel_warnings)
                 suggestions.extend(rel_suggestions)
-            
+
         except Exception as e:
             errors.append({
                 'code': 'EDGE_VALIDATION_ERROR',
                 'message': f'Edge validation failed: {str(e)}',
                 'severity': RuleSeverity.ERROR
             })
-        
-        return ValidationResult(
+
+        return [ValidationResult(
             spec_id=edge.id,
             is_valid=len(errors) == 0,
             errors=errors,
             warnings=warnings,
             suggestions=suggestions,
             validation_timestamp=datetime.utcnow()
-        )
+        )]
     
     def validate_json_schema(self, data: Dict[str, Any], schema: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Validate data against JSON schema"""
@@ -162,7 +162,81 @@ class SchemaValidator:
             })
         
         return errors
-    
+
+    def get_validation_rules(self) -> List[Dict[str, Any]]:
+        """Get validation rules from registered schemas"""
+        rules = []
+
+        for schema in self.schemas.values():
+            # Required field validation rules
+            for field in schema.required_fields:
+                rules.append({
+                    'rule_id': f"required_field_{field}",
+                    'rule_type': 'schema',
+                    'severity': 'error',
+                    'description': f"Field {field} is required",
+                    'validator_func': 'validate_required_field',
+                    'field_name': field
+                })
+
+            # Field constraint validation rules
+            for field, constraints in schema.field_constraints.items():
+                if 'min_length' in constraints:
+                    rules.append({
+                        'rule_id': f"min_length_{field}",
+                        'rule_type': 'schema',
+                        'severity': 'error',
+                        'description': f"Field {field} must have minimum length {constraints['min_length']}",
+                        'validator_func': 'validate_min_length',
+                        'field_name': field,
+                        'min_length': constraints['min_length']
+                    })
+
+                if 'max_length' in constraints:
+                    rules.append({
+                        'rule_id': f"max_length_{field}",
+                        'rule_type': 'schema',
+                        'severity': 'error',
+                        'description': f"Field {field} must have maximum length {constraints['max_length']}",
+                        'validator_func': 'validate_max_length',
+                        'field_name': field,
+                        'max_length': constraints['max_length']
+                    })
+
+                if 'pattern' in constraints:
+                    rules.append({
+                        'rule_id': f"pattern_{field}",
+                        'rule_type': 'schema',
+                        'severity': 'error',
+                        'description': f"Field {field} must match pattern {constraints['pattern']}",
+                        'validator_func': 'validate_pattern',
+                        'field_name': field,
+                        'pattern': constraints['pattern']
+                    })
+
+                if 'enum' in constraints:
+                    rules.append({
+                        'rule_id': f"enum_{field}",
+                        'rule_type': 'schema',
+                        'severity': 'error',
+                        'description': f"Field {field} must be one of: {constraints['enum']}",
+                        'validator_func': 'validate_enum',
+                        'field_name': field,
+                        'enum_values': constraints['enum']
+                    })
+
+            # JSON schema validation rules
+            rules.append({
+                'rule_id': f"json_schema_{schema.schema_id}",
+                'rule_type': 'schema',
+                'severity': 'error',
+                'description': f"Validate against {schema.name}",
+                'validator_func': 'validate_json_schema',
+                'schema_id': schema.schema_id
+            })
+
+        return rules
+
     def _get_schemas_for_node_type(self, node_type: NodeType) -> List[SchemaDefinition]:
         """Get all schemas applicable to a node type"""
         return [

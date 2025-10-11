@@ -28,11 +28,50 @@ import Link from "next/link"
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-// Metadata for the API Documentation page
-// export const metadata: Metadata = {
-//   title: "API Documentation v2.1.0 - Lattice Engine",
-//   description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications.",
-// }
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: "API Documentation v2.1.0 - Lattice Engine | REST API Reference",
+  description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications with mutations, approvals, specifications, and more.",
+  keywords: [
+    "lattice engine api",
+    "rest api documentation",
+    "mutations api",
+    "approvals api",
+    "specifications api",
+    "graph query api",
+    "tasks api",
+    "websocket api",
+    "python sdk",
+    "javascript sdk",
+    "api integration"
+  ],
+  authors: [{ name: "Lattice Engine Team" }],
+  openGraph: {
+    title: "API Documentation v2.1.0 - Lattice Engine",
+    description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications.",
+    url: `${baseUrl}/docs/api-documentation`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-api-docs.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine API Documentation"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "API Documentation v2.1.0 - Lattice Engine",
+    description: "Complete REST API reference with examples and SDK documentation. Learn how to integrate Lattice Engine into your applications.",
+    images: [`${baseUrl}/og-api-docs.jpg`]
+  },
+  alternates: {
+    canonical: `${baseUrl}/docs/api-documentation`
+  }
+}
 
 const apiEndpoints = [
   {

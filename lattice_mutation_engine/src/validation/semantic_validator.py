@@ -455,8 +455,8 @@ class SemanticValidator:
         
         logger.info("Semantic validator initialized")
     
-    def validate_node(self, node: Node, related_nodes: List[Node] = None, 
-                     edges: List[Edge] = None) -> List[ValidationResult]:
+    def validate_node(self, node: Node, related_nodes: List[Node] = None,
+                     edges: List[Edge] = None, graph_metadata: Dict[str, Any] = None) -> List[ValidationResult]:
         """Validate a single node with semantic rules"""
         results = []
         
@@ -473,7 +473,7 @@ class SemanticValidator:
                 related_nodes=related_nodes,
                 incoming_edges=incoming_edges,
                 outgoing_edges=outgoing_edges,
-                graph_metadata={}
+                graph_metadata=graph_metadata or {}
             )
             
             # Run naming convention validation

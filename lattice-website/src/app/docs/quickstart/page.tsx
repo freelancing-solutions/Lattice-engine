@@ -13,10 +13,38 @@ import Link from "next/link"
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
 // Metadata for the Quick Start Guide page
-// export const metadata: Metadata = {
-//   title: "Quick Start Guide - Lattice Engine",
-//   description: "Get started with Lattice Engine in under 5 minutes. Learn the basics and start building AI-powered applications today.",
-// }
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: "Quick Start Guide - Lattice Engine",
+  description: "Get started with Lattice Engine in under 5 minutes. Learn the basics and start building AI-powered applications today.",
+  keywords: ["lattice engine", "quick start", "tutorial", "getting started", "AI development", "living specifications", "intelligent mutations", "setup guide"],
+  authors: [{ name: "Lattice Engine Team" }],
+  openGraph: {
+    title: "Quick Start Guide - Lattice Engine",
+    description: "Get started with Lattice Engine in under 5 minutes. Learn the basics and start building AI-powered applications today.",
+    url: `${baseUrl}/docs/quickstart`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine Quick Start Guide",
+      },
+    ],
+    locale: "en_US",
+    type: "article",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quick Start Guide - Lattice Engine",
+    description: "Get started with Lattice Engine in under 5 minutes. Learn the basics and start building AI-powered applications today.",
+    images: [`${baseUrl}/og-image.png`],
+  },
+  alternates: {
+    canonical: `${baseUrl}/docs/quickstart`,
+  },
+}
 
 const quickSteps = [
   {
