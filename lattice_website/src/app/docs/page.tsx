@@ -1,3 +1,5 @@
+"use client"
+
 import { Metadata } from "next";
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
@@ -6,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { motion } from "framer-motion"
 import {
   BookOpen,
   Code,
@@ -40,47 +43,8 @@ import {
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
-  title: "Documentation - Lattice Engine | AI-Powered Development Platform",
-  description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications with our detailed guides, API references, and tutorials.",
-  keywords: [
-    "lattice engine documentation",
-    "ai development platform docs",
-    "agentic coding guides",
-    "api documentation",
-    "vscode extension guide",
-    "mcp servers documentation",
-    "developer tutorials",
-    "mutation tracking guides"
-  ],
-  authors: [{ name: "Lattice Engine Team" }],
-  openGraph: {
-    title: "Documentation - Lattice Engine",
-    description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications with our detailed guides and API references.",
-    url: `${baseUrl}/docs`,
-    siteName: "Lattice Engine",
-    images: [
-      {
-        url: `${baseUrl}/og-docs.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Lattice Engine Documentation"
-      }
-    ],
-    locale: "en_US",
-    type: "website"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Documentation - Lattice Engine",
-    description: "Comprehensive documentation for Lattice Engine. Learn how to build, deploy, and scale AI-powered applications with our detailed guides and API references.",
-    images: [`${baseUrl}/og-docs.jpg`]
-  },
-  alternates: {
-    canonical: `${baseUrl}/docs`
-  }
-}
+// Note: This page uses client-side components for animations
+// Metadata is defined here but the page is a client component
 
 const documentationCategories = [
   {
@@ -317,9 +281,8 @@ export default function DocumentationPage() {
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="pt-16">
-        <div className="min-h-screen bg-background">
-          {/* Hero Section */}
-          <DocsHero />
+        {/* Hero Section */}
+        <DocsHero />
 
           {/* Search Section */}
         <section className="py-12 bg-card border-b border-border">

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Activity, Users, Database, Shield, Zap } from "lucide-react";
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import MCPServersContent from "@/components/mcp-servers-content"

@@ -1,7 +1,8 @@
 import { Metadata } from "next";
+import { Download, BookOpen, Terminal, Code, Zap } from "lucide-react";
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
-import QuickStartContent from "@/components/quickstart-content"
+import QuickstartContent from "@/components/quickstart-content"
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
