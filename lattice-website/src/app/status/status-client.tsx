@@ -101,7 +101,6 @@ export default function StatusClient() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setIsLoading(false)
     }, 1000)
@@ -160,92 +159,123 @@ export default function StatusClient() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <motion.h1 
-            className="text-4xl font-bold mb-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            System Status
-          </motion.h1>
+    <>
+      {/* Hero Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="container mx-auto px-4">
           <motion.div
-            className="flex items-center justify-center gap-2 mb-4"
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
           >
-            {getStatusIcon(systemStatus.overall)}
-            <span className={`font-semibold ${getStatusColor(systemStatus.overall).split(' ')[0]}`}>
-              {getOverallStatusMessage()}
-            </span>
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              System
+              <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Status</span>
+            </h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+              Real-time monitoring of all Lattice Engine services and infrastructure components. 
+              Track uptime, performance metrics, and incident reports.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              <Badge variant="secondary" className={systemStatus.overall === "operational" ? "bg-green-600 text-white" : systemStatus.overall === "degraded" ? "bg-yellow-600 text-white" : "bg-red-600 text-white"}>
+                <div className="flex items-center gap-1">
+                  {getStatusIcon(systemStatus.overall)}
+                  <span>{getOverallStatusMessage()}</span>
+                </div>
+              </Badge>
+              <Badge variant="secondary" className="bg-blue-600 text-white">99.9% Uptime</Badge>
+              <Badge variant="secondary" className="bg-primary text-primary-foreground">6 Services Monitored</Badge>
+              <Badge variant="secondary" className="bg-orange-600 text-white">Real-time Updates</Badge>
+            </div>
           </motion.div>
-          <motion.p 
-            className="text-muted-foreground max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Real-time monitoring of all Lattice Engine services and infrastructure components.
-          </motion.p>
         </div>
+      </section>
 
-        {/* Overall Uptime Stats */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">24 Hours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_24h}%</div>
-              <Progress value={systemStatus.uptime.last_24h} className="mt-2" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">7 Days</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_7d}%</div>
-              <Progress value={systemStatus.uptime.last_7d} className="mt-2" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">30 Days</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_30d}%</div>
-              <Progress value={systemStatus.uptime.last_30d} className="mt-2" />
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* Overall Uptime Stats */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Uptime Overview
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Our platform maintains industry-leading uptime across all services and regions.
+            </p>
+          </motion.div>
 
-        {/* Services Status */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <h2 className="text-2xl font-bold mb-6">Service Status</h2>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <Card className="hover:shadow-lg transition-shadow duration-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">24 Hours</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_24h}%</div>
+                <Progress value={systemStatus.uptime.last_24h} className="mt-2" />
+              </CardContent>
+            </Card>
+            <Card className="hover:shadow-lg transition-shadow duration-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">7 Days</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_7d}%</div>
+                <Progress value={systemStatus.uptime.last_7d} className="mt-2" />
+              </CardContent>
+            </Card>
+            <Card className="hover:shadow-lg transition-shadow duration-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">30 Days</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{systemStatus.uptime.last_30d}%</div>
+                <Progress value={systemStatus.uptime.last_30d} className="mt-2" />
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Services Status */}
+      <section className="py-20 bg-card">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Service Status
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Detailed status and performance metrics for all core platform services.
+            </p>
+          </motion.div>
+
           <div className="space-y-4">
             {systemStatus.services.map((service, index) => (
               <motion.div
                 key={service.name}
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
+                viewport={{ once: true }}
               >
-                <Card>
+                <Card className="hover:shadow-lg transition-shadow duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -287,55 +317,74 @@ export default function StatusClient() {
               </motion.div>
             ))}
           </div>
-        </motion.div>
+        </div>
+      </section>
 
-        {/* Incidents */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <h2 className="text-2xl font-bold mb-6">Recent Incidents</h2>
-          {systemStatus.incidents.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Recent Incidents</h3>
-                <p className="text-muted-foreground">
-                  All systems have been running smoothly. No incidents reported in the last 30 days.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {systemStatus.incidents.map((incident) => (
-                <Card key={incident.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{incident.title}</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={incident.severity === "critical" ? "destructive" : "secondary"}>
-                          {incident.severity}
-                        </Badge>
-                        <Badge variant="outline">
-                          {incident.status}
-                        </Badge>
+      {/* Incidents */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Recent Incidents
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Track past incidents and their resolution status.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            {systemStatus.incidents.length === 0 ? (
+              <Card className="hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-8 text-center">
+                  <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Recent Incidents</h3>
+                  <p className="text-muted-foreground">
+                    All systems have been running smoothly. No incidents reported in the last 30 days.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {systemStatus.incidents.map((incident) => (
+                  <Card key={incident.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{incident.title}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={incident.severity === "critical" ? "destructive" : "secondary"}>
+                            {incident.severity}
+                          </Badge>
+                          <Badge variant="outline">
+                            {incident.status}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                    <CardDescription>
-                      Started: {incident.startTime}
-                      {incident.endTime && ` • Resolved: ${incident.endTime}`}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{incident.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </div>
-    </div>
+                      <CardDescription>
+                        Started: {incident.startTime}
+                        {incident.endTime && ` • Resolved: ${incident.endTime}`}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">{incident.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </section>
+    </>
   )
 }

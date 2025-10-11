@@ -108,178 +108,218 @@ export default function DownloadsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-16">
-        <div className="container mx-auto px-4 py-16">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h1 className="text-4xl font-bold text-foreground mb-4">
-              Downloads & Tools
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Get the tools you need to integrate Lattice Engine into your development workflow.
-            </p>
-          </motion.div>
+      <main>
+        {/* Hero Section */}
+        <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+                Downloads &
+                <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Developer Tools</span>
+              </h1>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+                Get the tools you need to integrate Lattice Engine into your development workflow. 
+                Choose from our comprehensive SDK collection and start building today.
+              </p>
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">SDKs Available</Badge>
+                <Badge variant="secondary" className="bg-blue-600 text-white">CLI Tools</Badge>
+                <Badge variant="secondary" className="bg-green-600 text-white">IDE Extensions</Badge>
+                <Badge variant="secondary" className="bg-orange-600 text-white">Free & Open Source</Badge>
+              </div>
+            </motion.div>
+          </div>
+        </section>
 
-          {/* Main Downloads */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid md:grid-cols-2 gap-8 mb-16"
-          >
-            {downloads.map((download, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <download.icon className="h-6 w-6 text-primary" />
+        {/* Main Downloads Section */}
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Available Downloads
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                All the tools and SDKs you need to integrate Lattice Engine into your projects.
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {downloads.map((download, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <download.icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{download.name}</CardTitle>
+                            <Badge variant="secondary" className="text-xs">
+                              {download.version}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                          <span className="text-sm text-muted-foreground">{download.rating}</span>
+                        </div>
                       </div>
-                      <div>
-                        <CardTitle className="text-lg">{download.name}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">
-                          {download.version}
-                        </Badge>
+                      <CardDescription className="text-muted-foreground">
+                        {download.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{download.size}</span>
+                        <span>{download.downloads} downloads</span>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm text-muted-foreground">{download.rating}</span>
-                    </div>
-                  </div>
-                  <CardDescription className="text-muted-foreground">
-                    {download.description}
+
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-sm text-foreground">Features:</h4>
+                        <ul className="space-y-1">
+                          {download.features.map((feature, featureIndex) => (
+                            <li key={featureIndex} className="flex items-center space-x-2">
+                              <CheckCircle className="h-3 w-3 text-green-500" />
+                              <span className="text-sm text-muted-foreground">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-sm text-foreground">Platforms:</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {download.platforms.map((platform, platformIndex) => (
+                            <Badge key={platformIndex} variant="outline" className="text-xs">
+                              {platform}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex space-x-2 pt-4 border-t border-border">
+                        <Button className="flex-1">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                        <Link href={download.documentation}>
+                          <Button variant="outline">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Docs
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Installation Guides */}
+        <section className="py-20 bg-card">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Card>
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl">Installation Guides</CardTitle>
+                  <CardDescription>
+                    Step-by-step instructions to get started with Lattice Engine
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{download.size}</span>
-                    <span>{download.downloads} downloads</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-foreground">Features:</h4>
-                    <ul className="space-y-1">
-                      {download.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center space-x-2">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          <span className="text-sm text-muted-foreground">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-foreground">Platforms:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {download.platforms.map((platform, platformIndex) => (
-                        <Badge key={platformIndex} variant="outline" className="text-xs">
-                          {platform}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2 pt-4 border-t border-border">
-                    <Button className="flex-1">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                    <Link href={download.documentation}>
-                      <Button variant="outline">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Docs
-                      </Button>
-                    </Link>
-                  </div>
+                <CardContent>
+                  <Tabs defaultValue="npm" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="npm">NPM</TabsTrigger>
+                      <TabsTrigger value="python">Python</TabsTrigger>
+                      <TabsTrigger value="vscode">VSCode</TabsTrigger>
+                    </TabsList>
+                    
+                    {Object.entries(installationGuides).map(([key, guide]) => (
+                      <TabsContent key={key} value={key} className="mt-6">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold">{guide.title}</h3>
+                          <div className="bg-muted p-4 rounded-lg overflow-x-auto">
+                            <pre className="text-sm font-mono">
+                              <code style={{ 
+                                color: 'var(--code-string)',
+                              }}>
+                                {guide.code}
+                              </code>
+                            </pre>
+                          </div>
+                          <Button variant="outline">
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy to Clipboard
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
                 </CardContent>
               </Card>
-            ))}
-          </motion.div>
+            </motion.div>
+          </div>
+        </section>
 
-          {/* Installation Guides */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Installation Guides</CardTitle>
-                <CardDescription>
-                  Step-by-step instructions to get started with Lattice Engine
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="npm" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="npm">NPM</TabsTrigger>
-                    <TabsTrigger value="python">Python</TabsTrigger>
-                    <TabsTrigger value="vscode">VSCode</TabsTrigger>
-                  </TabsList>
-                  
-                  {Object.entries(installationGuides).map(([key, guide]) => (
-                    <TabsContent key={key} value={key} className="mt-6">
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">{guide.title}</h3>
-                        <div className="bg-muted p-4 rounded-lg overflow-x-auto">
-                          <pre className="text-sm font-mono">
-                            <code style={{ 
-                              color: 'var(--code-string)',
-                            }}>
-                              {guide.code}
-                            </code>
-                          </pre>
-                        </div>
-                        <Button variant="outline">
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy to Clipboard
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Additional Resources */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-16"
-          >
-            <div className="bg-gradient-to-r from-primary to-primary/80 p-8 rounded-2xl text-primary-foreground text-center">
-              <h2 className="text-2xl font-bold mb-4">
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-primary to-orange-600">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <h2 className="text-4xl font-bold text-white mb-4">
                 Need Help Getting Started?
               </h2>
-              <p className="text-primary-foreground/90 mb-6 max-w-2xl mx-auto">
-                Our comprehensive documentation and community support will help you get up and running quickly.
+              <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
+                Our comprehensive documentation and community support will help you get up and running quickly. 
+                Join thousands of developers already building with Lattice Engine.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary">
+                <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
                   View Documentation
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                   Join Community
                 </Button>
               </div>
-            </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
   )
 }
 
-// Copy component for the copy button
 function Copy({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
