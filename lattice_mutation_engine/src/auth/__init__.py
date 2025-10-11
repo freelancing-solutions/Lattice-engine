@@ -5,7 +5,7 @@ This module provides authentication and authorization components
 for the Lattice Engine SaaS platform.
 """
 
-from lattice_mutation_engine.auth.middleware import (
+from src.auth.middleware import (
     AuthService,
     TenantContext,
     AuthenticationError,

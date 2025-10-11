@@ -1,0 +1,6 @@
+{
+  "name": "Spec Sync Agent",
+  "description": "Keeps Droid\u2019s local spec cache aligned with the main Lattice specs.",
+  "syncDirection": "both",
+  "schedule": "manual"
+}

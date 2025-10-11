@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import HTTPException, Depends
 from pydantic import BaseModel
 
-from lattice_mutation_engine.config.settings import config, EngineConfig
+from src.config.settings import config, EngineConfig
 
 logger = logging.getLogger(__name__)
 

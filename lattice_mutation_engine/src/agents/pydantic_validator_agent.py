@@ -11,7 +11,7 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from lattice_mutation_engine.agents.pydantic_base_agent import PydanticBaseAgent, AgentContext
+from src.agents.pydantic_base_agent import PydanticBaseAgent, AgentContext
 from models.agent_models import AgentRegistration, AgentTask
 from models.validation_models import ValidationResult
 

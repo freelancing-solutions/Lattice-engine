@@ -8,12 +8,12 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from safe_imports import safe_import_redis
-Redis = safe_import_redis()
+
+
 
 # Import models using absolute path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.approval_models import WebSocketConnection
+from src.models.approval_models import WebSocketConnection
 
 
 logger = logging.getLogger(__name__)

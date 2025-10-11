@@ -3,10 +3,10 @@ import logging
 import re
 from datetime import datetime
 
-from lattice_mutation_engine.agents.base_agent import BaseAgent
-from lattice_mutation_engine.models.agent_models import AgentTask
-from lattice_mutation_engine.models.validation_models import ValidationResult
-from lattice_mutation_engine.models.mutation_models import MutationProposal
+from src.agents.base_agent import BaseAgent
+from src.models.agent_models import AgentTask
+from src.models.validation_models import ValidationResult
+from src.models.mutation_models import MutationProposal
 
 
 logger = logging.getLogger(__name__)

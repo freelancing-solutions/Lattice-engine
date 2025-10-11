@@ -18,8 +18,8 @@ except ImportError as e:
     SentenceTransformer = None
     logging.warning(f"Qdrant dependencies not available: {e}")
 
-from lattice_mutation_engine.models.spec_graph_models import Node
-from lattice_mutation_engine.config.settings import config
+from src.models.spec_graph_models import Node
+from src.config.settings import config
 
 logger = logging.getLogger(__name__)
 

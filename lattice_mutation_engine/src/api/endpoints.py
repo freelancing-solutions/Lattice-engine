@@ -3,12 +3,12 @@ from fastapi import APIRouter
 from fastapi import WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from lattice_mutation_engine.api.graph_endpoints import router as graph_router
-from lattice_mutation_engine.api.spec_endpoints import router as spec_router
-from lattice_mutation_engine.api.task_endpoints import router as task_router
-from lattice_mutation_engine.api.spec_sync_endpoints import router as spec_sync_router
-from lattice_mutation_engine.api.deployment_endpoints import router as deployment_router
-from lattice_mutation_engine.api.mcp_endpoints import router as mcp_router
+from src.api.graph_endpoints import router as graph_router
+from src.api.spec_endpoints import router as spec_router
+from src.api.task_endpoints import router as task_router
+from src.api.spec_sync_endpoints import router as spec_sync_router
+from src.api.deployment_endpoints import router as deployment_router
+from src.api.mcp_endpoints import router as mcp_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -17,7 +17,7 @@ import logging
 from datetime import datetime
 from pydantic import BaseModel
 
-from lattice_mutation_engine.core.dependencies import (
+from src.core.dependencies import (
     get_orchestrator,
     get_approval_manager, 
     get_mutation_store,
@@ -25,16 +25,16 @@ from lattice_mutation_engine.core.dependencies import (
     HealthStatus
 )
 
-from lattice_mutation_engine.models.mutation_models import MutationRequest
-from lattice_mutation_engine.models.mutation_models import MutationProposal, MutationResult
-from lattice_mutation_engine.models.approval_models import ApprovalResponse
-from lattice_mutation_engine.utils.errors import ValidationError
-from lattice_mutation_engine.main import init_engine, shutdown_engine
-from lattice_mutation_engine.config.settings import config as engine_config
-from lattice_mutation_engine.observability.metrics import mutations_proposed, websocket_connections, metrics_response
-from lattice_mutation_engine.celery_queue.celery_app import make_celery
-from lattice_mutation_engine.celery_queue.tasks import execute_mutation_workflow_task
-from lattice_mutation_engine.auth import (
+from src.models.mutation_models import MutationRequest
+from src.models.mutation_models import MutationProposal, MutationResult
+from src.models.approval_models import ApprovalResponse
+from src.utils.errors import ValidationError
+from src.main import init_engine, shutdown_engine
+from src.config.settings import config as engine_config
+from src.observability.metrics import mutations_proposed, websocket_connections, metrics_response
+from src.celery_queue.celery_app import make_celery
+from src.celery_queue.tasks import execute_mutation_workflow_task
+from src.auth import (
     get_current_user, 
     get_current_user_optional, 
     TenantContext, 

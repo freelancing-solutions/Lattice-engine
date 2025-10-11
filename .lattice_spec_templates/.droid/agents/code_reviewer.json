@@ -1,0 +1,10 @@
+{
+  "name": "Code Reviewer",
+  "description": "Analyzes diffs and produces code review notes stored in .lattice/reports.",
+  "outputPath": "../.lattice/reports",
+  "actions": [
+    "comment",
+    "suggest"
+  ],
+  "saveFormat": "markdown"
+}

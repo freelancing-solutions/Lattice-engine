@@ -12,8 +12,8 @@ import re
 import json
 from datetime import datetime
 
-from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
-from lattice_mutation_engine.models.validation_models import ValidationRule, ValidationResult
+from src.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status
+from src.models.validation_models import ValidationRule, ValidationResult
 
 
 class RuleSeverity(str, Enum):

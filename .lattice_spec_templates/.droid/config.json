@@ -1,0 +1,16 @@
+{
+  "workspace": "./.lattice",
+  "autoSync": true,
+  "defaultBranch": "main",
+  "agents": {
+    "code_reviewer": {
+      "enabled": true,
+      "trigger": "on_commit"
+    },
+    "spec_sync": {
+      "enabled": true,
+      "trigger": "manual"
+    }
+  },
+  "logLevel": "info"
+}

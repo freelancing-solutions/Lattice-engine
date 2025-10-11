@@ -9,19 +9,19 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from lattice_mutation_engine.utils.logging import setup_logging
-from lattice_mutation_engine.approval.websocket_hub import WebSocketHub
-from lattice_mutation_engine.approval.approval_manager import ApprovalManager
-from lattice_mutation_engine.agents.orchestrator import AgentOrchestrator
-from lattice_mutation_engine.agents.agent_factory import AgentFactory
-from lattice_mutation_engine.models.agent_models import AgentRegistration, AgentCapability, AgentType
-from lattice_mutation_engine.config.settings import config as engine_config
-from lattice_mutation_engine.graph.repository import InMemoryGraphRepository
-from lattice_mutation_engine.graph.neo4j_repository import Neo4jGraphRepository
-from lattice_mutation_engine.graph.semantic_index import TfidfSemanticIndex
-from lattice_mutation_engine.tasks.manager import TaskManager
-from lattice_mutation_engine.spec_sync.daemon import SpecSyncDaemon
-from lattice_mutation_engine.core.dependencies import (
+from src.utils.logging import setup_logging
+from src.approval.websocket_hub import WebSocketHub
+from src.approval.approval_manager import ApprovalManager
+from src.agents.orchestrator import AgentOrchestrator
+from src.agents.agent_factory import AgentFactory
+from src.models.agent_models import AgentRegistration, AgentCapability, AgentType
+from src.config.settings import config as engine_config
+from src.graph.repository import InMemoryGraphRepository
+from src.graph.neo4j_repository import Neo4jGraphRepository
+from src.graph.semantic_index import TfidfSemanticIndex
+from src.tasks.manager import TaskManager
+from src.spec_sync.daemon import SpecSyncDaemon
+from src.core.dependencies import (
     container, 
     register_service_singleton, 
     service_lifespan
@@ -45,7 +45,7 @@ async def init_engine():
     register_service_singleton("websocket_hub", websocket_hub)
     
     # Initialize mutation store and pass into approval manager for persistence
-    from lattice_mutation_engine.mutations.store import InMemoryMutationStore
+    from src.mutations.store import InMemoryMutationStore
     mutation_store = InMemoryMutationStore()
     register_service_singleton("mutation_store", mutation_store)
     
@@ -97,7 +97,7 @@ async def init_engine():
     # Initialize semantic index with factory (supports TF-IDF, Qdrant, etc.)
     semantic_index = None
     try:
-        from lattice_mutation_engine.graph.semantic_index_factory import EnhancedSemanticIndex
+        from src.graph.semantic_index_factory import EnhancedSemanticIndex
         semantic_index = EnhancedSemanticIndex(graph_repo)
         logger.info(f"Initialized semantic search with backend: {semantic_index.primary_index.__class__.__name__}")
     except Exception as e:

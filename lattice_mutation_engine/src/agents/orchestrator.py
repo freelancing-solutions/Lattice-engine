@@ -7,12 +7,12 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from lattice_mutation_engine.agents.base_agent import BaseAgent
-from lattice_mutation_engine.agents.pydantic_validator_agent import PydanticValidatorAgent
-from models.agent_models import AgentRegistration, AgentTask, AgentType, AgentCapability
-from models.mutation_models import MutationProposal, MutationResult
-from models.validation_models import ValidationResult
-from utils.errors import MutationError, ValidationError
+from src.agents.base_agent import BaseAgent
+from src.agents.pydantic_validator_agent import PydanticValidatorAgent
+from src.models.agent_models import AgentRegistration, AgentTask, AgentType, AgentCapability
+from src.models.mutation_models import MutationProposal, MutationResult
+from src.models.validation_models import ValidationResult
+from src.utils.errors import MutationError, ValidationError
 
 
 logger = logging.getLogger(__name__)

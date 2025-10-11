@@ -17,10 +17,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
-from lattice_mutation_engine.models.user_models import UserTable, OrganizationTable, OrganizationMemberTable, UserRole, UserStatus
-from lattice_mutation_engine.models.api_key_models import APIKeyTable, APIKeyStatus, APIKeyScope
-from lattice_mutation_engine.models.project_models import ProjectTable, ProjectStatus
-from lattice_mutation_engine.config.settings import config as engine_config
+from src.models.user_models import UserTable, OrganizationTable, OrganizationMemberTable, UserRole, UserStatus
+from src.models.api_key_models import APIKeyTable, APIKeyStatus, APIKeyScope
+from src.models.project_models import ProjectTable, ProjectStatus
+from src.config.settings import config as engine_config
 
 
 # Security scheme
@@ -334,7 +334,7 @@ async def get_current_user(
     if engine_config.api_keys and x_api_key in engine_config.api_keys:
         # Create a minimal context for legacy API keys
         # This is for backward compatibility only
-        from lattice_mutation_engine.models.user_models import UserTable
+        from src.models.user_models import UserTable
         
         # Create a system user for legacy API keys
         system_user = UserTable(

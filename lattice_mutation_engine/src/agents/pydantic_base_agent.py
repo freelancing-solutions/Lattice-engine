@@ -14,10 +14,10 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.agent_models import AgentRegistration, AgentTask
-from lattice_mutation_engine.agents.base_agent import BaseAgent
-from config.settings import config
-from config.claude_config import claude_config, get_claude_client
+from src.models.agent_models import AgentRegistration, AgentTask
+from src.agents.base_agent import BaseAgent
+from src.config.settings import config
+from src.config.claude_config import claude_config, get_claude_client
 
 logger = logging.getLogger(__name__)
 

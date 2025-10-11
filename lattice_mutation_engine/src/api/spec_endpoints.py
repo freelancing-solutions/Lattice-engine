@@ -4,9 +4,9 @@ from datetime import datetime
 import uuid
 import json
 
-from lattice_mutation_engine.models.spec_graph_models import Node, NodeType, Status, SpecUpdatePayload
-from lattice_mutation_engine.config.settings import config as engine_config
-from lattice_mutation_engine.api.endpoints import verify_api_key
+from src.models.spec_graph_models import Node, NodeType, Status, SpecUpdatePayload
+from src.config.settings import config as engine_config
+from src.api.endpoints import verify_api_key
 
 
 router = APIRouter(prefix="/specs", tags=["specs"])
@@ -29,7 +29,7 @@ async def list_specs(
 ):
     """List specs with filtering and pagination"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         # Get all specs
@@ -62,7 +62,7 @@ async def list_specs(
 async def create_spec(payload: Dict[str, Any], _auth=Depends(verify_api_key)):
     """Create a new spec with validation"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         # Validate required fields
@@ -93,7 +93,7 @@ async def create_spec(payload: Dict[str, Any], _auth=Depends(verify_api_key)):
 async def update_spec(payload: SpecUpdatePayload, _auth=Depends(verify_api_key)):
     """Update an existing spec with validation"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         if not payload.spec_id:
@@ -136,7 +136,7 @@ async def update_spec(payload: SpecUpdatePayload, _auth=Depends(verify_api_key))
 async def approve_spec(payload: Dict[str, Any], _auth=Depends(verify_api_key)):
     """Approve a spec and mark it as ACTIVE"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         spec_id = payload.get("spec_id")
@@ -169,7 +169,7 @@ async def approve_spec(payload: Dict[str, Any], _auth=Depends(verify_api_key)):
 async def delete_spec(spec_id: str, _auth=Depends(verify_api_key)):
     """Delete a spec with validation"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         if not spec_id or not spec_id.strip():
@@ -206,7 +206,7 @@ async def generate_spec(
 ):
     """Generate a new spec from a template or existing spec"""
     try:
-        from lattice_mutation_engine.api.endpoints import components
+        from src.api.endpoints import components
         repo = get_repo(components)
         
         template_id = payload.get("template_id")

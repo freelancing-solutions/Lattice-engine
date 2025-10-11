@@ -1,0 +1,6 @@
+{
+  "specRoot": "./.lattice/specs",
+  "reportRoot": "./.lattice/reports",
+  "mutationReports": true,
+  "syncStrategy": "two-way"
+}

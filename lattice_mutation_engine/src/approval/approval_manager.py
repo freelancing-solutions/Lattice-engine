@@ -8,10 +8,8 @@ import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models.approval_models import ApprovalRequest, ApprovalResponse
-from models.mutation_models import MutationProposal, MutationResult
-from observability.metrics import pending_approvals, mutations_completed
-
+from src.models.approval_models import ApprovalRequest, ApprovalResponse
+from src.models.mutation_models import MutationProposal, MutationResult
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +81,7 @@ class ApprovalManager:
                 execution_time_ms=0,
             )
 
-        del self.pending_approvals[response.request_id]
+        self.pending_approvals[response.request_id]
         try:
             pending_approvals.dec()
         except Exception:

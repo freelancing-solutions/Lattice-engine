@@ -12,8 +12,8 @@ import re
 import logging
 from datetime import datetime
 
-from lattice_mutation_engine.models.validation_models import ValidationRule, ValidationResult
-from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, RelationshipType
+from src.models.validation_models import ValidationRule, ValidationResult
+from src.models.spec_graph_models import Node, Edge, NodeType, RelationshipType
 
 
 logger = logging.getLogger(__name__)

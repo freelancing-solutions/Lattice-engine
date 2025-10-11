@@ -7,8 +7,8 @@ import logging
 from typing import Dict, Any, List, Set, Optional
 from pydantic import BaseModel, Field
 
-from lattice_mutation_engine.agents.pydantic_base_agent import PydanticBaseAgent, AgentContext
-from lattice_mutation_engine.models.agent_models import AgentRegistration, AgentTask
+from src.agents.pydantic_base_agent import PydanticBaseAgent, AgentContext
+from src.models.agent_models import AgentRegistration, AgentTask
 
 
 logger = logging.getLogger(__name__)

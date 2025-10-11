@@ -15,7 +15,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Now import and run the main function using absolute imports
-from lattice_mutation_engine.main import main
+from src.main import main
 
 # Setup basic logging for the entry point
 logging.basicConfig(

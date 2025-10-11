@@ -4,10 +4,10 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileSystemEvent
+from src.watchdog.observers import Observer
+from src.watchdog.events import FileSystemEventHandler, FileSystemEvent
 
-from lattice_mutation_engine.models.spec_graph_models import Node, NodeType, Status
+from src.models.spec_graph_models import Node, NodeType, Status
 
 
 def stable_spec_id(path: Path) -> str:

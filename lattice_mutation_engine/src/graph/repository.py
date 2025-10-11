@@ -2,7 +2,7 @@ import uuid
 import re
 from typing import List, Dict, Optional
 
-from lattice_mutation_engine.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status, GraphSnapshot
+from src.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, Status, GraphSnapshot
 
 
 class InMemoryGraphRepository:

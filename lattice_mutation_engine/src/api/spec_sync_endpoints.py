@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from lattice_mutation_engine.api.endpoints import verify_api_key
-from lattice_mutation_engine.spec_sync.daemon import SpecSyncDaemon
-from lattice_mutation_engine.config.settings import config as engine_config
+from src.api.endpoints import verify_api_key
+from src.spec_sync.daemon import SpecSyncDaemon
+from src.config.settings import config as engine_config
 
 
 router = APIRouter(prefix="/spec-sync", tags=["spec-sync"])
 
 
 def _get_components():
-    from lattice_mutation_engine.api.endpoints import components
+    from src.api.endpoints import components
     if not components:
         raise HTTPException(status_code=503, detail="Engine not initialized")
     return components

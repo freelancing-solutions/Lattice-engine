@@ -1,0 +1,8 @@
+{
+  "name": "droid-lattice-template",
+  "version": "1.0.0",
+  "description": "Template for integrating Droid CLI with Project Lattice",
+  "scripts": {
+    "start": "droid agent run"
+  }
+}

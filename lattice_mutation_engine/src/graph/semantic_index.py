@@ -7,7 +7,7 @@ except Exception:  # Optional dependency
     TfidfVectorizer = None
     cosine_similarity = None
 
-from lattice_mutation_engine.models.spec_graph_models import Node
+from src.models.spec_graph_models import Node
 
 
 class TfidfSemanticIndex:

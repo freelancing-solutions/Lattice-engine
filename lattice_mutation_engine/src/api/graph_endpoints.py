@@ -4,13 +4,13 @@ from typing import List, Optional, Dict, Any
 import time
 import logging
 
-from lattice_mutation_engine.core.dependencies import (
+from src.core.dependencies import (
     get_graph_service,
     get_semantic_index
 )
 
-from lattice_mutation_engine.auth import verify_api_key
-from lattice_mutation_engine.models.graph_models import GraphQuery, SemanticSearchRequest
+from src.auth import verify_api_key
+from src.models.graph_models import GraphQuery, SemanticSearchRequest
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ router = APIRouter(prefix="/graph", tags=["graph"])
 
 def get_components():
     """Get the global components - dependency injection"""
-    from lattice_mutation_engine.api.endpoints import components
+    from src.api.endpoints import components
     if not components:
         raise HTTPException(status_code=503, detail="Engine components not initialized")
     return components

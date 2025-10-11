@@ -13,11 +13,11 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import asyncio
 
-from lattice_mutation_engine.models.validation_models import ValidationRule, ValidationResult
-from lattice_mutation_engine.models.spec_graph_models import Node, Edge, SpecGraph, NodeType, RelationshipType
-from lattice_mutation_engine.validation.semantic_validator import SemanticValidator
-from lattice_mutation_engine.validation.business_rules_validator import BusinessRulesValidator
-from lattice_mutation_engine.validation.schema_validator import SchemaValidator
+from src.models.validation_models import ValidationRule, ValidationResult
+from src.models.spec_graph_models import Node, Edge, SpecGraph, NodeType, RelationshipType
+from src.validation.semantic_validator import SemanticValidator
+from src.validation.business_rules_validator import BusinessRulesValidator
+from src.validation.schema_validator import SchemaValidator
 
 
 logger = logging.getLogger(__name__)
