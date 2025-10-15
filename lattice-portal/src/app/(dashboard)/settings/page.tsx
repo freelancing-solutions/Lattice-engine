@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Bell, Shield, Palette, Globe, Key } from 'lucide-react';
+import { User, Bell, Shield, Palette, Globe, Key, Settings, Cpu, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 
@@ -38,6 +39,35 @@ export default function SettingsPage() {
     apiAccess: false,
   });
 
+  const [orchestratorSettings, setOrchestratorSettings] = useState({
+    // Confidence thresholds
+    autoApprovalThreshold: 0.85,
+    semanticSimilarityThreshold: 0.75,
+    lowConfidenceThreshold: 0.7,
+    
+    // Timeout settings
+    agentTimeoutSeconds: 300,
+    approvalTimeoutSeconds: 300,
+    mutationTimeoutSeconds: 300,
+    
+    // Agent configuration
+    maxConcurrentAgents: 10,
+    retryAttempts: 3,
+    
+    // Priority settings
+    enableAutoPriority: true,
+    criticalChangeThreshold: true,
+    
+    // Breaking change detection
+    enableBreakingChangeDetection: true,
+    requireApprovalForBreakingChanges: true,
+    
+    // Performance settings
+    enableAgentCaching: true,
+    maxGraphTraversalDepth: 10,
+    embeddingCacheTtl: 3600,
+  });
+
   const handleProfileUpdate = () => {
     // TODO: Implement profile update API call
     console.log('Updating profile:', profileData);
@@ -53,6 +83,11 @@ export default function SettingsPage() {
     console.log('Updating security settings:', securitySettings);
   };
 
+  const handleOrchestratorSettingsUpdate = () => {
+    // TODO: Implement orchestrator settings update API call
+    console.log('Updating orchestrator settings:', orchestratorSettings);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -64,7 +99,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
@@ -76,6 +111,10 @@ export default function SettingsPage() {
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="orchestrator" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Orchestrator
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
@@ -353,6 +392,313 @@ export default function SettingsPage() {
                   Create API keys to access Lattice Engine from external applications
                 </p>
                 <Button>Create API Key</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="orchestrator" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cpu className="h-5 w-5" />
+                Agent Configuration
+              </CardTitle>
+              <CardDescription>
+                Configure AI agent behavior and performance settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Auto-Approval Confidence Threshold</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[orchestratorSettings.autoApprovalThreshold]}
+                      onValueChange={(value) =>
+                        setOrchestratorSettings(prev => ({ ...prev, autoApprovalThreshold: value[0] }))
+                      }
+                      max={1}
+                      min={0}
+                      step={0.05}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>0% (Never auto-approve)</span>
+                    <span className="font-medium">{Math.round(orchestratorSettings.autoApprovalThreshold * 100)}%</span>
+                    <span>100% (Always auto-approve)</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Mutations with confidence above this threshold will be auto-approved
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Low Confidence Threshold</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[orchestratorSettings.lowConfidenceThreshold]}
+                      onValueChange={(value) =>
+                        setOrchestratorSettings(prev => ({ ...prev, lowConfidenceThreshold: value[0] }))
+                      }
+                      max={1}
+                      min={0}
+                      step={0.05}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>0%</span>
+                    <span className="font-medium">{Math.round(orchestratorSettings.lowConfidenceThreshold * 100)}%</span>
+                    <span>100%</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Mutations below this threshold will be marked as high priority for review
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="maxAgents">Max Concurrent Agents</Label>
+                    <Input
+                      id="maxAgents"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={orchestratorSettings.maxConcurrentAgents}
+                      onChange={(e) =>
+                        setOrchestratorSettings(prev => ({ ...prev, maxConcurrentAgents: parseInt(e.target.value) || 10 }))
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Maximum number of agents that can run simultaneously
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="retryAttempts">Retry Attempts</Label>
+                    <Input
+                      id="retryAttempts"
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={orchestratorSettings.retryAttempts}
+                      onChange={(e) =>
+                        setOrchestratorSettings(prev => ({ ...prev, retryAttempts: parseInt(e.target.value) || 3 }))
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Number of retry attempts for failed agent operations
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Timeout Settings
+              </CardTitle>
+              <CardDescription>
+                Configure timeout values for various operations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="agentTimeout">Agent Timeout (seconds)</Label>
+                  <Input
+                    id="agentTimeout"
+                    type="number"
+                    min="30"
+                    max="1800"
+                    value={orchestratorSettings.agentTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, agentTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time for agent task execution
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="approvalTimeout">Approval Timeout (seconds)</Label>
+                  <Input
+                    id="approvalTimeout"
+                    type="number"
+                    min="60"
+                    max="3600"
+                    value={orchestratorSettings.approvalTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, approvalTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time to wait for user approval
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mutationTimeout">Mutation Timeout (seconds)</Label>
+                  <Input
+                    id="mutationTimeout"
+                    type="number"
+                    min="30"
+                    max="1800"
+                    value={orchestratorSettings.mutationTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, mutationTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time for mutation execution
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Approval Rules
+              </CardTitle>
+              <CardDescription>
+                Configure automatic approval and priority rules
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Enable Auto-Priority Assignment</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically assign priority based on mutation characteristics
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableAutoPriority}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableAutoPriority: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Breaking Change Detection</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically detect potentially breaking changes
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableBreakingChangeDetection}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableBreakingChangeDetection: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Require Approval for Breaking Changes</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Always require manual approval for breaking changes
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.requireApprovalForBreakingChanges}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, requireApprovalForBreakingChanges: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Critical Change Threshold</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Mark changes as critical based on impact analysis
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.criticalChangeThreshold}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, criticalChangeThreshold: checked }))
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Optimization</CardTitle>
+              <CardDescription>
+                Configure performance and caching settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Enable Agent Caching</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Cache agent results to improve performance
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableAgentCaching}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableAgentCaching: checked }))
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="traversalDepth">Max Graph Traversal Depth</Label>
+                  <Input
+                    id="traversalDepth"
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={orchestratorSettings.maxGraphTraversalDepth}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, maxGraphTraversalDepth: parseInt(e.target.value) || 10 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum depth for dependency graph traversal
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cacheTtl">Embedding Cache TTL (seconds)</Label>
+                  <Input
+                    id="cacheTtl"
+                    type="number"
+                    min="300"
+                    max="86400"
+                    value={orchestratorSettings.embeddingCacheTtl}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, embeddingCacheTtl: parseInt(e.target.value) || 3600 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Time-to-live for cached embeddings
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={handleOrchestratorSettingsUpdate}>
+                  Save Orchestrator Settings
+                </Button>
               </div>
             </CardContent>
           </Card>
