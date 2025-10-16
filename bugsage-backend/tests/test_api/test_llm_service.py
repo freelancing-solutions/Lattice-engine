@@ -6,6 +6,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 
 from bugsage_backend.main import app
+from bugsage_backend.routers.llm import LLMProvider
 
 
 client = TestClient(app)
