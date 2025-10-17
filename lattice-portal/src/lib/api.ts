@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { 
-  APIResponse, 
-  ListResponse, 
-  User, 
-  Organization, 
-  Project, 
+import {
+  APIResponse,
+  ListResponse,
+  User,
+  Organization,
+  Project,
   Mutation,
   AuthTokens,
   LoginRequest,
@@ -12,7 +12,10 @@ import {
   CreateProjectRequest,
   CreateMutationRequest,
   MutationFilters,
-  ProjectFilters
+  ProjectFilters,
+  ApprovalRequest,
+  ApprovalResponse,
+  ApprovalFilters
 } from '@/types';
 
 // API base configuration
@@ -20,6 +23,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.project-lat
 
 class APIClient {
   private client: AxiosInstance;
+  private isRefreshing = false;
 
   constructor() {
     this.client = axios.create({
@@ -39,14 +43,32 @@ class APIClient {
       return config;
     });
 
-    // Response interceptor for error handling
+    // Response interceptor for error handling and token refresh
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          // Handle authentication errors
-          this.clearAuthToken();
-          window.location.href = '/login';
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            // Try to refresh the token
+            await this.refreshToken();
+            // Retry the original request with new token
+            const newToken = this.getAuthToken();
+            if (newToken) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            // Refresh failed, clear tokens and redirect to login
+            this.clearAuthToken();
+            if (typeof window !== 'undefined') {
+              window.location.href = '/login';
+            }
+            return Promise.reject(refreshError);
+          }
         } else if (error.response?.data?.error?.message) {
           // Show API error messages
           console.error('API Error:', error.response.data.error.message);
@@ -80,17 +102,17 @@ class APIClient {
   async login(credentials: LoginRequest): Promise<APIResponse<AuthTokens>> {
     try {
       const response: AxiosResponse<APIResponse<AuthTokens>> = await this.client.post(
-        '/auth/login',
+        '/api/v1/auth/login',
         credentials
       );
-      
+
       if (response.data.success && response.data.data) {
         this.setAuthToken(response.data.data.access_token);
         if (typeof window !== 'undefined') {
           localStorage.setItem('refresh_token', response.data.data.refresh_token);
         }
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Login failed' } };
@@ -100,17 +122,17 @@ class APIClient {
   async register(userData: RegisterRequest): Promise<APIResponse<AuthTokens>> {
     try {
       const response: AxiosResponse<APIResponse<AuthTokens>> = await this.client.post(
-        '/auth/register',
+        '/api/v1/auth/register',
         userData
       );
-      
+
       if (response.data.success && response.data.data) {
         this.setAuthToken(response.data.data.access_token);
         if (typeof window !== 'undefined') {
           localStorage.setItem('refresh_token', response.data.data.refresh_token);
         }
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Registration failed' } };
@@ -119,7 +141,10 @@ class APIClient {
 
   async logout(): Promise<void> {
     try {
-      await this.client.post('/auth/logout');
+      const refreshToken = this.getRefreshToken();
+      if (refreshToken) {
+        await this.client.post('/api/v1/auth/logout', { refresh_token: refreshToken });
+      }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -129,11 +154,43 @@ class APIClient {
 
   async getCurrentUser(): Promise<APIResponse<User>> {
     try {
-      const response: AxiosResponse<APIResponse<User>> = await this.client.get('/auth/me');
+      const response: AxiosResponse<APIResponse<User>> = await this.client.get('/api/v1/auth/me');
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to get user' } };
     }
+  }
+
+  async refreshToken(): Promise<APIResponse<AuthTokens>> {
+    try {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response: AxiosResponse<APIResponse<AuthTokens>> = await this.client.post(
+        '/api/v1/auth/refresh',
+        { refresh_token: refreshToken }
+      );
+
+      if (response.data.success && response.data.data) {
+        this.setAuthToken(response.data.data.access_token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('refresh_token', response.data.data.refresh_token);
+        }
+      }
+
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Token refresh failed' } };
+    }
+  }
+
+  private getRefreshToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('refresh_token');
+    }
+    return null;
   }
 
   // Organization methods
@@ -262,6 +319,92 @@ class APIClient {
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to reject mutation' } };
+    }
+  }
+
+  // Approval methods
+  async getApprovals(filters?: ApprovalFilters): Promise<APIResponse<ListResponse<ApprovalRequest>>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.assignedTo) params.append('assignedTo', filters.assignedTo);
+      if (filters?.priority) params.append('priority', filters.priority);
+      if (filters?.dateRange) {
+        params.append('startDate', filters.dateRange.start);
+        params.append('endDate', filters.dateRange.end);
+      }
+      if (filters?.mutationType) params.append('mutationType', filters.mutationType);
+
+      const response: AxiosResponse<APIResponse<ListResponse<ApprovalRequest>>> = await this.client.get(
+        `/api/approvals?${params.toString()}`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get approvals' } };
+    }
+  }
+
+  async getApproval(approvalId: string): Promise<APIResponse<ApprovalRequest>> {
+    try {
+      const response: AxiosResponse<APIResponse<ApprovalRequest>> = await this.client.get(
+        `/api/approvals/${approvalId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get approval' } };
+    }
+  }
+
+  async respondToApproval(
+    approvalId: string,
+    decision: 'approve' | 'reject' | 'request_changes',
+    notes?: string,
+    modifiedContent?: string
+  ): Promise<APIResponse<ApprovalResponse>> {
+    try {
+      const response: AxiosResponse<APIResponse<ApprovalResponse>> = await this.client.post(
+        `/api/approvals/${approvalId}/respond`,
+        {
+          decision,
+          user_notes: notes,
+          modified_content: modifiedContent,
+          responded_via: 'web'
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to respond to approval' } };
+    }
+  }
+
+  async batchApprovalAction(
+    action: 'approve' | 'reject',
+    requestIds: string[],
+    notes?: string
+  ): Promise<APIResponse<{ success: string[], failed: string[] }>> {
+    try {
+      const response: AxiosResponse<APIResponse<{ success: string[], failed: string[] }>> = await this.client.post(
+        '/api/approvals/batch',
+        {
+          action,
+          requestIds,
+          notes
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to perform batch approval action' } };
+    }
+  }
+
+  async getPendingApprovals(userId: string): Promise<APIResponse<ApprovalRequest[]>> {
+    try {
+      const response: AxiosResponse<APIResponse<ApprovalRequest[]>> = await this.client.get(
+        `/api/approvals/pending?user_id=${userId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get pending approvals' } };
     }
   }
 }

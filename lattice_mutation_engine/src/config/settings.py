@@ -64,6 +64,14 @@ class EngineConfig(BaseModel):
     embedding_model: str = "all-MiniLM-L6-v2"  # SentenceTransformer model
     embedding_dimension: int = 384  # Dimension for all-MiniLM-L6-v2
 
+    # Database Configuration
+    database_url: str = Field(default="sqlite:///./lattice_engine.db")
+
+    # JWT Configuration
+    jwt_secret: str = Field(default="your-secret-key-change-in-production")
+    jwt_access_token_expire_minutes: int = Field(default=60)
+    jwt_refresh_token_expire_days: int = Field(default=30)
+
     # Application URLs
     api_base_url: str = Field(default="https://api.project-lattice.site")
     website_url: str = Field(default="https://www.project-lattice.site")

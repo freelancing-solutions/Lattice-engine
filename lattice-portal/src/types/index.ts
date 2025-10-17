@@ -145,3 +145,85 @@ export interface NotificationEvent {
     priority: 'low' | 'medium' | 'high' | 'urgent';
   };
 }
+
+// Approval interfaces
+export enum ApprovalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  EXPIRED = 'expired',
+  CANCELLED = 'cancelled'
+}
+
+export enum ApprovalChannel {
+  VSCODE = 'vscode',
+  WEB = 'web',
+  CLI = 'cli',
+  EMAIL = 'email',
+  SLACK = 'slack'
+}
+
+export interface ImpactAnalysis {
+  risk: 'low' | 'medium' | 'high' | 'critical';
+  affectedSpecs: string[];
+  breakingChanges: boolean;
+  complexity: 'simple' | 'moderate' | 'complex';
+  estimatedTime: string;
+}
+
+export interface ApprovalContent {
+  original: string;
+  proposed: string;
+  diff: {
+    additions: string[];
+    deletions: string[];
+    modifications: string[];
+  };
+}
+
+export interface ApprovalRequest {
+  id: string;
+  proposalId: string;
+  userId: string;
+  specId: string;
+  mutationType: string;
+  content: ApprovalContent;
+  reasoning: string;
+  confidence: number;
+  impactAnalysis: ImpactAnalysis;
+  priority: 'critical' | 'high' | 'normal' | 'low';
+  timeout: number;
+  status: ApprovalStatus;
+  assignedTo?: string;
+  responses: ApprovalResponse[];
+  createdAt: string;
+  expiresAt: string;
+  channels: ApprovalChannel[];
+}
+
+export interface ApprovalResponse {
+  id: string;
+  userId: string;
+  decision: 'approve' | 'reject' | 'request_changes';
+  modifiedContent?: string;
+  notes?: string;
+  channel: ApprovalChannel;
+  timestamp: string;
+}
+
+export interface ApprovalFilters {
+  status?: ApprovalStatus;
+  priority?: 'critical' | 'high' | 'normal' | 'low';
+  assignedTo?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+  mutationType?: string;
+}
+
+export interface ApprovalEvent {
+  type: 'approval_request' | 'approval_updated' | 'approval_response';
+  data: ApprovalRequest;
+  timestamp: string;
+}

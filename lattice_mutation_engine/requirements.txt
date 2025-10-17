@@ -87,6 +87,9 @@ pyjwt
 # Password hashing and security
 cryptography
 
+# Password hashing with bcrypt
+passlib[bcrypt]
+
 # =============================================================================
 # MONITORING & OBSERVABILITY
 # =============================================================================

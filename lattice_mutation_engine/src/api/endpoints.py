@@ -9,6 +9,7 @@ from src.api.task_endpoints import router as task_router
 from src.api.spec_sync_endpoints import router as spec_sync_router
 from src.api.deployment_endpoints import router as deployment_router
 from src.api.mcp_endpoints import router as mcp_router
+from src.api.auth_endpoints import router as auth_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -78,6 +79,22 @@ class RiskAssessmentResponse(BaseModel):
     factors: List[str]
     recommendations: List[str]
 
+class ApprovalListResponse(BaseModel):
+    """Response model for listing approvals"""
+    requests: List[Dict[str, Any]]
+    total: int
+
+class BatchApprovalRequest(BaseModel):
+    """Request model for batch approval operations"""
+    action: str  # 'approve' or 'reject'
+    requestIds: List[str]
+    notes: Optional[str] = None
+
+class BatchApprovalResponse(BaseModel):
+    """Response model for batch approval operations"""
+    success: List[str]
+    failed: List[str]
+
 # FastAPI app configuration
 app = FastAPI(
     title="Lattice Mutation Engine API",
@@ -110,6 +127,7 @@ app.include_router(task_router)
 app.include_router(spec_sync_router)
 app.include_router(deployment_router)
 app.include_router(mcp_router)
+app.include_router(auth_router)
 
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
@@ -117,6 +135,7 @@ api_router.include_router(task_router)
 api_router.include_router(spec_sync_router)
 api_router.include_router(deployment_router)
 api_router.include_router(mcp_router)
+api_router.include_router(auth_router)
 
 # Lifecycle events
 @app.on_event("startup")
@@ -126,13 +145,15 @@ async def startup_event():
     try:
         global components
         components = await init_engine()
-        
-        # Initialize auth service
-        await init_auth_service()
-        
+
+        # Initialize database and auth service
+        from src.core.database import init_database, get_db
+        init_database()
+        init_auth_service(get_db)
+
         # Start background task to keep engine running
         asyncio.create_task(_keep_engine_running())
-        
+
         logger.info("Lattice Mutation Engine API started successfully")
     except Exception as e:
         logger.error(f"Failed to start engine: {e}")
@@ -303,10 +324,59 @@ async def risk_assess(
         raise HTTPException(status_code=500, detail="Risk assessment failed")
 
 # Approval endpoints
+@api_router.get("/approvals", response_model=ApprovalListResponse)
+async def get_approvals(
+    status: Optional[str] = None,
+    assignedTo: Optional[str] = None,
+    priority: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> ApprovalListResponse:
+    """Get list of approvals with optional filtering"""
+    try:
+        approvals = approval_manager.get_all_approvals(
+            user_id=assignedTo,
+            status=status,
+            priority=priority
+        )
+
+        # Apply pagination
+        total = len(approvals)
+        paginated_approvals = approvals[offset:offset + limit]
+
+        return ApprovalListResponse(
+            requests=paginated_approvals,
+            total=total
+        )
+    except Exception as e:
+        logger.error(f"Error getting approvals: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.get("/approvals/{request_id}")
+async def get_approval(
+    request_id: str,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> Dict[str, Any]:
+    """Get a single approval by ID"""
+    try:
+        approval = approval_manager.get_approval_by_id(request_id)
+        if not approval:
+            raise HTTPException(status_code=404, detail="Approval not found")
+        return approval
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting approval {request_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @api_router.post("/approvals/{request_id}/respond")
 async def respond_to_approval(
     request_id: str,
     response: ApprovalResponse,
+    current_user: TenantContext = Depends(get_current_user),
     approval_manager=Depends(get_approval_manager),
 ) -> Dict[str, str]:
     """Respond to an approval request"""
@@ -317,14 +387,45 @@ async def respond_to_approval(
         logger.error(f"Error responding to approval {request_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@api_router.post("/approvals/batch", response_model=BatchApprovalResponse)
+async def batch_approval_action(
+    batch_request: BatchApprovalRequest,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> BatchApprovalResponse:
+    """Perform batch approval operations"""
+    try:
+        success = []
+        failed = []
+
+        for request_id in batch_request.requestIds:
+            try:
+                response = ApprovalResponse(
+                    request_id=request_id,
+                    decision=batch_request.action,
+                    user_notes=batch_request.notes or "",
+                    responded_via="web",
+                    timestamp=datetime.now()
+                )
+                await approval_manager.respond_to_approval(request_id, response)
+                success.append(request_id)
+            except Exception as e:
+                logger.error(f"Failed to process approval {request_id}: {e}")
+                failed.append(request_id)
+
+        return BatchApprovalResponse(success=success, failed=failed)
+    except Exception as e:
+        logger.error(f"Error in batch approval: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @api_router.get("/approvals/pending")
 async def get_pending_approvals(
-    user_id: str, 
+    user_id: str,
     approval_manager=Depends(get_approval_manager)
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Get pending approvals for a user"""
     try:
-        approvals = await approval_manager.get_pending_approvals(user_id)
+        approvals = approval_manager.get_pending_approvals(user_id)
         return {"pending_approvals": approvals}
     except Exception as e:
         logger.error(f"Error getting pending approvals for {user_id}: {e}")

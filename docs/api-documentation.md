@@ -44,12 +44,36 @@ Content-Type: application/json
 **Response:**
 ```json
 {
-  "token": "jwt-token-here",
-  "expires_in": 3600,
-  "user": {
-    "id": "user_123",
-    "email": "user@example.com",
-    "name": "John Doe"
+  "success": true,
+  "data": {
+    "access_token": "jwt-access-token-here",
+    "refresh_token": "refresh-token-here",
+    "expires_in": 3600
+  }
+}
+```
+
+#### Register
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "your-password",
+  "full_name": "John Doe",
+  "organization_name": "Acme Corp"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "jwt-access-token-here",
+    "refresh_token": "refresh-token-here",
+    "expires_in": 3600
   }
 }
 ```
@@ -57,13 +81,99 @@ Content-Type: application/json
 #### Refresh Token
 ```http
 POST /api/v1/auth/refresh
-Authorization: Bearer your-refresh-token
+Content-Type: application/json
+
+{
+  "refresh_token": "refresh-token-here"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "new-jwt-access-token",
+    "refresh_token": "new-refresh-token",
+    "expires_in": 3600
+  }
+}
 ```
 
 #### Logout
 ```http
-DELETE /api/v1/auth/logout
+POST /api/v1/auth/logout
+Content-Type: application/json
+
+{
+  "refresh_token": "refresh-token-here"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+#### Get Current User
+```http
+GET /api/v1/auth/me
 Authorization: Bearer your-access-token
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user-uuid-here",
+    "email": "user@example.com",
+    "full_name": "John Doe",
+    "status": "active",
+    "email_verified": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "last_login": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Token Management
+
+- **Access Token Expiration**: 60 minutes (configurable)
+- **Refresh Token Expiration**: 30 days (configurable)
+- **Token Refresh**: Clients should automatically refresh tokens before expiration
+- **401 Error Handling**: On 401 responses, attempt token refresh before forcing logout
+
+### Automatic Token Refresh
+
+Clients should implement automatic token refresh logic:
+
+1. **Schedule Refresh**: Refresh tokens 5 minutes before expiration
+2. **Handle 401 Errors**: On 401 response, attempt token refresh and retry the original request
+3. **Failed Refresh**: If refresh fails, clear tokens and redirect to login
+4. **Prevent Concurrent Refresh**: Use flags to prevent multiple simultaneous refresh attempts
+
+**Example Client Implementation:**
+```javascript
+// Schedule token refresh
+const expiresAt = Date.now() + (expiresIn * 1000);
+const refreshDelay = (expiresIn - 300) * 1000; // 5 minutes before expiration
+setTimeout(refreshToken, refreshDelay);
+
+// Handle 401 errors with automatic retry
+const response = await fetch(url, {
+  headers: { 'Authorization': `Bearer ${token}` }
+}).catch(async error => {
+  if (error.status === 401) {
+    await refreshToken();
+    return fetch(url, { // Retry original request
+      headers: { 'Authorization': `Bearer ${newToken}` }
+    });
+  }
+  throw error;
+});
 ```
 
 ### Security Best Practices

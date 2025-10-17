@@ -215,3 +215,88 @@ class ApprovalManager:
     async def _schedule_timeout(self, request_id: str, timeout_seconds: int):
         await asyncio.sleep(timeout_seconds)
         await self.handle_timeout(request_id)
+
+    def get_pending_approvals(self, user_id: str) -> list[dict[str, Any]]:
+        """Get pending approvals for a specific user"""
+        return [
+            approval.dict() for approval in self.pending_approvals.values()
+            if approval.user_id == user_id
+        ]
+
+    def get_all_approvals(
+        self,
+        user_id: Optional[str] = None,
+        status: Optional[str] = None,
+        priority: Optional[str] = None
+    ) -> list[dict[str, Any]]:
+        """Get all approvals with optional filtering"""
+        approvals = []
+
+        # Add pending approvals
+        for approval in self.pending_approvals.values():
+            if user_id and approval.user_id != user_id:
+                continue
+            if status and approval.status != status:
+                continue
+            if priority and approval.priority != priority:
+                continue
+            approvals.append(approval.dict())
+
+        # Add completed approvals from responses
+        for request_id, response in self.approval_responses.items():
+            # Find the original request if available
+            original_request = None
+            for pending_request in self.pending_approvals.values():
+                if pending_request.request_id == request_id:
+                    original_request = pending_request
+                    break
+
+            if not original_request:
+                continue
+
+            # Apply filters to completed approval
+            if user_id and original_request.user_id != user_id:
+                continue
+            if status and response.decision != status:
+                continue
+            if priority and original_request.priority != priority:
+                continue
+
+            # Create completed approval dict
+            approval_dict = original_request.dict()
+            approval_dict.update({
+                "status": response.decision,
+                "response_notes": response.user_notes,
+                "responded_via": response.responded_via,
+                "response_timestamp": response.timestamp.isoformat()
+            })
+            approvals.append(approval_dict)
+
+        return approvals
+
+    def get_approval_by_id(self, request_id: str) -> Optional[dict[str, Any]]:
+        """Get a single approval by ID"""
+        # Check pending approvals first
+        if request_id in self.pending_approvals:
+            return self.pending_approvals[request_id].dict()
+
+        # Check completed approvals
+        if request_id in self.approval_responses:
+            # Find the original request
+            for pending_request in self.pending_approvals.values():
+                if pending_request.request_id == request_id:
+                    approval_dict = pending_request.dict()
+                    response = self.approval_responses[request_id]
+                    approval_dict.update({
+                        "status": response.decision,
+                        "response_notes": response.user_notes,
+                        "responded_via": response.responded_via,
+                        "response_timestamp": response.timestamp.isoformat()
+                    })
+                    return approval_dict
+
+        return None
+
+    def respond_to_approval(self, request_id: str, response: ApprovalResponse) -> MutationResult:
+        """Respond to an approval request (alias for handle_response for consistency)"""
+        return asyncio.create_task(self.handle_response(response))

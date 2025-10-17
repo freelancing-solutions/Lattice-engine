@@ -20,6 +20,7 @@ from sqlalchemy import and_
 from src.models.user_models import UserTable, OrganizationTable, OrganizationMemberTable, UserRole, UserStatus
 from src.models.api_key_models import APIKeyTable, APIKeyStatus, APIKeyScope
 from src.models.project_models import ProjectTable, ProjectStatus
+from src.models.refresh_token_models import RefreshTokenTable, verify_refresh_token
 from src.config.settings import config as engine_config
 
 
@@ -117,14 +118,16 @@ class TenantContext:
 class AuthService:
     """Authentication and authorization service"""
     
-    def __init__(self, db_session_factory):
+    def __init__(self, db_session_factory=None):
         self.db_session_factory = db_session_factory
         self.jwt_secret = engine_config.jwt_secret or "your-secret-key"
         self.jwt_algorithm = "HS256"
-        self.jwt_expiry_hours = 24
+        self.jwt_expiry_minutes = engine_config.jwt_access_token_expire_minutes
     
     def get_db(self) -> Session:
         """Get database session"""
+        if not self.db_session_factory:
+            raise HTTPException(status_code=500, detail="Database session factory not initialized")
         return self.db_session_factory()
     
     def create_jwt_token(self, user: UserTable, organization_id: Optional[UUID] = None) -> str:
@@ -132,13 +135,51 @@ class AuthService:
         payload = {
             "sub": str(user.id),
             "email": user.email,
-            "name": user.name,
+            "name": user.full_name,
             "org_id": str(organization_id) if organization_id else None,
             "iat": datetime.now(timezone.utc),
-            "exp": datetime.now(timezone.utc) + timedelta(hours=self.jwt_expiry_hours)
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=self.jwt_expiry_minutes)
         }
-        
+
         return jwt.encode(payload, self.jwt_secret, algorithm=self.jwt_algorithm)
+
+    def create_refresh_token(self, user: UserTable) -> tuple[str, datetime]:
+        """Create a refresh token for user"""
+        from src.models.refresh_token_models import generate_refresh_token, create_refresh_token_expiry
+
+        refresh_token, refresh_token_hash = generate_refresh_token()
+        expires_at = create_refresh_token_expiry()
+
+        return refresh_token, expires_at
+
+    def verify_refresh_token(self, token: str, db: Session) -> Optional[UserTable]:
+        """Verify refresh token and return user if valid"""
+        from src.models.refresh_token_models import hash_refresh_token
+
+        token_hash = hash_refresh_token(token)
+
+        # Find refresh token in database
+        db_token = db.query(RefreshTokenTable).filter(
+            RefreshTokenTable.token_hash == token_hash
+        ).first()
+
+        if not db_token:
+            return None
+
+        # Check if token is expired or revoked
+        if not db_token.is_valid():
+            return None
+
+        # Get user
+        user = db.query(UserTable).filter(UserTable.id == db_token.user_id).first()
+        if not user or not user.can_login():
+            return None
+
+        # Update last used timestamp
+        db_token.last_used_at = datetime.now(timezone.utc)
+        db.commit()
+
+        return user
     
     def verify_jwt_token(self, token: str) -> Dict[str, Any]:
         """Verify and decode JWT token"""
@@ -294,7 +335,7 @@ class AuthService:
 auth_service = None
 
 
-def init_auth_service(db_session_factory):
+def init_auth_service(db_session_factory=None):
     """Initialize authentication service"""
     global auth_service
     auth_service = AuthService(db_session_factory)
