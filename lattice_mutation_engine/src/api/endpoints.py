@@ -11,6 +11,9 @@ from src.api.deployment_endpoints import router as deployment_router
 from src.api.mcp_endpoints import router as mcp_router
 from src.api.auth_endpoints import router as auth_router
 from src.api.project_endpoints import router as project_router
+from src.api.organization_endpoints import router as organization_router
+from src.api.subscription_endpoints import router as subscription_router
+from src.api.billing_endpoints import router as billing_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -27,8 +30,13 @@ from src.core.dependencies import (
     HealthStatus
 )
 
-from src.models.mutation_models import MutationRequest
-from src.models.mutation_models import MutationProposal, MutationResult
+from src.models.mutation_models import (
+    MutationRequest,
+    MutationProposal,
+    MutationResult,
+    MutationUpdate,
+    MutationReview
+)
 from src.models.approval_models import ApprovalResponse
 from src.utils.errors import ValidationError
 from src.main import init_engine, shutdown_engine
@@ -130,6 +138,9 @@ app.include_router(deployment_router)
 app.include_router(mcp_router)
 app.include_router(auth_router)
 app.include_router(project_router)
+app.include_router(organization_router)
+app.include_router(subscription_router)
+app.include_router(billing_router)
 
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
@@ -139,6 +150,9 @@ api_router.include_router(deployment_router)
 api_router.include_router(mcp_router)
 api_router.include_router(auth_router)
 api_router.include_router(project_router)
+api_router.include_router(organization_router)
+api_router.include_router(subscription_router)
+api_router.include_router(billing_router)
 
 # Lifecycle events
 @app.on_event("startup")
@@ -196,14 +210,17 @@ async def propose_mutation(
         
         # Create mutation proposal
         proposal = MutationProposal(
-            mutation_id=mutation_id,
-            operation=request.operation,
-            target_spec=request.target_spec,
-            changes=request.changes,
-            context=request.context or {},
-            tenant_id=current_user.tenant_id,
-            user_id=current_user.user_id,
-            timestamp=datetime.utcnow()
+            proposal_id=mutation_id,
+            spec_id=request.spec_id,
+            operation_type=request.operation_type,
+            current_version="",
+            proposed_changes=request.changes,
+            reasoning=request.reason,
+            impact_analysis={},
+            requires_approval=True,
+            affected_specs=[request.spec_id],
+            tenant_id=str(current_user.tenant_id),
+            user_id=str(current_user.user_id)
         )
         
         # Store the proposal
@@ -294,6 +311,158 @@ async def get_mutation_status(
         raise
     except Exception as e:
         logger.error(f"Error getting mutation status {identifier}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.put("/mutations/{mutation_id}")
+async def update_mutation(
+    mutation_id: str,
+    update_data: MutationUpdate,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+) -> Dict[str, Any]:
+    """Update a mutation proposal"""
+    try:
+        # Check permissions
+        if not current_user.has_permission("mutations:write"):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Update the proposal
+        updated_proposal = mutation_store.update_proposal(
+            mutation_id,
+            update_data.dict(exclude_unset=True),
+            str(current_user.tenant_id)
+        )
+
+        if not updated_proposal:
+            raise HTTPException(status_code=404, detail="Mutation not found or access denied")
+
+        logger.info(f"Mutation {mutation_id} updated by user {current_user.user_id}")
+
+        return {
+            "id": updated_proposal.proposal_id,
+            "status": "updated",
+            "message": "Mutation updated successfully",
+            "mutation": updated_proposal.dict()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating mutation {mutation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.delete("/mutations/{mutation_id}")
+async def delete_mutation(
+    mutation_id: str,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+) -> Dict[str, str]:
+    """Delete a mutation proposal (soft delete)"""
+    try:
+        # Check permissions - allow deletion by owner or users with delete permission
+        mutation = mutation_store.get_mutation(mutation_id, str(current_user.tenant_id))
+        if not mutation:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+
+        # Check if user owns the mutation or has delete permission
+        is_owner = mutation.get("user_id") == str(current_user.user_id)
+        if not (is_owner or current_user.has_permission("mutations:delete")):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Delete the proposal
+        success = mutation_store.delete_proposal(mutation_id, str(current_user.tenant_id))
+
+        if not success:
+            raise HTTPException(status_code=404, detail="Mutation not found or access denied")
+
+        logger.info(f"Mutation {mutation_id} deleted by user {current_user.user_id}")
+
+        return {
+            "status": "success",
+            "message": "Mutation deleted successfully",
+            "mutation_id": mutation_id
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting mutation {mutation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.post("/mutations/{mutation_id}/review")
+async def review_mutation(
+    mutation_id: str,
+    review_data: MutationReview,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+    approval_manager=Depends(get_approval_manager),
+) -> Dict[str, Any]:
+    """Review a mutation proposal"""
+    try:
+        # Check permissions
+        if not current_user.has_permission("mutations:approve"):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Get the mutation
+        mutation = mutation_store.get_mutation(mutation_id, str(current_user.tenant_id))
+        if not mutation:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+
+        # Get the proposal to add review
+        proposal = mutation_store.get_proposal(mutation_id)
+        if not proposal:
+            raise HTTPException(status_code=404, detail="Mutation proposal not found")
+
+        # Add review to proposal
+        review_entry = {
+            "reviewer_id": review_data.reviewer_id,
+            "decision": review_data.decision,
+            "comment": review_data.comment,
+            "conditions": review_data.conditions,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        proposal.reviews.append(review_entry)
+
+        # Handle decision
+        result = {"review": review_entry, "mutation_id": mutation_id}
+
+        if review_data.decision == "approve":
+            # Create approval response and trigger approval workflow
+            approval_response = ApprovalResponse(
+                request_id=mutation_id,
+                decision="approve",
+                user_notes=review_data.comment or "",
+                responded_via="api",
+                timestamp=datetime.utcnow()
+            )
+
+            # Trigger approval workflow
+            approval_result = await approval_manager.handle_response(approval_response)
+            result.update({
+                "status": "approved",
+                "approval_result": approval_result
+            })
+
+        elif review_data.decision == "reject":
+            # Mark mutation as rejected
+            proposal.requires_approval = False
+            result.update({
+                "status": "rejected"
+            })
+
+        elif review_data.decision == "request_changes":
+            result.update({
+                "status": "changes_requested"
+            })
+
+        logger.info(f"Mutation {mutation_id} reviewed by user {current_user.user_id} with decision: {review_data.decision}")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error reviewing mutation {mutation_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/mutations/risk-assess", response_model=RiskAssessmentResponse)

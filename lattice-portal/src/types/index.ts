@@ -708,3 +708,177 @@ export interface SpecSyncActivityLog {
   success: boolean;
   error: string | null;
 }
+
+// Organization and Team Management Types
+export enum InvitationStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  EXPIRED = 'expired',
+  CANCELLED = 'cancelled'
+}
+
+export interface OrganizationMember {
+  id: string;
+  userId: string;
+  organizationId: string;
+  role: 'owner' | 'admin' | 'developer' | 'viewer';
+  email: string;
+  fullName: string;
+  invitedBy: string | null;
+  invitedAt: string;
+  joinedAt: string | null;
+}
+
+export interface OrganizationInvitation {
+  id: string;
+  organizationId: string;
+  invitedBy: string;
+  email: string;
+  role: 'admin' | 'developer' | 'viewer';
+  token: string;
+  status: InvitationStatus;
+  message: string | null;
+  expiresAt: string;
+  createdAt: string;
+  acceptedAt: string | null;
+}
+
+export interface CreateInvitationRequest {
+  email: string;
+  role: 'admin' | 'developer' | 'viewer';
+  message?: string;
+}
+
+export interface UpdateMemberRoleRequest {
+  role: 'owner' | 'admin' | 'developer' | 'viewer';
+}
+
+export interface TeamEvent {
+  type: 'member_invited' | 'member_joined' | 'member_removed' | 'member_role_updated';
+  data: OrganizationMember | OrganizationInvitation;
+}
+
+// Subscription and Billing Types
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  TRIALING = 'trialing',
+  PAST_DUE = 'past_due',
+  PAUSED = 'paused',
+  DELETED = 'deleted',
+  CANCELLED = 'cancelled'
+}
+
+export enum BillingInterval {
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly'
+}
+
+export enum InvoiceStatus {
+  DRAFT = 'draft',
+  OPEN = 'open',
+  PAID = 'paid',
+  VOID = 'void',
+  UNCOLLECTIBLE = 'uncollectible'
+}
+
+export interface Plan {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  priceMonthly: number;
+  priceYearly: number | null;
+  maxProjects: number;
+  maxMembers: number;
+  maxApiCallsMonthly: number;
+  maxSpecsPerProject: number;
+  features: Record<string, boolean>;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Subscription {
+  id: string;
+  organizationId: string;
+  planId: string;
+  paddleSubscriptionId: string;
+  paddleCustomerId: string;
+  status: SubscriptionStatus;
+  billingInterval: BillingInterval;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  trialStart: string | null;
+  trialEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  cancelledAt: string | null;
+  paddleData: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionWithPlan extends Subscription {
+  plan: Plan;
+}
+
+export interface Invoice {
+  id: string;
+  subscriptionId: string;
+  paddleInvoiceId: string;
+  paddleTransactionId: string | null;
+  invoiceNumber: string;
+  status: InvoiceStatus;
+  amountTotal: number;
+  amountSubtotal: number;
+  amountTax: number;
+  currency: string;
+  invoiceDate: string;
+  dueDate: string | null;
+  paidAt: string | null;
+  paddleData: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UsageMetrics {
+  apiCalls: number;
+  specsCreated: number;
+  projectsCreated: number;
+  membersActive: number;
+  storageUsedMb: number;
+  lastUpdated: string;
+}
+
+export interface UsageSummary {
+  subscriptionId: string;
+  organizationId: string;
+  periodStart: string;
+  periodEnd: string;
+  metrics: Record<string, number>;
+  overLimits: Record<string, boolean>;
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'paypal';
+  last4: string | null;
+  brand: string | null;
+  expiryMonth: number | null;
+  expiryYear: number | null;
+  isDefault: boolean;
+}
+
+export interface CreateCheckoutRequest {
+  planId: string;
+  billingInterval: BillingInterval;
+}
+
+export interface UpdateSubscriptionRequest {
+  planId: string;
+  addons?: string[];
+}
+
+export interface BillingEvent {
+  type: 'subscription_updated' | 'invoice_paid' | 'payment_failed' | 'usage_limit_exceeded';
+  data: Subscription | Invoice | UsageMetrics;
+}

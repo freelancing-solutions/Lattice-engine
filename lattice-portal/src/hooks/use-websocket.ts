@@ -8,7 +8,9 @@ import { useTaskStore } from '@/stores/task-store';
 import { useGraphStore } from '@/stores/graph-store';
 import { useDeploymentStore } from '@/stores/deployment-store';
 import { useUIStore } from '@/stores/ui-store';
-import { WebSocketEvent, MutationStatusEvent, NotificationEvent, ApprovalEvent, SpecEvent, TaskEvent, DeploymentEvent } from '@/types';
+import { useOrganizationStore } from '@/stores/organization-store';
+import { useBillingStore } from '@/stores/billing-store';
+import { WebSocketEvent, MutationStatusEvent, NotificationEvent, ApprovalEvent, SpecEvent, TaskEvent, DeploymentEvent, TeamEvent } from '@/types';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.lattice.dev';
 
@@ -21,6 +23,8 @@ export const useWebSocket = () => {
   const { addNode, updateNode, removeNode } = useGraphStore();
   const { addDeployment, updateDeployment } = useDeploymentStore();
   const { addNotification } = useUIStore();
+  const { addMember, updateMember, removeMember, addInvitation, updateInvitation } = useOrganizationStore();
+  const { setSubscription, setInvoices, addInvoice: addInvoiceToStore, updateInvoice, removeInvoice } = useBillingStore();
   const socketRef = useRef<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -419,13 +423,212 @@ export const useWebSocket = () => {
     //   });
     // });
 
+    // Billing Events (prepared for future implementation)
+    // Note: Backend WebSocketHub doesn't currently emit billing events,
+    // but these handlers are ready for when real-time billing updates are added
+
+    socket.on('billing:subscription_updated', (event: any) => {
+      console.log('Subscription updated:', event);
+      if (event.data) {
+        setSubscription(event.data);
+      }
+
+      const status = event.data?.status?.toLowerCase();
+      const isSuccess = ['active', 'trialing'].includes(status);
+
+      addNotification({
+        type: isSuccess ? 'success' : 'warning',
+        title: 'Subscription Updated',
+        message: `Your subscription is now ${event.data?.status || 'updated'}`,
+        duration: 5000,
+      });
+    });
+
+    socket.on('billing:subscription_cancelled', (event: any) => {
+      console.log('Subscription cancelled:', event);
+      if (event.data) {
+        setSubscription(event.data);
+      }
+
+      addNotification({
+        type: 'warning',
+        title: 'Subscription Cancelled',
+        message: 'Your subscription has been cancelled. You will continue to have access until the end of your billing period.',
+        duration: 10000,
+      });
+    });
+
+    socket.on('billing:payment_failed', (event: any) => {
+      console.log('Payment failed:', event);
+      addNotification({
+        type: 'error',
+        title: 'Payment Failed',
+        message: 'We were unable to process your payment. Please update your payment method to avoid service interruption.',
+        duration: 0, // Don't auto-dismiss
+      });
+    });
+
+    socket.on('billing:payment_succeeded', (event: any) => {
+      console.log('Payment succeeded:', event);
+      addNotification({
+        type: 'success',
+        title: 'Payment Successful',
+        message: 'Your payment has been processed successfully.',
+        duration: 5000,
+      });
+    });
+
+    socket.on('billing:invoice_created', (event: any) => {
+      console.log('Invoice created:', event);
+      if (event.data) {
+        addInvoiceToStore(event.data);
+      }
+
+      addNotification({
+        type: 'info',
+        title: 'New Invoice Available',
+        message: `A new invoice for ${event.data?.amount || 'your subscription'} is now available.`,
+        duration: 5000,
+      });
+    });
+
+    socket.on('billing:usage_limit_warning', (event: any) => {
+      console.log('Usage limit warning:', event);
+      addNotification({
+        type: 'warning',
+        title: 'Usage Limit Warning',
+        message: `You are approaching your ${event.data?.metric || 'usage'} limit. Consider upgrading your plan to avoid service interruption.`,
+        duration: 10000,
+      });
+    });
+
+    socket.on('billing:usage_limit_reached', (event: any) => {
+      console.log('Usage limit reached:', event);
+      addNotification({
+        type: 'error',
+        title: 'Usage Limit Reached',
+        message: `You have reached your ${event.data?.metric || 'usage'} limit. Upgrade your plan to continue using the service.`,
+        duration: 0, // Don't auto-dismiss
+      });
+    });
+
+    socket.on('billing:plan_downgraded', (event: any) => {
+      console.log('Plan downgraded:', event);
+      if (event.data) {
+        setSubscription(event.data);
+      }
+
+      addNotification({
+        type: 'warning',
+        title: 'Plan Downgraded',
+        message: `Your plan has been downgraded to ${event.data?.planName || 'a lower tier'}. Some features may be limited.`,
+        duration: 10000,
+      });
+    });
+
+    socket.on('billing:plan_upgraded', (event: any) => {
+      console.log('Plan upgraded:', event);
+      if (event.data) {
+        setSubscription(event.data);
+      }
+
+      addNotification({
+        type: 'success',
+        title: 'Plan Upgraded',
+        message: `Your plan has been upgraded to ${event.data?.planName || 'a higher tier'}. Enjoy your new features!`,
+        duration: 5000,
+      });
+    });
+
+    socket.on('billing:trial_ending', (event: any) => {
+      console.log('Trial ending:', event);
+      addNotification({
+        type: 'warning',
+        title: 'Trial Ending Soon',
+        message: `Your trial will end in ${event.data?.daysRemaining || '3 days'}. Add a payment method to continue using the service.`,
+        duration: 0, // Don't auto-dismiss
+      });
+    });
+
+    socket.on('billing:trial_expired', (event: any) => {
+      console.log('Trial expired:', event);
+      if (event.data) {
+        setSubscription(event.data);
+      }
+
+      addNotification({
+        type: 'error',
+        title: 'Trial Expired',
+        message: 'Your trial has expired. Add a payment method to continue using the service.',
+        duration: 0, // Don't auto-dismiss
+      });
+    });
+
+    socket.on('billing:refund_processed', (event: any) => {
+      console.log('Refund processed:', event);
+      addNotification({
+        type: 'info',
+        title: 'Refund Processed',
+        message: `A refund of ${event.data?.amount || 'your requested amount'} has been processed.`,
+        duration: 5000,
+      });
+    });
+
+    // Team Management Events (prepared for future implementation)
+    // Note: Backend WebSocketHub doesn't currently emit team events,
+    // but these handlers are ready for when real-time team updates are added
+
+    socket.on('team:member_invited', (event: TeamEvent) => {
+      console.log('Team member invited:', event);
+      addInvitation(event.data as any);
+      addNotification({
+        type: 'info',
+        title: 'Member Invited',
+        message: `Invitation sent to ${(event.data as any).email}`,
+        duration: 5000,
+      });
+    });
+
+    socket.on('team:member_joined', (event: TeamEvent) => {
+      console.log('Team member joined:', event);
+      addMember(event.data as any);
+      addNotification({
+        type: 'success',
+        title: 'Member Joined',
+        message: `${(event.data as any).fullName} has joined the team`,
+        duration: 5000,
+      });
+    });
+
+    socket.on('team:member_removed', (event: TeamEvent) => {
+      console.log('Team member removed:', event);
+      removeMember((event.data as any).userId);
+      addNotification({
+        type: 'info',
+        title: 'Member Removed',
+        message: 'A team member has been removed',
+        duration: 5000,
+      });
+    });
+
+    socket.on('team:member_role_updated', (event: TeamEvent) => {
+      console.log('Team member role updated:', event);
+      updateMember((event.data as any).userId, { role: (event.data as any).role });
+      addNotification({
+        type: 'info',
+        title: 'Role Updated',
+        message: `${(event.data as any).fullName}'s role has been updated to ${(event.data as any).role}`,
+        duration: 5000,
+      });
+    });
+
     // Cleanup on unmount
     return () => {
       socket.disconnect();
       socketRef.current = null;
       setIsConnected(false);
     };
-  }, [isAuthenticated, user, updateMutation, addMutation, addApproval, updateApproval, addSpec, updateSpec, removeSpec, addTask, updateTask, addNode, updateNode, removeNode, addDeployment, updateDeployment, addNotification]);
+  }, [isAuthenticated, user, updateMutation, addMutation, addApproval, updateApproval, addSpec, updateSpec, removeSpec, addTask, updateTask, addNode, updateNode, removeNode, addDeployment, updateDeployment, addNotification, addMember, updateMember, removeMember, addInvitation, updateInvitation, setSubscription, setInvoices, addInvoiceToStore, updateInvoice, removeInvoice]);
 
   // Manual emit function
   const emit = (event: string, data: any) => {

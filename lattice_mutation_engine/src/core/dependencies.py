@@ -182,6 +182,14 @@ def get_spec_sync_daemon():
     """Get the spec sync daemon"""
     return ServiceDependency("spec_sync_daemon", object)()
 
+def get_paddle_service():
+    """Get the Paddle service"""
+    return ServiceDependency("paddle_service", object)()
+
+def get_usage_tracker():
+    """Get the usage tracker service"""
+    return ServiceDependency("usage_tracker", object)()
+
 # Health check dependency
 class HealthStatus(BaseModel):
     """Health status model"""
@@ -263,6 +271,8 @@ __all__ = [
     'get_graph_service',
     'get_semantic_index',
     'get_spec_sync_daemon',
+    'get_paddle_service',
+    'get_usage_tracker',
     'get_health_status',
     'register_service_factory',
     'register_service_singleton',

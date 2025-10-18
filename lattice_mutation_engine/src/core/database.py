@@ -29,6 +29,8 @@ from src.models.user_models import UserTable, OrganizationTable, OrganizationMem
 from src.models.refresh_token_models import RefreshTokenTable
 from src.models.api_key_models import APIKeyTable, SubscriptionTable
 from src.models.project_models import ProjectTable, SpecTable, ProjectMutationTable
+from src.models.invitation_models import OrganizationInvitationTable
+from src.models.subscription_models import PlanTable, InvoiceTable, UsageRecordTable
 
 Base = declarative_base()
 

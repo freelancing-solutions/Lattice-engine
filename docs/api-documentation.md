@@ -189,6 +189,12 @@ const response = await fetch(url, {
 
 ## Mutation Management
 
+All mutation endpoints require authentication and respect tenant isolation - users can only access mutations within their organization. Required permissions:
+- `mutations:read` for viewing mutations
+- `mutations:write` for creating and updating mutations
+- `mutations:delete` for deleting mutations
+- `mutations:approve` for reviewing mutations
+
 ### Create Mutation
 
 Create a new mutation for code changes:
@@ -315,15 +321,39 @@ Content-Type: application/json
 Authorization: Bearer your-api-key
 
 {
-  "action": "approve",
-  "comment": "Security improvements look good. Ready for deployment."
+  "reviewer_id": "user_123",
+  "decision": "approve",
+  "comment": "Security improvements look good. Ready for deployment.",
+  "conditions": ["Add unit tests", "Update documentation"]
 }
 ```
 
 **Request Body Parameters:**
-- `action`: Either "approve" or "reject"
+- `reviewer_id`: ID of the reviewer making the decision
+- `decision`: Either "approve", "reject", or "request_changes"
 - `comment`: Optional review comment
-- `conditions`: Optional conditions for approval
+- `conditions`: Optional list of conditions for approval
+
+**Response:**
+```json
+{
+  "review": {
+    "reviewer_id": "user_123",
+    "decision": "approve",
+    "comment": "Security improvements look good. Ready for deployment.",
+    "conditions": ["Add unit tests", "Update documentation"],
+    "timestamp": "2024-01-15T11:00:00Z"
+  },
+  "mutation_id": "mut_abc123",
+  "status": "approved",
+  "approval_result": {
+    "request_id": "mut_abc123",
+    "status": "approved"
+  }
+}
+```
+
+**Note:** This endpoint is separate from the approval workflow. It records a review decision and can trigger the approval workflow if the decision is "approve". Requires `mutations:approve` permission.
 
 ### Update Mutation
 
@@ -333,13 +363,45 @@ Content-Type: application/json
 Authorization: Bearer your-api-key
 
 {
-  "title": "Updated title",
-  "description": "Updated description",
-  "changes": {
+  "operation_type": "update",
+  "proposed_changes": {
     "additional_files": ["src/utils.ts"]
+  },
+  "reasoning": "Adding utility functions to support password hashing",
+  "confidence": 0.9,
+  "impact_analysis": {
+    "breaking_changes": false,
+    "test_coverage_needed": true
   }
 }
 ```
+
+**Request Body Parameters:**
+- `operation_type`: Optional - New operation type ('create', 'update', 'delete', 'merge', 'split', 'refactor')
+- `proposed_changes`: Optional - Updated changes to be applied
+- `reasoning`: Optional - Updated reasoning for the mutation
+- `confidence`: Optional - Confidence score (0.0 to 1.0)
+- `impact_analysis`: Optional - Updated impact analysis details
+
+**Response:**
+```json
+{
+  "id": "mut_abc123",
+  "status": "updated",
+  "message": "Mutation updated successfully",
+  "mutation": {
+    "proposal_id": "mut_abc123",
+    "operation_type": "update",
+    "proposed_changes": {
+      "additional_files": ["src/utils.ts"]
+    },
+    "reasoning": "Adding utility functions to support password hashing",
+    "confidence": 0.9
+  }
+}
+```
+
+**Note:** Updates are only allowed for mutations in 'pending' or 'draft' status. Requires `mutations:write` permission.
 
 ### Delete Mutation
 
@@ -347,6 +409,17 @@ Authorization: Bearer your-api-key
 DELETE /api/v1/mutations/{mutation_id}
 Authorization: Bearer your-api-key
 ```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Mutation deleted successfully",
+  "mutation_id": "mut_abc123"
+}
+```
+
+**Note:** This performs a soft delete - mutations are marked as deleted but not removed from storage. Can only be deleted by the mutation owner or users with `mutations:delete` permission.
 
 ---
 

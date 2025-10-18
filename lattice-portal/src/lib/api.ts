@@ -28,6 +28,19 @@ import {
   TaskRequestPayload,
   TaskClarificationPayload,
   TaskCompletionPayload,
+  OrganizationMember,
+  OrganizationInvitation,
+  CreateInvitationRequest,
+  UpdateMemberRoleRequest,
+  Subscription,
+  SubscriptionWithPlan,
+  Plan,
+  Invoice,
+  UsageMetrics,
+  UsageSummary,
+  PaymentMethod,
+  CreateCheckoutRequest,
+  UpdateSubscriptionRequest,
   GraphQuery,
   SemanticSearchRequest,
   GraphQueryResult,
@@ -1519,6 +1532,444 @@ class APIClient {
       };
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to stop spec sync' } };
+    }
+  }
+
+  // Organization and Team Management API Methods
+
+  async getOrganizationMembers(orgId: string): Promise<APIResponse<ListResponse<OrganizationMember>>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get(`/organizations/${orgId}/members`);
+
+      // Transform snake_case to camelCase
+      const members = response.data.items.map((item: any) => ({
+        id: item.id,
+        userId: item.user_id,
+        organizationId: item.organization_id,
+        email: item.email,
+        fullName: item.full_name,
+        role: item.role,
+        invitedBy: item.invited_by,
+        invitedAt: item.invited_at,
+        joinedAt: item.joined_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: members,
+          total: response.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch organization members' } };
+    }
+  }
+
+  async inviteOrganizationMember(orgId: string, invitation: CreateInvitationRequest): Promise<APIResponse<OrganizationInvitation>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post(`/organizations/${orgId}/invitations`, invitation);
+
+      // Transform snake_case to camelCase
+      const invitationData = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        invitedBy: response.data.invited_by,
+        email: response.data.email,
+        role: response.data.role,
+        token: response.data.token,
+        status: response.data.status,
+        message: response.data.message,
+        expiresAt: response.data.expires_at,
+        createdAt: response.data.created_at,
+        acceptedAt: response.data.accepted_at
+      };
+
+      return {
+        success: true,
+        data: invitationData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to send invitation' } };
+    }
+  }
+
+  async updateMemberRole(orgId: string, userId: string, roleData: UpdateMemberRoleRequest): Promise<APIResponse<OrganizationMember>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.put(`/organizations/${orgId}/members/${userId}`, roleData);
+
+      // Transform snake_case to camelCase
+      const memberData = {
+        id: response.data.id,
+        userId: response.data.user_id,
+        organizationId: response.data.organization_id,
+        email: response.data.email,
+        fullName: response.data.full_name,
+        role: response.data.role,
+        invitedBy: response.data.invited_by,
+        invitedAt: response.data.invited_at,
+        joinedAt: response.data.joined_at
+      };
+
+      return {
+        success: true,
+        data: memberData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to update member role' } };
+    }
+  }
+
+  async removeOrganizationMember(orgId: string, userId: string): Promise<APIResponse<{success: boolean, message: string}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.delete(`/organizations/${orgId}/members/${userId}`);
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to remove member' } };
+    }
+  }
+
+  async getOrganizationInvitations(orgId: string): Promise<APIResponse<ListResponse<OrganizationInvitation>>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get(`/organizations/${orgId}/invitations`);
+
+      // Transform snake_case to camelCase
+      const invitations = response.data.items.map((item: any) => ({
+        id: item.id,
+        organizationId: item.organization_id,
+        invitedBy: item.invited_by,
+        email: item.email,
+        role: item.role,
+        token: item.token,
+        status: item.status,
+        message: item.message,
+        expiresAt: item.expires_at,
+        createdAt: item.created_at,
+        acceptedAt: item.accepted_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: invitations,
+          total: response.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch invitations' } };
+    }
+  }
+
+  async acceptInvitation(token: string): Promise<APIResponse<OrganizationMember>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post(`/organizations/invitations/${token}/accept`);
+
+      // Transform snake_case to camelCase
+      const memberData = {
+        id: response.data.id,
+        userId: response.data.user_id,
+        organizationId: response.data.organization_id,
+        email: response.data.email,
+        fullName: response.data.full_name,
+        role: response.data.role,
+        invitedBy: response.data.invited_by,
+        invitedAt: response.data.invited_at,
+        joinedAt: response.data.joined_at
+      };
+
+      return {
+        success: true,
+        data: memberData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to accept invitation' } };
+    }
+  }
+
+  // Billing and Subscription API Methods
+
+  async getCurrentSubscription(): Promise<APIResponse<SubscriptionWithPlan>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get('/subscriptions/current');
+
+      // Transform snake_case to camelCase
+      const subscriptionData = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        planId: response.data.plan_id,
+        paddleSubscriptionId: response.data.paddle_subscription_id,
+        paddleCustomerId: response.data.paddle_customer_id,
+        status: response.data.status,
+        billingInterval: response.data.billing_interval,
+        currentPeriodStart: response.data.current_period_start,
+        currentPeriodEnd: response.data.current_period_end,
+        trialStart: response.data.trial_start,
+        trialEnd: response.data.trial_end,
+        cancelAtPeriodEnd: response.data.cancel_at_period_end,
+        cancelledAt: response.data.cancelled_at,
+        paddleData: response.data.paddle_data,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at,
+        plan: {
+          id: response.data.plan.id,
+          name: response.data.plan.name,
+          slug: response.data.plan.slug,
+          description: response.data.plan.description,
+          priceMonthly: response.data.plan.price_monthly,
+          priceYearly: response.data.plan.price_yearly,
+          maxProjects: response.data.plan.max_projects,
+          maxMembers: response.data.plan.max_members,
+          maxApiCallsMonthly: response.data.plan.max_api_calls_monthly,
+          maxSpecsPerProject: response.data.plan.max_specs_per_project,
+          features: response.data.plan.features,
+          isActive: response.data.plan.is_active,
+          createdAt: response.data.plan.created_at,
+          updatedAt: response.data.plan.updated_at
+        }
+      };
+
+      return {
+        success: true,
+        data: subscriptionData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch current subscription' } };
+    }
+  }
+
+  async updateSubscription(request: UpdateSubscriptionRequest): Promise<APIResponse<Subscription>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.put('/subscriptions/current', {
+        plan_id: request.planId,
+        addons: request.addons
+      });
+
+      // Transform response to camelCase
+      const subscriptionData = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        planId: response.data.plan_id,
+        paddleSubscriptionId: response.data.paddle_subscription_id,
+        paddleCustomerId: response.data.paddle_customer_id,
+        status: response.data.status,
+        billingInterval: response.data.billing_interval,
+        currentPeriodStart: response.data.current_period_start,
+        currentPeriodEnd: response.data.current_period_end,
+        trialStart: response.data.trial_start,
+        trialEnd: response.data.trial_end,
+        cancelAtPeriodEnd: response.data.cancel_at_period_end,
+        cancelledAt: response.data.cancelled_at,
+        paddleData: response.data.paddle_data,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at
+      };
+
+      return {
+        success: true,
+        data: subscriptionData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to update subscription' } };
+    }
+  }
+
+  async createCheckoutSession(request: CreateCheckoutRequest): Promise<APIResponse<{checkoutUrl: string}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post('/subscriptions/checkout', {
+        plan_id: request.planId,
+        billing_interval: request.billingInterval
+      });
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to create checkout session' } };
+    }
+  }
+
+  async getSubscriptionUsage(period?: '1d' | '7d' | '30d'): Promise<APIResponse<{current: UsageMetrics, history: UsageSummary[]}>> {
+    try {
+      const params = period ? `?period=${period}` : '';
+      const response: AxiosResponse<any> = await this.client.get(`/subscriptions/usage${params}`);
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch subscription usage' } };
+    }
+  }
+
+  async getPlans(): Promise<APIResponse<{items: Plan[], total: number}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get('/subscriptions/plans');
+
+      // Transform plans to camelCase
+      const plans = response.data.map((plan: any) => ({
+        id: plan.id,
+        name: plan.name,
+        slug: plan.slug,
+        description: plan.description,
+        priceMonthly: plan.price_monthly,
+        priceYearly: plan.price_yearly,
+        maxProjects: plan.max_projects,
+        maxMembers: plan.max_members,
+        maxApiCallsMonthly: plan.max_api_calls_monthly,
+        maxSpecsPerProject: plan.max_specs_per_project,
+        features: plan.features,
+        isActive: plan.is_active,
+        createdAt: plan.created_at,
+        updatedAt: plan.updated_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: plans,
+          total: plans.length
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch plans' } };
+    }
+  }
+
+  async cancelSubscription(): Promise<APIResponse<{success: boolean, message: string}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post('/subscriptions/cancel');
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to cancel subscription' } };
+    }
+  }
+
+  async getInvoices(limit?: number, offset?: number): Promise<APIResponse<{items: Invoice[], total: number}>> {
+    try {
+      const params = new URLSearchParams();
+      if (limit) params.append('limit', limit.toString());
+      if (offset) params.append('offset', offset.toString());
+
+      const response: AxiosResponse<any> = await this.client.get(`/billing/invoices?${params}`);
+
+      // Transform invoices to camelCase
+      const invoices = response.data.items.map((invoice: any) => ({
+        id: invoice.id,
+        subscriptionId: invoice.subscription_id,
+        paddleInvoiceId: invoice.paddle_invoice_id,
+        paddleTransactionId: invoice.paddle_transaction_id,
+        invoiceNumber: invoice.invoice_number,
+        status: invoice.status,
+        amountTotal: invoice.amount_total,
+        amountSubtotal: invoice.amount_subtotal,
+        amountTax: invoice.amount_tax,
+        currency: invoice.currency,
+        invoiceDate: invoice.invoice_date,
+        dueDate: invoice.due_date,
+        paidAt: invoice.paid_at,
+        paddleData: invoice.paddle_data,
+        createdAt: invoice.created_at,
+        updatedAt: invoice.updated_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: invoices,
+          total: response.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch invoices' } };
+    }
+  }
+
+  async getInvoice(invoiceId: string): Promise<APIResponse<Invoice>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get(`/billing/invoices/${invoiceId}`);
+
+      // Transform to camelCase
+      const invoiceData = {
+        id: response.data.id,
+        subscriptionId: response.data.subscription_id,
+        paddleInvoiceId: response.data.paddle_invoice_id,
+        paddleTransactionId: response.data.paddle_transaction_id,
+        invoiceNumber: response.data.invoice_number,
+        status: response.data.status,
+        amountTotal: response.data.amount_total,
+        amountSubtotal: response.data.amount_subtotal,
+        amountTax: response.data.amount_tax,
+        currency: response.data.currency,
+        invoiceDate: response.data.invoice_date,
+        dueDate: response.data.due_date,
+        paidAt: response.data.paid_at,
+        paddleData: response.data.paddle_data,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at
+      };
+
+      return {
+        success: true,
+        data: invoiceData
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch invoice' } };
+    }
+  }
+
+  async downloadInvoice(invoiceId: string): Promise<string> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get(`/billing/invoices/${invoiceId}/download`);
+      return response.data.download_url;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to download invoice' } };
+    }
+  }
+
+  async getPaymentMethods(): Promise<APIResponse<PaymentMethod[]>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get('/billing/payment-methods');
+
+      // Transform to camelCase
+      const paymentMethods = response.data.payment_methods.map((method: any) => ({
+        id: method.id,
+        type: method.type,
+        last4: method.last4,
+        brand: method.brand,
+        expiryMonth: method.expiry_month,
+        expiryYear: method.expiry_year,
+        isDefault: method.is_default
+      }));
+
+      return {
+        success: true,
+        data: paymentMethods
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch payment methods' } };
+    }
+  }
+
+  async addPaymentMethod(): Promise<APIResponse<{checkoutUrl: string}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post('/billing/payment-methods');
+
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to create payment method checkout' } };
     }
   }
 }

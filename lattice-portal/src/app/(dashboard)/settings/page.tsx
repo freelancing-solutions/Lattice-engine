@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Bell, Shield, Palette, Globe, Key, Play, Square, RefreshCw, FolderOpen, Activity, CheckCircle, XCircle, Clock, Loader2, Settings } from 'lucide-react';
+import { User, Bell, Shield, Palette, Globe, Key, Play, Square, RefreshCw, FolderOpen, Activity, CheckCircle, XCircle, Clock, Loader2, Settings, Users, UserPlus, Mail, CreditCard, DollarSign, Receipt, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,12 +16,40 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useSpecSyncStore } from '@/stores/spec-sync-store';
+import { useOrganizationStore } from '@/stores/organization-store';
+import { useBillingStore } from '@/stores/billing-store';
 import { apiClient } from '@/lib/api';
-import { SpecSyncStatus } from '@/types';
+import { SpecSyncStatus, CreateInvitationRequest, OrganizationMember, OrganizationInvitation, Subscription, Plan, Invoice, UsageMetrics, PaymentMethod } from '@/types';
+import { InviteMemberDialog } from '@/components/team/invite-member-dialog';
+import { MemberList } from '@/components/team/member-list';
+import { InvitationList } from '@/components/team/invitation-list';
+import { SubscriptionSummaryCard } from '@/components/billing/subscription-summary-card';
+import { UsageMetricsCard } from '@/components/billing/usage-metrics-card';
+import { PlanComparisonCard } from '@/components/billing/plan-comparison-card';
+import { InvoiceListCard } from '@/components/billing/invoice-list-card';
+import { PaymentMethodsCard } from '@/components/billing/payment-methods-card';
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
   const { theme, setTheme, notifications, clearNotifications, addNotification } = useUIStore();
+
+  // Organization/Team Management State
+  const {
+    members,
+    invitations,
+    setMembers,
+    setInvitations,
+    addMember,
+    addInvitation,
+    updateMember,
+    removeMember,
+    setLoading: setOrgLoading,
+    setError: setOrgError,
+  } = useOrganizationStore();
+
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [isTeamLoading, setIsTeamLoading] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
 
   const {
     status,
@@ -37,6 +65,27 @@ export default function SettingsPage() {
     clearError,
     setLastChecked
   } = useSpecSyncStore();
+
+  // Billing State
+  const {
+    subscription,
+    usageMetrics,
+    plans,
+    invoices,
+    paymentMethods,
+    loading,
+    error: billingError,
+    setSubscription,
+    setUsageMetrics,
+    setPlans,
+    setInvoices,
+    setPaymentMethods,
+    setLoading: setBillingLoading,
+    setError: setBillingError,
+    clearUsageMetrics,
+    clearInvoices,
+    clearPaymentMethods
+  } = useBillingStore();
 
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
@@ -191,6 +240,327 @@ export default function SettingsPage() {
     }
   };
 
+  // Billing Functions
+  const loadBillingData = async () => {
+    if (!user?.organizationId) return;
+
+    try {
+      setBillingLoading(true);
+      setBillingError(null);
+
+      // Load all billing data in parallel
+      const [subscriptionRes, usageRes, plansRes, invoicesRes, paymentMethodsRes] = await Promise.all([
+        apiClient.getCurrentSubscription(),
+        apiClient.getUsageMetrics(),
+        apiClient.getPlans(),
+        apiClient.getInvoices(),
+        apiClient.getPaymentMethods()
+      ]);
+
+      if (subscriptionRes.success && subscriptionRes.data) {
+        setSubscription(subscriptionRes.data);
+      }
+
+      if (usageRes.success && usageRes.data) {
+        setUsageMetrics(usageRes.data);
+      }
+
+      if (plansRes.success && plansRes.data) {
+        setPlans(plansRes.data);
+      }
+
+      if (invoicesRes.success && invoicesRes.data) {
+        setInvoices(invoicesRes.data.items);
+      }
+
+      if (paymentMethodsRes.success && paymentMethodsRes.data) {
+        setPaymentMethods(paymentMethodsRes.data);
+      }
+
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to load billing data';
+      setBillingError(errorMessage);
+      addNotification({
+        type: 'error',
+        title: 'Failed to Load Billing Data',
+        message: errorMessage,
+        duration: 5000
+      });
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const handleUpgradePlan = async (planId: string) => {
+    try {
+      const response = await apiClient.createCheckoutSession({ planId });
+
+      if (response.success && response.data) {
+        // Redirect to Paddle checkout
+        window.location.href = response.data.url;
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to create checkout session';
+      addNotification({
+        type: 'error',
+        title: 'Upgrade Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscription) return;
+
+    try {
+      const response = await apiClient.cancelSubscription(subscription.id);
+
+      if (response.success) {
+        addNotification({
+          type: 'success',
+          title: 'Subscription Cancelled',
+          message: 'Your subscription has been cancelled successfully',
+          duration: 5000
+        });
+
+        // Reload billing data
+        await loadBillingData();
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to cancel subscription';
+      addNotification({
+        type: 'error',
+        title: 'Cancellation Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleUpdatePaymentMethod = async () => {
+    try {
+      const response = await apiClient.createPaymentMethodUpdateSession();
+
+      if (response.success && response.data) {
+        // Redirect to Paddle payment method update
+        window.location.href = response.data.url;
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to create payment method update session';
+      addNotification({
+        type: 'error',
+        title: 'Update Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleSetDefaultPaymentMethod = async (paymentMethodId: string) => {
+    try {
+      const response = await apiClient.updatePaymentMethod(paymentMethodId, { isDefault: true });
+
+      if (response.success && response.data) {
+        addNotification({
+          type: 'success',
+          title: 'Payment Method Updated',
+          message: 'Default payment method updated successfully',
+          duration: 3000
+        });
+
+        // Reload billing data
+        await loadBillingData();
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to update payment method';
+      addNotification({
+        type: 'error',
+        title: 'Update Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleRemovePaymentMethod = async (paymentMethodId: string) => {
+    try {
+      const response = await apiClient.removePaymentMethod(paymentMethodId);
+
+      if (response.success) {
+        addNotification({
+          type: 'success',
+          title: 'Payment Method Removed',
+          message: 'Payment method removed successfully',
+          duration: 3000
+        });
+
+        // Reload billing data
+        await loadBillingData();
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to remove payment method';
+      addNotification({
+        type: 'error',
+        title: 'Removal Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleDownloadInvoice = async (invoiceId: string) => {
+    try {
+      const response = await apiClient.downloadInvoice(invoiceId);
+
+      if (response.success && response.data) {
+        // Create download link
+        const link = document.createElement('a');
+        link.href = response.data.url;
+        link.download = `invoice-${invoiceId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to download invoice';
+      addNotification({
+        type: 'error',
+        title: 'Download Failed',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  // Team Management Functions
+  const loadMembers = async () => {
+    if (!user?.organizationId) return;
+
+    try {
+      setIsTeamLoading(true);
+      setTeamError(null);
+      const response = await apiClient.getOrganizationMembers(user.organizationId);
+      if (response.success && response.data) {
+        setMembers(response.data.items);
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to load members';
+      setTeamError(errorMessage);
+      addNotification({
+        type: 'error',
+        title: 'Failed to Load Members',
+        message: errorMessage,
+        duration: 5000
+      });
+    } finally {
+      setIsTeamLoading(false);
+    }
+  };
+
+  const loadInvitations = async () => {
+    if (!user?.organizationId) return;
+
+    try {
+      setIsTeamLoading(true);
+      setTeamError(null);
+      const response = await apiClient.getOrganizationInvitations(user.organizationId);
+      if (response.success && response.data) {
+        setInvitations(response.data.items);
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to load invitations';
+      setTeamError(errorMessage);
+      addNotification({
+        type: 'error',
+        title: 'Failed to Load Invitations',
+        message: errorMessage,
+        duration: 5000
+      });
+    } finally {
+      setIsTeamLoading(false);
+    }
+  };
+
+  const handleInvite = async (invitation: CreateInvitationRequest) => {
+    if (!user?.organizationId) return;
+
+    try {
+      const response = await apiClient.inviteOrganizationMember(user.organizationId, invitation);
+      if (response.success && response.data) {
+        addInvitation(response.data);
+        addNotification({
+          type: 'success',
+          title: 'Invitation Sent',
+          message: `Invitation sent to ${invitation.email}`,
+          duration: 5000
+        });
+        await loadInvitations(); // Reload invitations
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to send invitation';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Send Invitation',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
+  const handleUpdateRole = async (userId: string, role: string) => {
+    if (!user?.organizationId) return;
+
+    try {
+      const response = await apiClient.updateMemberRole(user.organizationId, userId, { role });
+      if (response.success && response.data) {
+        updateMember(userId, response.data);
+        addNotification({
+          type: 'success',
+          title: 'Role Updated',
+          message: 'Member role updated successfully',
+          duration: 3000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to update role';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Update Role',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (!user?.organizationId) return;
+
+    try {
+      const response = await apiClient.removeOrganizationMember(user.organizationId, userId);
+      if (response.success) {
+        removeMember(userId);
+        addNotification({
+          type: 'success',
+          title: 'Member Removed',
+          message: 'Member removed successfully',
+          duration: 3000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to remove member';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Remove Member',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
   // Auto-refresh logic
   useEffect(() => {
     if (autoRefresh && status?.running) {
@@ -227,6 +597,15 @@ export default function SettingsPage() {
     loadStatus();
   }, []);
 
+  // Load team data when component mounts
+  useEffect(() => {
+    if (user?.organizationId) {
+      loadMembers();
+      loadInvitations();
+      loadBillingData();
+    }
+  }, [user?.organizationId]);
+
   // Helper function for relative time
   const getRelativeTime = (timestamp: string | null) => {
     if (!timestamp) return 'Never';
@@ -257,7 +636,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
@@ -273,6 +652,14 @@ export default function SettingsPage() {
           <TabsTrigger value="spec-sync" className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
             Spec Sync
+          </TabsTrigger>
+          <TabsTrigger value="team" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Team
+          </TabsTrigger>
+          <TabsTrigger value="billing" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Billing
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
@@ -809,6 +1196,143 @@ export default function SettingsPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="team" className="space-y-6">
+          <div className="space-y-6">
+            {/* Members Section */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Team Members
+                  </CardTitle>
+                  <CardDescription>
+                    Manage organization members and their roles
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={() => setInviteDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Invite Member
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {teamError && (
+                  <Alert className="mb-4 border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-800">
+                      Error: {teamError}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <MemberList
+                  members={members}
+                  currentUserId={user?.id || ''}
+                  currentUserRole={user?.role || 'viewer'}
+                  onUpdateRole={handleUpdateRole}
+                  onRemoveMember={handleRemoveMember}
+                  isLoading={isTeamLoading}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Invitations Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Pending Invitations
+                </CardTitle>
+                <CardDescription>
+                  Manage pending team member invitations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <InvitationList
+                  invitations={invitations}
+                  onResend={async (invitationId) => {
+                    // TODO: Implement resend functionality
+                    addNotification({
+                      type: 'info',
+                      title: 'Resend Feature',
+                      message: 'Resend invitation feature coming soon',
+                      duration: 3000
+                    });
+                  }}
+                  onCancel={async (invitationId) => {
+                    // TODO: Implement cancel functionality
+                    addNotification({
+                      type: 'info',
+                      title: 'Cancel Feature',
+                      message: 'Cancel invitation feature coming soon',
+                      duration: 3000
+                    });
+                  }}
+                  isLoading={isTeamLoading}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <InviteMemberDialog
+            open={inviteDialogOpen}
+            onOpenChange={setInviteDialogOpen}
+            onInvite={handleInvite}
+            isLoading={isTeamLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="billing" className="space-y-6">
+          {/* Billing Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SubscriptionSummaryCard
+              subscription={subscription}
+              plans={plans}
+              loading={loading}
+              onUpgrade={handleUpgradePlan}
+              onCancel={handleCancelSubscription}
+            />
+            <UsageMetricsCard
+              usageMetrics={usageMetrics}
+              subscription={subscription}
+              loading={loading}
+            />
+          </div>
+
+          {/* Plan Comparison */}
+          <PlanComparisonCard
+            plans={plans}
+            currentPlanId={subscription?.planId}
+            loading={loading}
+            onUpgrade={handleUpgradePlan}
+          />
+
+          {/* Billing Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <InvoiceListCard
+              invoices={invoices}
+              loading={loading}
+              onDownload={handleDownloadInvoice}
+            />
+            <PaymentMethodsCard
+              paymentMethods={paymentMethods}
+              loading={loading}
+              onUpdatePaymentMethod={handleUpdatePaymentMethod}
+              onSetDefault={handleSetDefaultPaymentMethod}
+              onRemove={handleRemovePaymentMethod}
+            />
+          </div>
+
+          {/* Billing Error Display */}
+          {billingError && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{billingError}</AlertDescription>
+            </Alert>
+          )}
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">
