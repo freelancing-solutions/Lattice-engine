@@ -227,3 +227,426 @@ export interface ApprovalEvent {
   data: ApprovalRequest;
   timestamp: string;
 }
+
+// Spec-related interfaces
+export enum NodeType {
+  SPEC = 'SPEC',
+  MODULE = 'MODULE',
+  CONTROLLER = 'CONTROLLER',
+  MODEL = 'MODEL',
+  ROUTE_API = 'ROUTE_API',
+  TASK = 'TASK',
+  TEST = 'TEST',
+  AGENT = 'AGENT',
+  GOAL = 'GOAL',
+  CONSTRAINT = 'CONSTRAINT',
+  DOCUMENTATION = 'DOCUMENTATION'
+}
+
+export enum SpecStatus {
+  ACTIVE = 'ACTIVE',
+  DRAFT = 'DRAFT',
+  DEPRECATED = 'DEPRECATED',
+  PENDING = 'PENDING'
+}
+
+export interface Spec {
+  id: string;
+  name: string;
+  type: NodeType;
+  description: string | null;
+  content: string | null;
+  specSource: string | null;
+  metadata: Record<string, string>;
+  status: SpecStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SpecFilters {
+  status?: SpecStatus;
+  type?: NodeType;
+  search?: string;
+  projectId?: string;
+}
+
+export interface CreateSpecRequest {
+  name: string;
+  description?: string;
+  content?: string;
+  specSource?: string;
+  metadata?: Record<string, string>;
+}
+
+export interface UpdateSpecRequest {
+  specId: string;
+  content?: string;
+  diffSummary?: string;
+}
+
+export interface GenerateSpecRequest {
+  templateId?: string;
+  templateType: string;
+  parameters: Record<string, any>;
+  name?: string;
+  description?: string;
+}
+
+export interface ValidateSpecRequest {
+  content: string | Record<string, any>;
+  format: 'json' | 'yaml' | 'markdown';
+  requiredFields?: string[];
+  schema?: Record<string, any>;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  suggestions: string[];
+}
+
+export interface SpecEvent {
+  type: 'spec_created' | 'spec_updated' | 'spec_deleted' | 'spec_approved';
+  data: Spec;
+  timestamp: string;
+}
+
+// Task-related interfaces
+export enum TaskStatus {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  CLARIFICATION_REQUESTED = 'CLARIFICATION_REQUESTED',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED'
+}
+
+export interface Task {
+  taskId: string;
+  requesterId: string;
+  operation: string;
+  inputData: Record<string, any>;
+  status: TaskStatus;
+  createdAt: string;
+  updatedAt: string;
+  assignedAgentId: string | null;
+  targetAgentType: string | null;
+  result: Record<string, any> | null;
+  error: string | null;
+  clarificationNotes: Array<{
+    note: string;
+    fromUserId: string | null;
+    timestamp: string;
+  }>;
+}
+
+export interface TaskRequestPayload {
+  requesterId: string;
+  operation: string;
+  inputData: Record<string, any>;
+  targetAgentType?: string;
+  priority?: number;
+}
+
+export interface TaskClarificationPayload {
+  taskId: string;
+  note: string;
+  fromUserId?: string;
+}
+
+export interface TaskCompletionPayload {
+  taskId: string;
+  success: boolean;
+  result?: Record<string, any>;
+  notes?: string;
+}
+
+export interface TaskFilters {
+  status?: TaskStatus;
+  operation?: string;
+  requesterId?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface TaskEvent {
+  type: 'task_requested' | 'task_clarify' | 'task_completed';
+  data: Task;
+  timestamp: string;
+}
+
+// Graph-related interfaces
+export enum GraphQueryType {
+  CYPHER = 'CYPHER',
+  TRAVERSAL = 'TRAVERSAL',
+  NEIGHBORS = 'NEIGHBORS'
+}
+
+export enum GraphLayout {
+  DAGRE = 'DAGRE',
+  FORCE = 'FORCE',
+  HIERARCHICAL = 'HIERARCHICAL',
+  CIRCULAR = 'CIRCULAR'
+}
+
+export interface GraphNode {
+  id: string;
+  name: string;
+  type: NodeType;
+  description: string | null;
+  content: string | null;
+  specSource: string | null;
+  metadata: Record<string, string>;
+  status: SpecStatus;
+  createdAt: string;
+  updatedAt: string;
+  // Reactflow specific fields
+  position: { x: number; y: number };
+  selected: boolean;
+  data: any;
+}
+
+export interface GraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: string; // RelationshipType as string
+  label?: string;
+  animated?: boolean;
+  style?: Record<string, any>;
+}
+
+export interface GraphQuery {
+  queryType: GraphQueryType;
+  query?: string;
+  parameters?: Record<string, any>;
+  startNode?: string;
+  nodeId?: string;
+  relationshipTypes?: string[];
+  maxDepth?: number;
+}
+
+export interface SemanticSearchRequest {
+  query: string;
+  limit?: number;
+  similarityThreshold?: number;
+  filters?: GraphFilters;
+}
+
+export interface GraphFilters {
+  nodeTypes?: NodeType[];
+  edgeTypes?: string[]; // RelationshipType as string
+  status?: SpecStatus[];
+  search?: string;
+}
+
+export interface GraphQueryResult {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  queryTimeMs: number;
+  totalResults: number;
+}
+
+export interface SemanticSearchResult {
+  nodes: GraphNode[];
+  query: string;
+  similarityThreshold: number;
+  searchTimeMs: number;
+}
+
+export interface GraphStats {
+  available: boolean;
+  backend: string;
+  totalDocuments: number | null;
+  indexSizeMb: number | null;
+  lastUpdated: string | null;
+}
+
+// Deployment-related interfaces
+export enum DeploymentStrategy {
+  BLUE_GREEN = 'BLUE_GREEN',
+  ROLLING = 'ROLLING',
+  CANARY = 'CANARY',
+  RECREATE = 'RECREATE',
+  ROLLBACK = 'ROLLBACK'
+}
+
+export enum DeploymentEnvironment {
+  DEVELOPMENT = 'DEVELOPMENT',
+  STAGING = 'STAGING',
+  PRODUCTION = 'PRODUCTION',
+  TESTING = 'TESTING'
+}
+
+export enum DeploymentStatus {
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  ROLLED_BACK = 'ROLLED_BACK',
+  CANCELLED = 'CANCELLED'
+}
+
+export interface Deployment {
+  deploymentId: string;
+  mutationId: string;
+  specId: string;
+  environment: DeploymentEnvironment;
+  strategy: DeploymentStrategy;
+  status: DeploymentStatus;
+  createdAt: string;
+  createdBy: string;
+  config: Record<string, any> | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  errorMessage: string | null;
+  rollbackFor: string | null;
+  rollbackReason: string | null;
+  rollbackId: string | null;
+}
+
+export interface DeploymentFilters {
+  environment?: DeploymentEnvironment;
+  status?: DeploymentStatus;
+  mutationId?: string;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface CreateDeploymentRequest {
+  mutationId: string;
+  specId: string;
+  environment: DeploymentEnvironment;
+  strategy: DeploymentStrategy;
+  config?: Record<string, any>;
+}
+
+export interface DeploymentStatusInfo {
+  deploymentId: string;
+  status: DeploymentStatus;
+  progressPercentage: number;
+  currentStep: string;
+  estimatedRemainingSeconds: number | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  errorMessage: string | null;
+}
+
+export interface RollbackDeploymentRequest {
+  reason: string;
+  targetVersion?: string;
+}
+
+export interface DeploymentEvent {
+  type: 'deployment_created' | 'deployment_updated' | 'deployment_completed' | 'deployment_failed';
+  data: Deployment;
+  timestamp: string;
+}
+
+// MCP (Model Context Protocol) Types
+export enum MCPStatus {
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnected',
+  ERROR = 'error',
+  SYNCING = 'syncing'
+}
+
+export enum MCPSyncStatus {
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  FAILED = 'failed'
+}
+
+export interface MCPServer {
+  id: string;
+  name: string;
+  description?: string;
+  endpoint: string;
+  port: number;
+  status: MCPStatus;
+  config: MCPServerConfig;
+  lastHealthCheck?: string;
+  lastSync?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MCPServerConfig {
+  timeout?: number;
+  retryInterval?: number;
+  maxRetries?: number;
+  headers?: Record<string, string>;
+  auth?: {
+    type: 'bearer' | 'basic' | 'custom';
+    token?: string;
+    username?: string;
+    password?: string;
+    customHeader?: string;
+    customValue?: string;
+  };
+}
+
+export interface MCPStatusResponse {
+  serverId: string;
+  status: MCPStatus;
+  lastCheck: string;
+  responseTime?: number;
+  error?: string;
+}
+
+export interface MCPSyncRequest {
+  serverId: string;
+  syncType: 'full' | 'incremental';
+  options?: Record<string, any>;
+}
+
+export interface MCPSyncResponse {
+  syncId: string;
+  serverId: string;
+  status: MCPSyncStatus;
+  startTime: string;
+  endTime?: string;
+  itemsProcessed?: number;
+  errors?: string[];
+}
+
+export interface MCPHealthCheck {
+  serverId: string;
+  status: 'healthy' | 'unhealthy';
+  lastCheck: string;
+  responseTime?: number;
+  error?: string;
+  details?: Record<string, any>;
+}
+
+export interface MCPFilters {
+  status?: MCPStatus;
+  search?: string;
+}
+
+export interface MCPEvent {
+  type: 'mcp_server_registered' | 'mcp_server_updated' | 'mcp_server_status_changed' |
+        'mcp_sync_started' | 'mcp_sync_completed' | 'mcp_sync_failed' | 'mcp_health_check';
+  data: MCPServer | MCPStatusResponse | MCPSyncResponse | MCPHealthCheck;
+  timestamp: string;
+}
+
+// Spec Sync Types
+export interface SpecSyncStatus {
+  enabled: boolean;
+  running: boolean;
+  dir: string;
+}
+
+export interface SpecSyncActivityLog {
+  id: string;
+  action: 'start' | 'stop' | 'status_check';
+  timestamp: string;
+  success: boolean;
+  error: string | null;
+}

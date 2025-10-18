@@ -11,6 +11,10 @@ import {
   FolderOpen,
   GitBranch,
   CheckSquare,
+  FileText,
+  ListTodo,
+  Network,
+  Rocket,
   Settings,
   Users,
   BarChart3,
@@ -22,6 +26,8 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useApprovalStore } from '@/stores/approval-store';
+import { useTaskStore } from '@/stores/task-store';
+import { useDeploymentStore } from '@/stores/deployment-store';
 import { Badge } from '@/components/ui/badge';
 
 const navigation = [
@@ -29,6 +35,10 @@ const navigation = [
   { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
   { name: 'Mutations', href: '/dashboard/mutations', icon: GitBranch },
   { name: 'Approvals', href: '/dashboard/approvals', icon: CheckSquare, badgeKey: 'pendingCount' },
+  { name: 'Tasks', href: '/dashboard/tasks', icon: ListTodo, badgeKey: 'taskCount' },
+  { name: 'Graph', href: '/dashboard/graph', icon: Network },
+  { name: 'Deployments', href: '/dashboard/deployments', icon: Rocket, badgeKey: 'deploymentCount' },
+  { name: 'Specifications', href: '/dashboard/specs', icon: FileText },
   { name: 'Team', href: '/dashboard/team', icon: Users },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
@@ -40,6 +50,8 @@ export function Sidebar() {
   const { user, logout, currentOrganization } = useAuthStore();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const { pendingCount } = useApprovalStore();
+  const { pendingCount: taskPendingCount, runningCount } = useTaskStore();
+  const { pendingCount: deploymentPendingCount, runningCount: deploymentRunningCount } = useDeploymentStore();
 
   const handleLogout = async () => {
     await logout();
@@ -80,7 +92,10 @@ export function Sidebar() {
           <nav className="space-y-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
-              const badgeCount = item.badgeKey ? (item.badgeKey === 'pendingCount' ? pendingCount : 0) : 0;
+              const badgeCount = item.badgeKey ?
+                (item.badgeKey === 'pendingCount' ? pendingCount :
+                 item.badgeKey === 'taskCount' ? taskPendingCount + runningCount :
+                 item.badgeKey === 'deploymentCount' ? deploymentPendingCount + deploymentRunningCount : 0) : 0;
 
               return (
                 <Link key={item.name} href={item.href}>

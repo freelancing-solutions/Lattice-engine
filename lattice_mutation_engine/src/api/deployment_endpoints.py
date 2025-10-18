@@ -3,7 +3,7 @@ Deployment API Endpoints for Lattice Mutation Engine
 """
 
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query
-from typing import Optional, List
+from typing import Optional, List, Dict
 import logging
 import uuid
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ import asyncio
 
 from src.models.deployment_models import (
     DeploymentRequest,
+    DeploymentRecord,
     DeploymentResponse,
     DeploymentListResponse,
     DeploymentStatusResponse,
@@ -25,7 +26,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/deployments", tags=["deployments"])
 
 # In-memory storage for deployments
-deployments_store: Dict[str, DeploymentResponse] = {}
+deployments_store: Dict[str, DeploymentRecord] = {}
 
 
 def _validate_deployment_request(request: DeploymentRequest) -> None:
@@ -54,7 +55,7 @@ def _get_components():
     return components
 
 
-@router.post("/", response_model=DeploymentResponse)
+@router.post("/", response_model=DeploymentRecord)
 async def create_deployment(
     request: DeploymentRequest,
     background_tasks: BackgroundTasks,
@@ -98,7 +99,7 @@ async def create_deployment(
         
         # Create deployment
         deployment_id = str(uuid.uuid4())
-        deployment = DeploymentResponse(
+        deployment = DeploymentRecord(
             deployment_id=deployment_id,
             mutation_id=request.mutation_id,
             spec_id=request.spec_id,
@@ -177,7 +178,7 @@ async def list_deployments(
         raise HTTPException(status_code=500, detail=f"Failed to list deployments: {str(e)}")
 
 
-@router.get("/{deployment_id}", response_model=DeploymentResponse)
+@router.get("/{deployment_id}", response_model=DeploymentRecord)
 async def get_deployment(
     deployment_id: str,
     current_user: TenantContext = Depends(get_current_user),
@@ -244,7 +245,7 @@ async def get_deployment_status(
         raise HTTPException(status_code=500, detail=f"Failed to get deployment status: {str(e)}")
 
 
-@router.post("/{deployment_id}/rollback", response_model=DeploymentResponse)
+@router.post("/{deployment_id}/rollback", response_model=DeploymentRecord)
 async def rollback_deployment(
     deployment_id: str,
     request: DeploymentRollbackRequest,
@@ -276,7 +277,7 @@ async def rollback_deployment(
         
         # Create rollback deployment
         rollback_id = str(uuid.uuid4())
-        rollback_deployment = DeploymentResponse(
+        rollback_deployment = DeploymentRecord(
             deployment_id=rollback_id,
             mutation_id=deployment.mutation_id,
             spec_id=deployment.spec_id,
@@ -306,7 +307,7 @@ async def rollback_deployment(
         raise HTTPException(status_code=500, detail=f"Failed to rollback deployment: {str(e)}")
 
 
-def _calculate_deployment_progress(deployment: DeploymentResponse) -> float:
+def _calculate_deployment_progress(deployment: DeploymentRecord) -> float:
     """Calculate deployment progress percentage"""
     if deployment.status == DeploymentStatus.COMPLETED:
         return 100.0
@@ -324,7 +325,7 @@ def _calculate_deployment_progress(deployment: DeploymentResponse) -> float:
         return 0.0
 
 
-def _estimate_remaining_time(deployment: DeploymentResponse, progress: float) -> Optional[int]:
+def _estimate_remaining_time(deployment: DeploymentRecord, progress: float) -> Optional[int]:
     """Estimate remaining time in seconds"""
     if deployment.status == DeploymentStatus.RUNNING and progress > 0:
         time_elapsed = (datetime.utcnow() - deployment.created_at).total_seconds()
