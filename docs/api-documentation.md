@@ -352,7 +352,48 @@ Authorization: Bearer your-api-key
 
 ## Project Operations
 
-### Get Project Information
+All project endpoints require authentication via Bearer token or API key with appropriate scopes:
+- `projects:read` for read operations
+- `projects:write` for create/update operations
+- `projects:delete` for archive operations
+
+### List Projects
+
+```http
+GET /api/v1/projects?status=active&search=ecommerce&limit=50&offset=0
+Authorization: Bearer your-api-key
+```
+
+**Query Parameters:**
+- `status` (optional): Filter by project status (`active`, `archived`)
+- `search` (optional): Search by name or description
+- `limit` (optional): Number of items to return (default 50, max 100)
+- `offset` (optional): Number of items to skip (default 0)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "id": "proj_123",
+      "name": "E-commerce Platform",
+      "slug": "ecommerce-platform",
+      "description": "Online shopping platform with user authentication",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "total_specs": 25,
+      "total_mutations": 150,
+      "pending_mutations": 5
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 50
+}
+```
+
+### Get Project Details
 
 ```http
 GET /api/v1/projects/{project_id}
@@ -362,33 +403,110 @@ Authorization: Bearer your-api-key
 **Response:**
 ```json
 {
-  "id": "proj_123",
-  "name": "E-commerce Platform",
-  "description": "Online shopping platform with user authentication",
-  "status": "active",
+  "success": true,
+  "data": {
+    "id": "proj_123",
+    "name": "E-commerce Platform",
+    "slug": "ecommerce-platform",
+    "description": "Online shopping platform with user authentication",
+    "status": "active",
+    "spec_sync_enabled": true,
+    "spec_sync_directory": "/specs",
+    "repository_url": "https://github.com/org/repo",
+    "repository_branch": "main",
+    "settings": {
+      "autoApproveSafeMutations": true,
+      "requireApprovalForDeletions": true,
+      "maxConcurrentMutations": 5,
+      "syncIntervalMinutes": 10
+    },
+    "created_by": "user_123",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "total_specs": 25,
+    "total_mutations": 150,
+    "pending_mutations": 5,
+    "failed_mutations": 2,
+    "invalid_specs": 1
+  }
+}
+```
+
+### Create Project
+
+```http
+POST /api/v1/projects
+Content-Type: application/json
+Authorization: Bearer your-api-key
+
+{
+  "name": "New Project",
+  "slug": "new-project",
+  "description": "Project description",
+  "spec_sync_enabled": true,
+  "spec_sync_directory": "/specs",
+  "repository_url": "https://github.com/org/repo",
+  "repository_branch": "main",
   "settings": {
-    "auto_approve": {
-      "enabled": true,
-      "risk_threshold": "low"
-    },
-    "test_coverage": {
-      "required": true,
-      "minimum": 80
-    },
-    "security_scan": {
-      "enabled": true,
-      "fail_on_high": true
-    }
-  },
-  "team": [
-    {
-      "user_id": "user_123",
-      "role": "owner",
-      "permissions": ["admin", "deploy", "review"]
-    }
-  ],
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-15T10:30:00Z"
+    "autoApproveSafeMutations": true
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj_456",
+    "name": "New Project",
+    "slug": "new-project",
+    "description": "Project description",
+    "status": "active",
+    "created_at": "2024-01-16T00:00:00Z"
+  }
+}
+```
+
+### Update Project
+
+```http
+PUT /api/v1/projects/{project_id}
+Content-Type: application/json
+Authorization: Bearer your-api-key
+
+{
+  "name": "Updated Project Name",
+  "description": "Updated description",
+  "spec_sync_enabled": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj_123",
+    "name": "Updated Project Name",
+    "description": "Updated description",
+    "updated_at": "2024-01-16T10:00:00Z"
+  }
+}
+```
+
+### Archive Project
+
+```http
+DELETE /api/v1/projects/{project_id}
+Authorization: Bearer your-api-key
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Project archived successfully"
 }
 ```
 
@@ -400,14 +518,28 @@ Content-Type: application/json
 Authorization: Bearer your-api-key
 
 {
-  "auto_approve": {
-    "enabled": true,
-    "risk_threshold": "medium"
-  },
-  "notifications": {
-    "email": true,
-    "slack": "#deployments",
-    "webhook": "https://hooks.slack.com/..."
+  "autoApproveSafeMutations": true,
+  "requireApprovalForDeletions": true,
+  "maxConcurrentMutations": 5,
+  "syncIntervalMinutes": 10,
+  "validateOnSync": true,
+  "notifyOnMutationComplete": true,
+  "notificationChannels": ["email", "slack"]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "autoApproveSafeMutations": true,
+    "requireApprovalForDeletions": true,
+    "maxConcurrentMutations": 5,
+    "syncIntervalMinutes": 10,
+    "validateOnSync": true,
+    "notifyOnMutationComplete": true,
+    "notificationChannels": ["email", "slack"]
   }
 }
 ```
@@ -419,6 +551,29 @@ GET /api/v1/projects/{project_id}/members
 Authorization: Bearer your-api-key
 ```
 
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "member_123",
+        "userId": "user_123",
+        "organizationId": "org_123",
+        "role": "owner",
+        "email": "owner@example.com",
+        "fullName": "John Doe",
+        "invitedBy": null,
+        "invitedAt": "2024-01-01T00:00:00Z",
+        "joinedAt": "2024-01-01T00:00:00Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
 ### Invite Team Member
 
 ```http
@@ -428,10 +583,11 @@ Authorization: Bearer your-api-key
 
 {
   "email": "newmember@example.com",
-  "role": "developer",
-  "permissions": ["review", "deploy"]
+  "role": "developer"
 }
 ```
+
+**Note:** This invites users to the organization (team management is at organization level, not project-specific).
 
 ### Get Project Statistics
 
@@ -443,23 +599,33 @@ Authorization: Bearer your-api-key
 **Response:**
 ```json
 {
-  "mutations": {
-    "total": 150,
-    "pending": 5,
-    "approved": 120,
-    "rejected": 10,
-    "deployed": 115
-  },
-  "team": {
-    "total_members": 8,
-    "active_members": 6
-  },
-  "performance": {
-    "avg_review_time": "2.5 hours",
-    "avg_deploy_time": "30 minutes",
-    "success_rate": 98.5
-  },
-  "period": "30_days"
+  "success": true,
+  "data": {
+    "mutations": {
+      "total": 150,
+      "pending": 5,
+      "approved": 120,
+      "rejected": 10,
+      "deployed": 115,
+      "failed": 5,
+      "lastMutationAt": "2024-01-16T09:00:00Z"
+    },
+    "specs": {
+      "total": 25,
+      "valid": 24,
+      "invalid": 1
+    },
+    "team": {
+      "totalMembers": 8,
+      "activeMembers": 6
+    },
+    "performance": {
+      "avgReviewTime": 2.5,
+      "avgDeployTime": 0.5,
+      "successRate": 96.7
+    },
+    "period": "all_time"
+  }
 }
 ```
 

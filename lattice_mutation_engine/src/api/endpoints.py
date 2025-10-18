@@ -10,6 +10,7 @@ from src.api.spec_sync_endpoints import router as spec_sync_router
 from src.api.deployment_endpoints import router as deployment_router
 from src.api.mcp_endpoints import router as mcp_router
 from src.api.auth_endpoints import router as auth_router
+from src.api.project_endpoints import router as project_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -128,6 +129,7 @@ app.include_router(spec_sync_router)
 app.include_router(deployment_router)
 app.include_router(mcp_router)
 app.include_router(auth_router)
+app.include_router(project_router)
 
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
@@ -136,6 +138,7 @@ api_router.include_router(spec_sync_router)
 api_router.include_router(deployment_router)
 api_router.include_router(mcp_router)
 api_router.include_router(auth_router)
+api_router.include_router(project_router)
 
 # Lifecycle events
 @app.on_event("startup")

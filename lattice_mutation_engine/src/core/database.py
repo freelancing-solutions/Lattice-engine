@@ -27,7 +27,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Import all models to ensure they are registered with Base
 from src.models.user_models import UserTable, OrganizationTable, OrganizationMemberTable
 from src.models.refresh_token_models import RefreshTokenTable
-from src.models.api_key_models import APIKeyTable, ProjectTable, SubscriptionTable
+from src.models.api_key_models import APIKeyTable, SubscriptionTable
+from src.models.project_models import ProjectTable, SpecTable, ProjectMutationTable
 
 Base = declarative_base()
 

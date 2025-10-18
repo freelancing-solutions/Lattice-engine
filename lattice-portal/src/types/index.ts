@@ -23,6 +23,7 @@ export interface Organization {
 export interface Project {
   id: string;
   name: string;
+  slug: string;
   description?: string;
   organization_id: string;
   status: 'active' | 'archived';
@@ -31,6 +32,63 @@ export interface Project {
   created_by: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProjectSettings {
+  autoApproveSafeMutations: boolean;
+  requireApprovalForDeletions: boolean;
+  maxConcurrentMutations: number;
+  syncIntervalMinutes: number;
+  ignorePatterns: string[];
+  includePatterns: string[];
+  validateOnSync: boolean;
+  validationRules: string[];
+  notifyOnMutationComplete: boolean;
+  notifyOnSyncErrors: boolean;
+  notificationChannels: string[];
+}
+
+export interface ProjectMember {
+  id: string;
+  userId: string;
+  organizationId: string;
+  role: 'owner' | 'admin' | 'developer' | 'viewer';
+  email: string;
+  fullName: string;
+  invitedBy: string | null;
+  invitedAt: string;
+  joinedAt: string | null;
+}
+
+export interface InviteProjectMemberRequest {
+  email: string;
+  role: 'admin' | 'developer' | 'viewer';
+}
+
+export interface ProjectStats {
+  mutations: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    deployed: number;
+    failed: number;
+  };
+  specs: {
+    total: number;
+    valid: number;
+    invalid: number;
+  };
+  team: {
+    totalMembers: number;
+    activeMembers: number;
+  };
+  performance: {
+    avgReviewTime: number;
+    avgDeployTime: number;
+    successRate: number;
+  };
+  period: string;
 }
 
 export interface Mutation {

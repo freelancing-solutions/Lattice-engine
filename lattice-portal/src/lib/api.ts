@@ -242,7 +242,7 @@ class APIClient {
       if (filters?.search) params.append('search', filters.search);
 
       const response: AxiosResponse<APIResponse<ListResponse<Project>>> = await this.client.get(
-        `/projects?${params.toString()}`
+        `/api/v1/projects?${params.toString()}`
       );
       return response.data;
     } catch (error: any) {
@@ -252,7 +252,7 @@ class APIClient {
 
   async getProject(projectId: string): Promise<APIResponse<Project>> {
     try {
-      const response: AxiosResponse<APIResponse<Project>> = await this.client.get(`/projects/${projectId}`);
+      const response: AxiosResponse<APIResponse<Project>> = await this.client.get(`/api/v1/projects/${projectId}`);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to get project' } };
@@ -261,7 +261,7 @@ class APIClient {
 
   async createProject(projectData: CreateProjectRequest): Promise<APIResponse<Project>> {
     try {
-      const response: AxiosResponse<APIResponse<Project>> = await this.client.post('/projects', projectData);
+      const response: AxiosResponse<APIResponse<Project>> = await this.client.post('/api/v1/projects', projectData);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to create project' } };
@@ -271,7 +271,7 @@ class APIClient {
   async updateProject(projectId: string, updates: Partial<Project>): Promise<APIResponse<Project>> {
     try {
       const response: AxiosResponse<APIResponse<Project>> = await this.client.put(
-        `/projects/${projectId}`,
+        `/api/v1/projects/${projectId}`,
         updates
       );
       return response.data;
@@ -282,10 +282,67 @@ class APIClient {
 
   async deleteProject(projectId: string): Promise<APIResponse<void>> {
     try {
-      const response: AxiosResponse<APIResponse<void>> = await this.client.delete(`/projects/${projectId}`);
+      const response: AxiosResponse<APIResponse<void>> = await this.client.delete(`/api/v1/projects/${projectId}`);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to delete project' } };
+    }
+  }
+
+  async getProjectSettings(projectId: string): Promise<APIResponse<ProjectSettings>> {
+    try {
+      const response: AxiosResponse<APIResponse<ProjectSettings>> = await this.client.get(
+        `/api/v1/projects/${projectId}/settings`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get project settings' } };
+    }
+  }
+
+  async updateProjectSettings(projectId: string, settings: Partial<ProjectSettings>): Promise<APIResponse<ProjectSettings>> {
+    try {
+      const response: AxiosResponse<APIResponse<ProjectSettings>> = await this.client.put(
+        `/api/v1/projects/${projectId}/settings`,
+        settings
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to update project settings' } };
+    }
+  }
+
+  async getProjectMembers(projectId: string): Promise<APIResponse<ListResponse<ProjectMember>>> {
+    try {
+      const response: AxiosResponse<APIResponse<ListResponse<ProjectMember>>> = await this.client.get(
+        `/api/v1/projects/${projectId}/members`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get project members' } };
+    }
+  }
+
+  async inviteProjectMember(projectId: string, memberData: InviteProjectMemberRequest): Promise<APIResponse<ProjectMember>> {
+    try {
+      const response: AxiosResponse<APIResponse<ProjectMember>> = await this.client.post(
+        `/api/v1/projects/${projectId}/members`,
+        memberData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to invite project member' } };
+    }
+  }
+
+  async getProjectStats(projectId: string): Promise<APIResponse<ProjectStats>> {
+    try {
+      const response: AxiosResponse<APIResponse<ProjectStats>> = await this.client.get(
+        `/api/v1/projects/${projectId}/stats`
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to get project statistics' } };
     }
   }
 
