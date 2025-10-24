@@ -1,6 +1,5 @@
 "use client"
 
-import { Metadata } from "next";
 import Navigation from "@/components/navigation"
 import Footer from "@/components/footer"
 import { motion } from "framer-motion"
@@ -28,28 +27,27 @@ import {
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-// Metadata for the Blog page
-// export const metadata: Metadata = {
+// Metadata is handled by the layout since this is a client component
 //   title: "Blog - Lattice Engine",
 //   description: "Stay updated with the latest news, tutorials, and insights from the Lattice Engine development team.",
 // }
 
 const featuredPost = {
-  slug: "the-future-of-agentic-coding",
-  title: "The Future of Agentic Coding: How AI is Transforming Software Development",
-  excerpt: "Discover how AI-powered agentic systems are revolutionizing the way we write, test, and deploy code. Learn about the latest advances in automated code generation and what it means for developers.",
-  author: "Lattice Team",
+  slug: "the-future-of-spec-driven-development",
+  title: "The Future of Spec-Driven Development: Unified Orchestration for AI Coding Agents",
+  excerpt: "Discover how Project Lattice's unified orchestration platform is revolutionizing software development through spec-driven agentic workflows. Learn about the ecosystem approach to AI-powered coding.",
+  author: "Project Lattice Team",
   date: "2024-01-15",
   readTime: "8 min read",
-  category: "Features",
+  category: "Ecosystem",
   image: "/blog/featured-agentic-coding.jpg"
 }
 
 const blogPosts = [
   {
-    slug: "getting-started-with-lattice-engine",
-    title: "Getting Started with Lattice Engine",
-    excerpt: "A comprehensive guide to setting up your first project with Lattice Engine and understanding the core concepts of agentic coding.",
+    slug: "getting-started-with-project-lattice",
+    title: "Getting Started with Project Lattice",
+    excerpt: "A comprehensive guide to setting up your first spec-driven project with Project Lattice and understanding the core concepts of unified orchestration.",
     author: "Sarah Chen",
     date: "2024-01-12",
     readTime: "5 min read",
@@ -57,19 +55,19 @@ const blogPosts = [
     image: "/blog/getting-started.jpg"
   },
   {
-    slug: "ai-powered-code-mutations-explained",
-    title: "AI-Powered Code Mutations Explained",
-    excerpt: "Deep dive into how Lattice Engine's mutation system works and how it can automatically refactor and improve your codebase.",
+    slug: "spec-driven-workflows-explained",
+    title: "Spec-Driven Workflows Explained",
+    excerpt: "Deep dive into how Project Lattice's spec-driven approach works and how it enables seamless orchestration of AI coding agents across your development workflow.",
     author: "Alex Rodriguez",
     date: "2024-01-10",
     readTime: "7 min read",
-    category: "Features",
+    category: "Ecosystem",
     image: "/blog/code-mutations.jpg"
   },
   {
-    slug: "building-scalable-specifications",
-    title: "Building Scalable Specifications",
-    excerpt: "Learn best practices for creating maintainable and scalable specifications that grow with your project requirements.",
+    slug: "building-scalable-agent-orchestration",
+    title: "Building Scalable Agent Orchestration",
+    excerpt: "Learn best practices for creating maintainable and scalable agent orchestration patterns that grow with your project requirements and team size.",
     author: "Jordan Kim",
     date: "2024-01-08",
     readTime: "6 min read",
@@ -77,9 +75,9 @@ const blogPosts = [
     image: "/blog/scalable-specs.jpg"
   },
   {
-    slug: "vscode-extension-deep-dive",
-    title: "VSCode Extension Deep Dive",
-    excerpt: "Explore the powerful features of the Lattice Engine VSCode extension and how to maximize your productivity in your favorite IDE.",
+    slug: "vscode-extension-ecosystem-integration",
+    title: "VSCode Extension: Ecosystem Integration",
+    excerpt: "Explore how the Project Lattice VSCode extension seamlessly integrates with the broader ecosystem to maximize your productivity and development flow.",
     author: "Maya Patel",
     date: "2024-01-05",
     readTime: "4 min read",
@@ -87,19 +85,19 @@ const blogPosts = [
     image: "/blog/vscode-extension.jpg"
   },
   {
-    slug: "case-study-reducing-review-time",
-    title: "Case Study: Reducing Review Time by 80%",
-    excerpt: "How TechCorp used Lattice Engine to dramatically reduce code review time while improving code quality and team collaboration.",
+    slug: "case-study-unified-development-workflow",
+    title: "Case Study: Unified Development Workflow at TechCorp",
+    excerpt: "How TechCorp used Project Lattice's unified orchestration to reduce development cycle time by 80% while improving code quality and team collaboration.",
     author: "David Wilson",
     date: "2024-01-03",
     readTime: "9 min read",
-    category: "Case Studies",
+    category: "Success Stories",
     image: "/blog/case-study-review.jpg"
   },
   {
-    slug: "mcp-server-integration-guide",
-    title: "MCP Server Integration Guide",
-    excerpt: "Step-by-step guide to integrating Model Context Protocol servers with your Lattice Engine workflow for enhanced AI capabilities.",
+    slug: "mcp-server-ecosystem-integration",
+    title: "MCP Server Ecosystem Integration Guide",
+    excerpt: "Step-by-step guide to integrating Model Context Protocol servers within the Project Lattice ecosystem for enhanced AI agent capabilities and workflows.",
     author: "Lisa Zhang",
     date: "2024-01-01",
     readTime: "8 min read",
@@ -109,17 +107,17 @@ const blogPosts = [
 ]
 
 const popularPosts = [
-  { title: "Getting Started with Lattice Engine", slug: "getting-started-with-lattice-engine" },
-  { title: "AI-Powered Code Mutations Explained", slug: "ai-powered-code-mutations-explained" },
-  { title: "Case Study: Reducing Review Time by 80%", slug: "case-study-reducing-review-time" },
-  { title: "VSCode Extension Deep Dive", slug: "vscode-extension-deep-dive" }
+  { title: "Getting Started with Project Lattice", slug: "getting-started-with-project-lattice" },
+  { title: "Spec-Driven Workflows Explained", slug: "spec-driven-workflows-explained" },
+  { title: "Case Study: Unified Development Workflow at TechCorp", slug: "case-study-unified-development-workflow" },
+  { title: "VSCode Extension: Ecosystem Integration", slug: "vscode-extension-ecosystem-integration" }
 ]
 
 const categories = [
   { name: "All", count: blogPosts.length + 1 },
   { name: "Tutorials", count: 4 },
-  { name: "Features", count: 2 },
-  { name: "Case Studies", count: 1 },
+  { name: "Ecosystem", count: 2 },
+  { name: "Success Stories", count: 1 },
   { name: "Updates", count: 0 }
 ]
 
@@ -138,17 +136,17 @@ export default function BlogPage() {
               className="text-center"
             >
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                Lattice Engine
+                Project Lattice
                 <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Blog</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-                Discover the latest insights, tutorials, and case studies about agentic coding, 
-                AI-powered development, and building better software with intelligent automation.
+                Discover the latest insights, tutorials, and case studies about spec-driven agentic development, 
+                unified orchestration for AI coding agents, and building the future of software development.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
-                <Badge variant="secondary" className="bg-primary text-primary-foreground">Technical Content</Badge>
-                <Badge variant="secondary" className="bg-blue-600 text-white">Developer Insights</Badge>
-                <Badge variant="secondary" className="bg-green-600 text-white">Case Studies</Badge>
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">Spec-Driven Development</Badge>
+                <Badge variant="secondary" className="bg-blue-600 text-white">Ecosystem Insights</Badge>
+                <Badge variant="secondary" className="bg-green-600 text-white">Success Stories</Badge>
               </div>
             </motion.div>
           </div>
@@ -350,9 +348,9 @@ export default function BlogPage() {
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="Features">
+                    <TabsContent value="Ecosystem">
                       <div className="grid md:grid-cols-2 gap-8">
-                        {blogPosts.filter(post => post.category === "Features").map((post, index) => (
+                        {blogPosts.filter(post => post.category === "Ecosystem").map((post, index) => (
                           <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 20 }}
@@ -394,9 +392,9 @@ export default function BlogPage() {
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="Case Studies">
+                    <TabsContent value="Success Stories">
                       <div className="grid md:grid-cols-2 gap-8">
-                        {blogPosts.filter(post => post.category === "Case Studies").map((post, index) => (
+                        {blogPosts.filter(post => post.category === "Success Stories").map((post, index) => (
                           <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 20 }}
@@ -413,8 +411,8 @@ export default function BlogPage() {
                                   <Badge variant="secondary" className="bg-blue-600 text-white">{post.category}</Badge>
                                   <span className="text-xs text-gray-500">{post.readTime}</span>
                                 </div>
-                                <CardTitle className="text-lg text-gray-900">{post.title}</CardTitle>
-                                <CardDescription className="text-gray-600">{post.excerpt}</CardDescription>
+                                <CardTitle className="text-lg text-gray-900 line-clamp-2">{post.title}</CardTitle>
+                                <CardDescription className="text-gray-600 line-clamp-3">{post.excerpt}</CardDescription>
                               </CardHeader>
                               <CardContent>
                                 <div className="flex items-center justify-between">
@@ -549,17 +547,17 @@ export default function BlogPage() {
               viewport={{ once: true }}
               className="text-center"
             >
-              <h2 className="text-4xl font-bold text-white mb-4">Ready to Start Building?</h2>
+              <h2 className="text-4xl font-bold text-white mb-4">Ready to Start Building with Specs?</h2>
               <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
-                Join thousands of developers who are already using Lattice Engine to build better software faster. 
-                Start your journey with agentic coding today.
+                Join thousands of developers who are already using Project Lattice's unified orchestration platform to build better software faster. 
+                Start your spec-driven development journey today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
-                  Start Free Trial
+                  Start Building with Specs
                 </Button>
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  View Documentation
+                  Explore the Ecosystem
                 </Button>
               </div>
             </motion.div>

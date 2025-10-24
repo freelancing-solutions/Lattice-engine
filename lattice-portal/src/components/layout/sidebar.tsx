@@ -10,6 +10,11 @@ import {
   Home,
   FolderOpen,
   GitBranch,
+  CheckSquare,
+  FileText,
+  ListTodo,
+  Network,
+  Rocket,
   Settings,
   Users,
   BarChart3,
@@ -20,11 +25,20 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useApprovalStore } from '@/stores/approval-store';
+import { useTaskStore } from '@/stores/task-store';
+import { useDeploymentStore } from '@/stores/deployment-store';
+import { Badge } from '@/components/ui/badge';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
   { name: 'Mutations', href: '/dashboard/mutations', icon: GitBranch },
+  { name: 'Approvals', href: '/dashboard/approvals', icon: CheckSquare, badgeKey: 'pendingCount' },
+  { name: 'Tasks', href: '/dashboard/tasks', icon: ListTodo, badgeKey: 'taskCount' },
+  { name: 'Graph', href: '/dashboard/graph', icon: Network },
+  { name: 'Deployments', href: '/dashboard/deployments', icon: Rocket, badgeKey: 'deploymentCount' },
+  { name: 'Specifications', href: '/dashboard/specs', icon: FileText },
   { name: 'Team', href: '/dashboard/team', icon: Users },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
@@ -35,6 +49,9 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, logout, currentOrganization } = useAuthStore();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { pendingCount } = useApprovalStore();
+  const { pendingCount: taskPendingCount, runningCount } = useTaskStore();
+  const { pendingCount: deploymentPendingCount, runningCount: deploymentRunningCount } = useDeploymentStore();
 
   const handleLogout = async () => {
     await logout();
@@ -75,19 +92,39 @@ export function Sidebar() {
           <nav className="space-y-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
+              const badgeCount = item.badgeKey ?
+                (item.badgeKey === 'pendingCount' ? pendingCount :
+                 item.badgeKey === 'taskCount' ? taskPendingCount + runningCount :
+                 item.badgeKey === 'deploymentCount' ? deploymentPendingCount + deploymentRunningCount : 0) : 0;
+
               return (
                 <Link key={item.name} href={item.href}>
                   <Button
                     variant={isActive ? 'secondary' : 'ghost'}
                     className={cn(
-                      'w-full justify-start',
+                      'w-full justify-start relative',
                       sidebarCollapsed ? 'px-2' : 'px-3',
                       isActive && 'bg-secondary'
                     )}
                   >
                     <item.icon className="h-4 w-4" />
                     {!sidebarCollapsed && (
-                      <span className="ml-3">{item.name}</span>
+                      <>
+                        <span className="ml-3">{item.name}</span>
+                        {badgeCount > 0 && (
+                          <Badge variant="destructive" className="ml-auto">
+                            {badgeCount > 99 ? '99+' : badgeCount}
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                    {sidebarCollapsed && badgeCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                      >
+                        {badgeCount > 9 ? '9+' : badgeCount}
+                      </Badge>
                     )}
                   </Button>
                 </Link>

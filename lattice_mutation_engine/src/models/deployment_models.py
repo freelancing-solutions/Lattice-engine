@@ -19,6 +19,7 @@ class DeploymentStrategy(str, Enum):
     ROLLING = "rolling"
     CANARY = "canary"
     RECREATE = "recreate"
+    ROLLBACK = "rollback"
 
 
 class DeploymentEnvironment(str, Enum):
@@ -32,8 +33,8 @@ class DeploymentEnvironment(str, Enum):
 class DeploymentStatus(str, Enum):
     """Deployment status states"""
     PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    SUCCESS = "success"
+    RUNNING = "running"
+    COMPLETED = "completed"
     FAILED = "failed"
     ROLLED_BACK = "rolled_back"
     CANCELLED = "cancelled"
@@ -42,10 +43,11 @@ class DeploymentStatus(str, Enum):
 class DeploymentRequest(BaseModel):
     """Request model for triggering a deployment"""
     mutation_id: str = Field(..., description="ID of the mutation to deploy")
+    spec_id: str = Field(..., description="ID of the spec to deploy")
     environment: DeploymentEnvironment = Field(..., description="Target deployment environment")
     strategy: DeploymentStrategy = Field(default=DeploymentStrategy.ROLLING, description="Deployment strategy")
-    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Additional deployment metadata")
-    
+    config: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Deployment configuration")
+
     class Config:
         use_enum_values = True
 
@@ -104,26 +106,53 @@ class Deployment(BaseModel):
         use_enum_values = True
 
 
+class DeploymentRecord(BaseModel):
+    """Flat deployment record model matching endpoint implementation"""
+    deployment_id: str = Field(..., description="Unique deployment ID")
+    mutation_id: str = Field(..., description="ID of the deployed mutation")
+    spec_id: str = Field(..., description="ID of the deployed spec")
+    environment: DeploymentEnvironment = Field(..., description="Deployment environment")
+    strategy: DeploymentStrategy = Field(..., description="Deployment strategy used")
+    status: DeploymentStatus = Field(default=DeploymentStatus.PENDING, description="Current deployment status")
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Deployment creation time")
+    created_by: str = Field(..., description="User who created the deployment")
+    config: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Deployment configuration")
+    started_at: Optional[datetime] = Field(default=None, description="Deployment start time")
+    completed_at: Optional[datetime] = Field(default=None, description="Deployment completion time")
+    error_message: Optional[str] = Field(default=None, description="Error message if deployment failed")
+    rollback_for: Optional[str] = Field(default=None, description="ID of deployment this rollback is for")
+    rollback_reason: Optional[str] = Field(default=None, description="Reason for rollback")
+    rollback_id: Optional[str] = Field(default=None, description="ID of rollback deployment")
+
+    class Config:
+        use_enum_values = True
+
+
 class DeploymentResponse(BaseModel):
-    """Response model for deployment operations"""
-    deployment: Deployment = Field(..., description="Deployment details")
+    """Response model for deployment operations - wrapper for future use"""
+    deployment: DeploymentRecord = Field(..., description="Deployment details")
     message: str = Field(..., description="Response message")
-    
-    
+
+
 class DeploymentListResponse(BaseModel):
     """Response model for listing deployments"""
-    deployments: List[Deployment] = Field(..., description="List of deployments")
+    deployments: List[DeploymentRecord] = Field(..., description="List of deployments")
     total: int = Field(..., description="Total number of deployments")
-    
-    
+    limit: int = Field(..., description="Results limit")
+    offset: int = Field(..., description="Results offset")
+
+
 class DeploymentStatusResponse(BaseModel):
     """Response model for deployment status"""
     deployment_id: str = Field(..., description="Deployment ID")
     status: DeploymentStatus = Field(..., description="Current status")
+    progress_percentage: float = Field(default=0.0, description="Deployment progress percentage")
     current_step: Optional[str] = Field(default=None, description="Current step")
-    progress_percentage: int = Field(default=0, description="Deployment progress percentage")
-    estimated_remaining_minutes: Optional[int] = Field(default=None, description="Estimated remaining time in minutes")
-    
+    estimated_remaining_seconds: Optional[int] = Field(default=None, description="Estimated remaining time in seconds")
+    started_at: Optional[datetime] = Field(default=None, description="Deployment start time")
+    completed_at: Optional[datetime] = Field(default=None, description="Deployment completion time")
+    error_message: Optional[str] = Field(default=None, description="Error message if deployment failed")
+
     @validator('progress_percentage')
     def validate_progress_percentage(cls, v):
         if v < 0 or v > 100:
@@ -133,7 +162,7 @@ class DeploymentStatusResponse(BaseModel):
 
 class DeploymentRollbackRequest(BaseModel):
     """Request model for deployment rollback"""
-    reason: Optional[str] = Field(default=None, description="Reason for rollback")
+    reason: str = Field(..., description="Reason for rollback")
     target_version: Optional[str] = Field(default=None, description="Target version to rollback to")
 
 

@@ -28,6 +28,11 @@ class MutationProposal(BaseModel):
     impact_analysis: Dict[str, Any] = {}
     requires_approval: bool = True
     affected_specs: List[str] = []
+    tenant_id: Optional[str] = None
+    user_id: Optional[str] = None
+    reviews: List[Dict[str, Any]] = []
+    deleted: bool = False
+    deleted_at: Optional[str] = None
 
 
 class MutationResult(BaseModel):
@@ -38,3 +43,23 @@ class MutationResult(BaseModel):
     validation_errors: List[str] = []
     warnings: List[str] = []
     execution_time_ms: int
+
+
+class MutationUpdate(BaseModel):
+    """Model for updating mutation proposals"""
+    operation_type: Optional[Literal[
+        'create', 'update', 'delete',
+        'merge', 'split', 'refactor'
+    ]] = None
+    proposed_changes: Optional[Dict[str, Any]] = None
+    reasoning: Optional[str] = None
+    confidence: Optional[float] = Field(None, ge=0.0, le=1.0)
+    impact_analysis: Optional[Dict[str, Any]] = None
+
+
+class MutationReview(BaseModel):
+    """Model for reviewing mutation proposals"""
+    reviewer_id: str
+    decision: Literal['approve', 'reject', 'request_changes']
+    comment: Optional[str] = None
+    conditions: Optional[List[str]] = None

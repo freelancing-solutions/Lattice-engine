@@ -13,11 +13,108 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useSpecSyncStore } from '@/stores/spec-sync-store';
+import { useOrganizationStore } from '@/stores/organization-store';
+import { useBillingStore } from '@/stores/billing-store';
+import { useWebhookStore, useWebhookActions, useWebhookHelpers } from '@/stores/webhook-store';
+import { apiClient } from '@/lib/api';
+import { SpecSyncStatus, CreateInvitationRequest, OrganizationMember, OrganizationInvitation, Subscription, Plan, Invoice, UsageMetrics, PaymentMethod, Webhook, WebhookDelivery, CreateWebhookRequest, UpdateWebhookRequest } from '@/types';
+import { InviteMemberDialog } from '@/components/team/invite-member-dialog';
+import { MemberList } from '@/components/team/member-list';
+import { InvitationList } from '@/components/team/invitation-list';
+import { SubscriptionSummaryCard } from '@/components/billing/subscription-summary-card';
+import { UsageMetricsCard } from '@/components/billing/usage-metrics-card';
+import { PlanComparisonCard } from '@/components/billing/plan-comparison-card';
+import { InvoiceListCard } from '@/components/billing/invoice-list-card';
+import { PaymentMethodsCard } from '@/components/billing/payment-methods-card';
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const { theme, setTheme, notifications, clearNotifications } = useUIStore();
-  
+  const { theme, setTheme, notifications, clearNotifications, addNotification } = useUIStore();
+
+  // Organization/Team Management State
+  const {
+    members,
+    invitations,
+    setMembers,
+    setInvitations,
+    addMember,
+    addInvitation,
+    updateMember,
+    removeMember,
+    setLoading: setOrgLoading,
+    setError: setOrgError,
+  } = useOrganizationStore();
+
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [isTeamLoading, setIsTeamLoading] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
+
+  const {
+    status,
+    activityLogs,
+    isLoading,
+    error,
+    lastChecked,
+    setStatus,
+    addActivityLog,
+    clearActivityLogs,
+    setLoading,
+    setError,
+    clearError,
+    setLastChecked
+  } = useSpecSyncStore();
+
+  // Billing State
+  const {
+    subscription,
+    usageMetrics,
+    plans,
+    invoices,
+    paymentMethods,
+    loading,
+    error: billingError,
+    setSubscription,
+    setUsageMetrics,
+    setPlans,
+    setInvoices,
+    setPaymentMethods,
+    setLoading: setBillingLoading,
+    setError: setBillingError,
+    clearUsageMetrics,
+    clearInvoices,
+    clearPaymentMethods
+  } = useBillingStore();
+
+  // Webhook State
+  const {
+    webhooks,
+    selectedWebhook,
+    deliveries,
+    isLoading: webhooksLoading,
+    error: webhookError,
+    activeCount,
+    totalDeliveries
+  } = useWebhookStore();
+
+  const {
+    setWebhooks,
+    setSelectedWebhook,
+    setDeliveries,
+    addDelivery,
+    setLoading: setWebhookLoading,
+    setError: setWebhookError,
+    clearError: clearWebhookError,
+    addWebhook,
+    updateWebhook,
+    removeWebhook
+  } = useWebhookActions();
+
+  const { getSuccessRate, getWebhookById } = useWebhookHelpers();
+
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',

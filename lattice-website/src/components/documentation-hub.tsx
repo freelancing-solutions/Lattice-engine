@@ -14,14 +14,14 @@ const docCategories = [
     description: "Complete REST API reference with examples and SDKs",
     color: "bg-primary",
     items: [
-      "Authentication & Security",
-      "Mutation Management", 
-      "Project Operations",
-      "Webhook Integration",
-      "Rate Limiting & Best Practices"
+      "Installation & Setup",
+      "First Project Creation",
+      "Basic Spec-Driven Workflow",
+      "VSCode Extension Setup",
+      "Your First Mutation"
     ],
-    badge: "v2.1.0",
-    href: "/docs/api-documentation"
+    badge: "Start Here",
+    href: "/docs/quickstart"
   },
   {
     icon: Terminal,
@@ -29,14 +29,14 @@ const docCategories = [
     description: "Command-line interface for automation and CI/CD",
     color: "bg-muted",
     items: [
-      "Installation & global flags",
-      "Dry-run previews",
-      "Proxy support",
-      "CI usage",
-      "Examples"
+      "Living Specifications",
+      "Agentic Development Model",
+      "Mutation Engine Architecture",
+      "Portal & BugSage Integration",
+      "Ecosystem Components"
     ],
-    badge: "v2.0.1",
-    href: "/docs/cli"
+    badge: "Essential",
+    href: "/docs/core-concepts"
   },
   {
     icon: Terminal,
@@ -44,14 +44,14 @@ const docCategories = [
     description: "Native IDE integration for seamless development workflow",
     color: "bg-primary",
     items: [
-      "Installation & Setup",
-      "Code Completion & IntelliSense",
-      "Real-time Validation",
-      "Debugging Tools",
-      "Custom Workflows"
+      "VSCode Extension Guide",
+      "CLI Tools & Automation",
+      "MCP Server Configuration",
+      "CI/CD Pipeline Integration",
+      "Team Collaboration Setup"
     ],
-    badge: "v1.5.2",
-    href: "/docs/vscode-extension"
+    badge: "Popular",
+    href: "/docs/integration-guides"
   },
   {
     icon: Zap,
@@ -74,36 +74,36 @@ const docCategories = [
     description: "Step-by-step guides to master Lattice Engine",
     color: "bg-primary",
     items: [
-      "Getting Started Guide",
-      "Advanced Workflows",
-      "Team Collaboration",
-      "CI/CD Integration",
-      "Best Practices"
+      "Authentication & Security",
+      "Mutation Management API",
+      "Project Operations",
+      "Webhook Integration",
+      "Rate Limiting & Best Practices"
     ],
-    badge: "Updated",
-    href: "/docs/tutorials-and-guides"
+    badge: "v2.1.0",
+    href: "/docs/api-reference"
   }
 ]
 
 const quickStartSteps = [
   {
     title: "Install VSCode Extension",
-    description: "Get the Lattice Engine extension from the VSCode Marketplace",
+    description: "Get the Project Lattice extension from the VSCode Marketplace",
     icon: Code
   },
   {
-    title: "Configure API Key",
-    description: "Generate and configure your API key for authentication",
-    icon: Terminal
-  },
-  {
-    title: "Create First Project",
-    description: "Initialize your first project with living specifications",
+    title: "Create Your First Spec",
+    description: "Initialize a project with living specifications",
     icon: FileText
   },
   {
-    title: "Propose Mutation",
-    description: "Make your first code change and experience the workflow",
+    title: "Connect Your Agent",
+    description: "Configure AI agents for spec-driven development",
+    icon: Terminal
+  },
+  {
+    title: "Experience Agentic Flow",
+    description: "Watch as agents propose and implement mutations",
     icon: Zap
   }
 ]
@@ -120,10 +120,10 @@ export default function DocumentationHub() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Comprehensive Documentation
+            Developer Documentation
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Everything you need to master Lattice Engine. From quick start guides to advanced API references.
+            Everything you need to master spec-driven agentic development. From quick start guides to comprehensive API references.
           </p>
         </motion.div>
 
@@ -183,7 +183,7 @@ export default function DocumentationHub() {
           <Card className="bg-primary text-primary-foreground">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
-                🚀 Quick Start Guide
+                🚀 Developer Journey
               </CardTitle>
               <CardDescription className="text-primary-foreground/80 text-lg">
                 Get up and running with Lattice Engine in under 5 minutes
@@ -208,7 +208,7 @@ export default function DocumentationHub() {
               <div className="text-center mt-8">
                 <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90" asChild>
                   <Link href="/docs/quickstart">
-                    Start Quick Start Guide
+                    Start Building with Specs
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Link>
                 </Button>
@@ -235,7 +235,7 @@ export default function DocumentationHub() {
               </CardHeader>
               <CardContent>
                 <Button variant="outline" className="w-full">
-                  Join Community
+                  Explore the Ecosystem
                 </Button>
               </CardContent>
             </Card>
@@ -250,7 +250,7 @@ export default function DocumentationHub() {
               </CardHeader>
               <CardContent>
                 <Button variant="outline" className="w-full">
-                  View Discussions
+                  Start Building with Specs
                 </Button>
               </CardContent>
             </Card>
@@ -266,7 +266,7 @@ export default function DocumentationHub() {
               <CardContent>
                 <Button variant="outline" className="w-full" asChild>
                   <Link href="/blog">
-                    Read Blog
+                    Explore the Ecosystem
                   </Link>
                 </Button>
               </CardContent>

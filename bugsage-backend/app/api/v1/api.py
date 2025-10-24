@@ -3,7 +3,7 @@ Main API router for the BugSage v1 API
 """
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import errors, fixes, users, projects, health
+from app.api.v1.endpoints import errors, fixes, users, projects, health, ml
 
 api_router = APIRouter()
 
@@ -36,4 +36,10 @@ api_router.include_router(
     projects.router,
     prefix="/projects",
     tags=["Projects"]
+)
+
+api_router.include_router(
+    ml.router,
+    prefix="/ml",
+    tags=["Machine Learning"]
 )

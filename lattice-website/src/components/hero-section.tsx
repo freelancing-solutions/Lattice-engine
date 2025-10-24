@@ -122,11 +122,11 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
               onClick={() => setShowDemo(true)}
             >
               <Play className="mr-2 h-5 w-5" />
-              Watch Cinematic Demo
+              Start Building with Specs
             </Button>
             <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
               <Download className="mr-2 h-5 w-5" />
-              Get Started Free
+              Explore the Ecosystem
             </Button>
           </motion.div>
         </motion.div>

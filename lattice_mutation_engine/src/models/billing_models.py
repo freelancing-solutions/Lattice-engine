@@ -36,5 +36,55 @@ class PaddleWebhook(BaseModel):
     subscription_plan_id: Optional[str] = None
     unit_price: Optional[str] = None
     user_id: Optional[str] = None
-    
-    #
+    p_signature: str  # For webhook signature verification
+    checkout: Optional[Dict[str, Any]] = None  # Checkout data
+    subscription_payment_id: Optional[str] = None
+    initial_payment: Optional[bool] = None
+    instalments: Optional[int] = None
+    order_id: Optional[str] = None
+    balance_currency: Optional[str] = None
+    balance_earnings: Optional[str] = None
+    balance_fee: Optional[str] = None
+    balance_gross: Optional[str] = None
+    balance_tax: Optional[str] = None
+    payment_method: Optional[str] = None
+    payment_tax: Optional[str] = None
+    plan_name: Optional[str] = None
+    receipt_url: Optional[str] = None
+    update_url: Optional[str] = None
+
+
+class PaddleSubscriptionCreated(PaddleWebhook):
+    """Webhook model for subscription_created event"""
+    pass
+
+
+class PaddleSubscriptionUpdated(PaddleWebhook):
+    """Webhook model for subscription_updated event"""
+    pass
+
+
+class PaddleSubscriptionCancelled(PaddleWebhook):
+    """Webhook model for subscription_cancelled event"""
+    pass
+
+
+class PaddlePaymentSuccess(PaddleWebhook):
+    """Webhook model for subscription_payment_success event"""
+    pass
+
+
+class PaddlePaymentFailed(PaddleWebhook):
+    """Webhook model for subscription_payment_failed event"""
+    pass
+
+
+class PaymentMethod(BaseModel):
+    """Model for payment method information"""
+    id: str
+    type: str  # 'card' | 'paypal'
+    last4: Optional[str] = None
+    brand: Optional[str] = None  # 'visa', 'mastercard', 'amex', etc.
+    expiry_month: Optional[int] = None
+    expiry_year: Optional[int] = None
+    is_default: bool = False

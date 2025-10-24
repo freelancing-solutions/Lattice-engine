@@ -64,12 +64,27 @@ class EngineConfig(BaseModel):
     embedding_model: str = "all-MiniLM-L6-v2"  # SentenceTransformer model
     embedding_dimension: int = 384  # Dimension for all-MiniLM-L6-v2
 
+    # Database Configuration
+    database_url: str = Field(default="sqlite:///./lattice_engine.db")
+
+    # JWT Configuration
+    jwt_secret: str = Field(default="your-secret-key-change-in-production")
+    jwt_access_token_expire_minutes: int = Field(default=60)
+    jwt_refresh_token_expire_days: int = Field(default=30)
+
     # Application URLs
     api_base_url: str = Field(default="https://api.project-lattice.site")
     website_url: str = Field(default="https://www.project-lattice.site")
     user_dashboard_url: str = Field(default="https://app.project-lattice.site")
     admin_dashboard_url: str = Field(default="https://admin.project-lattice.site")
     cors_origins: str = Field(default="http://localhost:3000,http://localhost:8000,https://api.project-lattice.site,https://www.project-lattice.site,https://app.project-lattice.site,https://admin.project-lattice.site")
+
+    # Paddle.com Configuration
+    paddle_vendor_id: Optional[str] = Field(default=None, description="Paddle vendor/seller ID")
+    paddle_api_key: Optional[str] = Field(default=None, description="Paddle API authentication key")
+    paddle_webhook_secret: Optional[str] = Field(default=None, description="Paddle webhook signature verification secret")
+    paddle_environment: str = Field(default="sandbox", description="sandbox | production")
+    paddle_public_key: Optional[str] = Field(default=None, description="Paddle webhook signature verification public key (alternative to secret)")
 
 
 config = EngineConfig()

@@ -9,6 +9,13 @@ from src.api.task_endpoints import router as task_router
 from src.api.spec_sync_endpoints import router as spec_sync_router
 from src.api.deployment_endpoints import router as deployment_router
 from src.api.mcp_endpoints import router as mcp_router
+from src.api.auth_endpoints import router as auth_router
+from src.api.project_endpoints import router as project_router
+from src.api.organization_endpoints import router as organization_router
+from src.api.subscription_endpoints import router as subscription_router
+from src.api.billing_endpoints import router as billing_router
+from src.api.webhook_endpoints import router as webhook_router
+from src.api.agent_endpoints import router as agent_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -25,8 +32,13 @@ from src.core.dependencies import (
     HealthStatus
 )
 
-from src.models.mutation_models import MutationRequest
-from src.models.mutation_models import MutationProposal, MutationResult
+from src.models.mutation_models import (
+    MutationRequest,
+    MutationProposal,
+    MutationResult,
+    MutationUpdate,
+    MutationReview
+)
 from src.models.approval_models import ApprovalResponse
 from src.utils.errors import ValidationError
 from src.main import init_engine, shutdown_engine
@@ -78,6 +90,22 @@ class RiskAssessmentResponse(BaseModel):
     factors: List[str]
     recommendations: List[str]
 
+class ApprovalListResponse(BaseModel):
+    """Response model for listing approvals"""
+    requests: List[Dict[str, Any]]
+    total: int
+
+class BatchApprovalRequest(BaseModel):
+    """Request model for batch approval operations"""
+    action: str  # 'approve' or 'reject'
+    requestIds: List[str]
+    notes: Optional[str] = None
+
+class BatchApprovalResponse(BaseModel):
+    """Response model for batch approval operations"""
+    success: List[str]
+    failed: List[str]
+
 # FastAPI app configuration
 app = FastAPI(
     title="Lattice Mutation Engine API",
@@ -110,6 +138,13 @@ app.include_router(task_router)
 app.include_router(spec_sync_router)
 app.include_router(deployment_router)
 app.include_router(mcp_router)
+app.include_router(auth_router)
+app.include_router(project_router)
+app.include_router(organization_router)
+app.include_router(subscription_router)
+app.include_router(billing_router)
+app.include_router(webhook_router)
+app.include_router(agent_router)
 
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
@@ -117,6 +152,13 @@ api_router.include_router(task_router)
 api_router.include_router(spec_sync_router)
 api_router.include_router(deployment_router)
 api_router.include_router(mcp_router)
+api_router.include_router(auth_router)
+api_router.include_router(project_router)
+api_router.include_router(organization_router)
+api_router.include_router(subscription_router)
+api_router.include_router(billing_router)
+api_router.include_router(webhook_router)
+api_router.include_router(agent_router)
 
 # Lifecycle events
 @app.on_event("startup")
@@ -126,13 +168,15 @@ async def startup_event():
     try:
         global components
         components = await init_engine()
-        
-        # Initialize auth service
-        await init_auth_service()
-        
+
+        # Initialize database and auth service
+        from src.core.database import init_database, get_db
+        init_database()
+        init_auth_service(get_db)
+
         # Start background task to keep engine running
         asyncio.create_task(_keep_engine_running())
-        
+
         logger.info("Lattice Mutation Engine API started successfully")
     except Exception as e:
         logger.error(f"Failed to start engine: {e}")
@@ -172,14 +216,17 @@ async def propose_mutation(
         
         # Create mutation proposal
         proposal = MutationProposal(
-            mutation_id=mutation_id,
-            operation=request.operation,
-            target_spec=request.target_spec,
-            changes=request.changes,
-            context=request.context or {},
-            tenant_id=current_user.tenant_id,
-            user_id=current_user.user_id,
-            timestamp=datetime.utcnow()
+            proposal_id=mutation_id,
+            spec_id=request.spec_id,
+            operation_type=request.operation_type,
+            current_version="",
+            proposed_changes=request.changes,
+            reasoning=request.reason,
+            impact_analysis={},
+            requires_approval=True,
+            affected_specs=[request.spec_id],
+            tenant_id=str(current_user.tenant_id),
+            user_id=str(current_user.user_id)
         )
         
         # Store the proposal
@@ -272,6 +319,158 @@ async def get_mutation_status(
         logger.error(f"Error getting mutation status {identifier}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@api_router.put("/mutations/{mutation_id}")
+async def update_mutation(
+    mutation_id: str,
+    update_data: MutationUpdate,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+) -> Dict[str, Any]:
+    """Update a mutation proposal"""
+    try:
+        # Check permissions
+        if not current_user.has_permission("mutations:write"):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Update the proposal
+        updated_proposal = mutation_store.update_proposal(
+            mutation_id,
+            update_data.dict(exclude_unset=True),
+            str(current_user.tenant_id)
+        )
+
+        if not updated_proposal:
+            raise HTTPException(status_code=404, detail="Mutation not found or access denied")
+
+        logger.info(f"Mutation {mutation_id} updated by user {current_user.user_id}")
+
+        return {
+            "id": updated_proposal.proposal_id,
+            "status": "updated",
+            "message": "Mutation updated successfully",
+            "mutation": updated_proposal.dict()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating mutation {mutation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.delete("/mutations/{mutation_id}")
+async def delete_mutation(
+    mutation_id: str,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+) -> Dict[str, str]:
+    """Delete a mutation proposal (soft delete)"""
+    try:
+        # Check permissions - allow deletion by owner or users with delete permission
+        mutation = mutation_store.get_mutation(mutation_id, str(current_user.tenant_id))
+        if not mutation:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+
+        # Check if user owns the mutation or has delete permission
+        is_owner = mutation.get("user_id") == str(current_user.user_id)
+        if not (is_owner or current_user.has_permission("mutations:delete")):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Delete the proposal
+        success = mutation_store.delete_proposal(mutation_id, str(current_user.tenant_id))
+
+        if not success:
+            raise HTTPException(status_code=404, detail="Mutation not found or access denied")
+
+        logger.info(f"Mutation {mutation_id} deleted by user {current_user.user_id}")
+
+        return {
+            "status": "success",
+            "message": "Mutation deleted successfully",
+            "mutation_id": mutation_id
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting mutation {mutation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.post("/mutations/{mutation_id}/review")
+async def review_mutation(
+    mutation_id: str,
+    review_data: MutationReview,
+    current_user: TenantContext = Depends(get_current_user),
+    mutation_store=Depends(get_mutation_store),
+    approval_manager=Depends(get_approval_manager),
+) -> Dict[str, Any]:
+    """Review a mutation proposal"""
+    try:
+        # Check permissions
+        if not current_user.has_permission("mutations:approve"):
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+
+        # Get the mutation
+        mutation = mutation_store.get_mutation(mutation_id, str(current_user.tenant_id))
+        if not mutation:
+            raise HTTPException(status_code=404, detail="Mutation not found")
+
+        # Get the proposal to add review
+        proposal = mutation_store.get_proposal(mutation_id)
+        if not proposal:
+            raise HTTPException(status_code=404, detail="Mutation proposal not found")
+
+        # Add review to proposal
+        review_entry = {
+            "reviewer_id": review_data.reviewer_id,
+            "decision": review_data.decision,
+            "comment": review_data.comment,
+            "conditions": review_data.conditions,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        proposal.reviews.append(review_entry)
+
+        # Handle decision
+        result = {"review": review_entry, "mutation_id": mutation_id}
+
+        if review_data.decision == "approve":
+            # Create approval response and trigger approval workflow
+            approval_response = ApprovalResponse(
+                request_id=mutation_id,
+                decision="approve",
+                user_notes=review_data.comment or "",
+                responded_via="api",
+                timestamp=datetime.utcnow()
+            )
+
+            # Trigger approval workflow
+            approval_result = await approval_manager.handle_response(approval_response)
+            result.update({
+                "status": "approved",
+                "approval_result": approval_result
+            })
+
+        elif review_data.decision == "reject":
+            # Mark mutation as rejected
+            proposal.requires_approval = False
+            result.update({
+                "status": "rejected"
+            })
+
+        elif review_data.decision == "request_changes":
+            result.update({
+                "status": "changes_requested"
+            })
+
+        logger.info(f"Mutation {mutation_id} reviewed by user {current_user.user_id} with decision: {review_data.decision}")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error reviewing mutation {mutation_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @api_router.post("/mutations/risk-assess", response_model=RiskAssessmentResponse)
 async def risk_assess(
     payload: RiskAssessmentRequest,
@@ -303,10 +502,59 @@ async def risk_assess(
         raise HTTPException(status_code=500, detail="Risk assessment failed")
 
 # Approval endpoints
+@api_router.get("/approvals", response_model=ApprovalListResponse)
+async def get_approvals(
+    status: Optional[str] = None,
+    assignedTo: Optional[str] = None,
+    priority: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> ApprovalListResponse:
+    """Get list of approvals with optional filtering"""
+    try:
+        approvals = approval_manager.get_all_approvals(
+            user_id=assignedTo,
+            status=status,
+            priority=priority
+        )
+
+        # Apply pagination
+        total = len(approvals)
+        paginated_approvals = approvals[offset:offset + limit]
+
+        return ApprovalListResponse(
+            requests=paginated_approvals,
+            total=total
+        )
+    except Exception as e:
+        logger.error(f"Error getting approvals: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.get("/approvals/{request_id}")
+async def get_approval(
+    request_id: str,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> Dict[str, Any]:
+    """Get a single approval by ID"""
+    try:
+        approval = approval_manager.get_approval_by_id(request_id)
+        if not approval:
+            raise HTTPException(status_code=404, detail="Approval not found")
+        return approval
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting approval {request_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @api_router.post("/approvals/{request_id}/respond")
 async def respond_to_approval(
     request_id: str,
     response: ApprovalResponse,
+    current_user: TenantContext = Depends(get_current_user),
     approval_manager=Depends(get_approval_manager),
 ) -> Dict[str, str]:
     """Respond to an approval request"""
@@ -317,14 +565,45 @@ async def respond_to_approval(
         logger.error(f"Error responding to approval {request_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@api_router.post("/approvals/batch", response_model=BatchApprovalResponse)
+async def batch_approval_action(
+    batch_request: BatchApprovalRequest,
+    current_user: TenantContext = Depends(get_current_user),
+    approval_manager=Depends(get_approval_manager),
+) -> BatchApprovalResponse:
+    """Perform batch approval operations"""
+    try:
+        success = []
+        failed = []
+
+        for request_id in batch_request.requestIds:
+            try:
+                response = ApprovalResponse(
+                    request_id=request_id,
+                    decision=batch_request.action,
+                    user_notes=batch_request.notes or "",
+                    responded_via="web",
+                    timestamp=datetime.now()
+                )
+                await approval_manager.respond_to_approval(request_id, response)
+                success.append(request_id)
+            except Exception as e:
+                logger.error(f"Failed to process approval {request_id}: {e}")
+                failed.append(request_id)
+
+        return BatchApprovalResponse(success=success, failed=failed)
+    except Exception as e:
+        logger.error(f"Error in batch approval: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @api_router.get("/approvals/pending")
 async def get_pending_approvals(
-    user_id: str, 
+    user_id: str,
     approval_manager=Depends(get_approval_manager)
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Get pending approvals for a user"""
     try:
-        approvals = await approval_manager.get_pending_approvals(user_id)
+        approvals = approval_manager.get_pending_approvals(user_id)
         return {"pending_approvals": approvals}
     except Exception as e:
         logger.error(f"Error getting pending approvals for {user_id}: {e}")

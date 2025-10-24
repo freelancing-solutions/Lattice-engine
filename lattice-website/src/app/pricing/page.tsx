@@ -248,32 +248,52 @@ export default function PricingPage() {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <main className="pt-16">
+      <main>
         {/* Hero Section */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto text-center">
+        <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="text-center"
             >
-              <Badge variant="secondary" className="mb-4">
-                <Star className="w-4 h-4 mr-1" />
-                Pricing Plans
-              </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">
-                Choose Your Plan
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+                Simple,
+                <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Transparent Pricing</span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-                From individual developers to enterprise teams, find the perfect plan to accelerate your development workflow with AI-powered agentic coding.
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+                From individual developers to enterprise teams, find the perfect plan to accelerate 
+                your development workflow with AI-powered agentic coding.
               </p>
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">14-Day Free Trial</Badge>
+                <Badge variant="secondary" className="bg-blue-600 text-white">No Credit Card Required</Badge>
+                <Badge variant="secondary" className="bg-green-600 text-white">Cancel Anytime</Badge>
+                <Badge variant="secondary" className="bg-orange-600 text-white">20% Off Annual Plans</Badge>
+              </div>
             </motion.div>
           </div>
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Choose Your Plan
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Select the plan that best fits your needs and scale as you grow.
+              </p>
+            </motion.div>
+
             <Tabs defaultValue="monthly" className="w-full">
               <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
@@ -286,10 +306,11 @@ export default function PricingPage() {
                     <motion.div
                       key={plan.name}
                       initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
                     >
-                      <Card className={`relative h-full ${plan.color} ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+                      <Card className={`relative h-full ${plan.color} ${plan.popular ? 'ring-2 ring-primary' : ''} hover:shadow-lg transition-shadow duration-300`}>
                         {plan.badge && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                             <Badge className="bg-primary text-primary-foreground">
@@ -342,10 +363,11 @@ export default function PricingPage() {
                     <motion.div
                       key={plan.name}
                       initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
                     >
-                      <Card className={`relative h-full ${plan.color} ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+                      <Card className={`relative h-full ${plan.color} ${plan.popular ? 'ring-2 ring-primary' : ''} hover:shadow-lg transition-shadow duration-300`}>
                         {plan.badge && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                             <Badge className="bg-primary text-primary-foreground">
@@ -407,15 +429,16 @@ export default function PricingPage() {
         </section>
 
         {/* Feature Comparison */}
-        <section className="py-20 px-4 bg-muted/50">
-          <div className="container mx-auto">
+        <section className="py-20 bg-card">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-4xl font-bold text-foreground mb-4">
                 Compare Features
               </h2>
               <p className="text-xl text-muted-foreground">
@@ -484,15 +507,16 @@ export default function PricingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto max-w-4xl">
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4 max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-4xl font-bold text-foreground mb-4">
                 Frequently Asked Questions
               </h2>
               <p className="text-xl text-muted-foreground">
@@ -505,10 +529,11 @@ export default function PricingPage() {
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
                 >
-                  <Card>
+                  <Card className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader>
                       <CardTitle className="flex items-center text-lg">
                         <HelpCircle className="w-5 h-5 mr-3 text-primary" />
@@ -526,29 +551,31 @@ export default function PricingPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 px-4 bg-primary/5">
-          <div className="container mx-auto text-center">
+        <section className="py-20 bg-gradient-to-r from-primary to-orange-600">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-4xl font-bold text-white mb-4">
                 Ready to Get Started?
               </h2>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
                 Join thousands of developers who are already using Lattice Engine to accelerate their development workflow.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="text-lg px-8">
+                <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
                   Start Free Trial
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                   Contact Sales
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
+              <p className="text-sm text-orange-100 mt-4">
                 No credit card required • 14-day free trial • Cancel anytime
               </p>
             </motion.div>

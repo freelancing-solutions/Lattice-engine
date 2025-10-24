@@ -67,7 +67,7 @@
   --chart-1: oklch(0.72 0.15 35);    /* Cloudflare orange */
   --chart-2: oklch(0.75 0.15 150);   /* Green */
   --chart-3: oklch(0.85 0.10 220);   /* Blue */
-  --chart-4: oklch(0.75 0.20 330);   /* Pink */
+  --chart-4: oklch(0.68 0.18 45);    /* Orange-red */
   --chart-5: oklch(0.65 0.25 60);    /* Yellow */
   --sidebar: oklch(0.98 0.01 35);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -79,7 +79,7 @@
   --sidebar-ring: oklch(0.72 0.15 35);
   
   /* Code syntax colors (Monokai-inspired) */
-  --code-keyword: oklch(0.75 0.20 330);    /* Pink */
+  --code-keyword: oklch(0.72 0.15 35);     /* Cloudflare orange */
   --code-string: oklch(0.75 0.15 150);     /* Green */
   --code-comment: oklch(0.456 0.02 28);    /* Gray */
   --code-function: oklch(0.65 0.25 60);    /* Yellow */
@@ -110,7 +110,7 @@
   --chart-1: oklch(0.78 0.18 35);       /* Cloudflare orange */
   --chart-2: oklch(0.85 0.15 150);      /* Green */
   --chart-3: oklch(0.75 0.10 220);      /* Blue */
-  --chart-4: oklch(0.85 0.20 330);      /* Pink */
+  --chart-4: oklch(0.74 0.20 45);       /* Orange-red */
   --chart-5: oklch(0.75 0.25 60);       /* Yellow */
   --sidebar: oklch(0.19 0.02 35);
   --sidebar-foreground: oklch(0.95 0.02 35);
@@ -122,7 +122,7 @@
   --sidebar-ring: oklch(0.78 0.18 35);
   
   /* Code syntax colors (Monokai-inspired) */
-  --code-keyword: oklch(0.85 0.20 330);    /* Bright pink */
+  --code-keyword: oklch(0.78 0.18 35);     /* Bright Cloudflare orange */
   --code-string: oklch(0.85 0.15 150);     /* Bright green */
   --code-comment: oklch(0.55 0.02 28);     /* Gray */
   --code-function: oklch(0.75 0.25 60);    /* Yellow */

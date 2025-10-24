@@ -120,7 +120,7 @@ export default function DeveloperFeatures() {
                     <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
                       <Link href={feature.href}>
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        View Documentation
+                        Start Building with Specs
                       </Link>
                     </Button>
                   </div>
