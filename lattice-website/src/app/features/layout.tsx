@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 
 
 export default function FeaturesLayout({
+  
   children,
 }: {
   children: React.ReactNode
