@@ -9,12 +9,13 @@ import { Menu, X, Github, Twitter } from "lucide-react"
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Ecosystem", href: "/ecosystem" },
+  { name: "Features", href: "/features" },
   { name: "Documentation", href: "/docs" },
-  { name: "CLI Tools", href: "/cli-tools" },
-  { name: "MCP Servers", href: "/mcp-servers" },
+  { name: "Downloads", href: "/downloads" },
+  { name: "Status", href: "/status" },
   { name: "Blog", href: "/blog" },
   { name: "Pricing", href: "/pricing" },
+  { name: "Support", href: "/support" },
 ]
 
 export default function Navigation() {
