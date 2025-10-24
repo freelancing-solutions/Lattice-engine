@@ -1,27 +1,27 @@
 import { Github, Twitter, Linkedin, MessageCircle, Mail } from "lucide-react"
 
 const footerLinks = {
-  product: [
-    { name: "Features", href: "/features" },
-    { name: "Documentation", href: "/docs" },
-    { name: "Downloads", href: "/downloads" },
-    { name: "System Status", href: "/status" },
+  ecosystem: [
+    { name: "Ecosystem Components", href: "/ecosystem" },
+    { name: "Mutation Engine", href: "/ecosystem/mutation-engine" },
+    { name: "Portal & BugSage", href: "/ecosystem/portal-bugsage" },
+    { name: "VSCode Extension", href: "/ecosystem/vscode-extension" },
   ],
   documentation: [
-    { name: "API Reference", href: "/docs/api-documentation" },
-    { name: "VSCode Extension", href: "/docs/vscode-extension" },
-    { name: "MCP Servers", href: "/docs/mcp-servers" },
-    { name: "Tutorials", href: "/docs/tutorials-and-guides" },
+    { name: "Quick Start", href: "/docs/quickstart" },
+    { name: "Core Concepts", href: "/docs/core-concepts" },
+    { name: "Integration Guides", href: "/docs/integration-guides" },
+    { name: "API Reference", href: "/docs/api-reference" },
   ],
-  support: [
-    { name: "Help Center", href: "/support" },
-    { name: "Contact Us", href: "/support" },
-    { name: "Community", href: "/community" },
-    { name: "Status Page", href: "/status" },
+  developers: [
+    { name: "Developer Journey", href: "/docs/developer-journey" },
+    { name: "CLI Tools", href: "/docs/cli-tools" },
+    { name: "MCP Servers", href: "/docs/mcp-servers" },
+    { name: "Community Forum", href: "/community" },
   ],
   company: [
-    { name: "About", href: "/about" },
-    { name: "Blog", href: "/blog" },
+    { name: "About Project Lattice", href: "/about" },
+    { name: "Blog & Insights", href: "/blog" },
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
   ],
@@ -46,11 +46,11 @@ export default function Footer() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">L</span>
               </div>
-              <span className="text-white font-bold text-xl">Lattice Engine</span>
+              <span className="text-white font-bold text-xl">Project Lattice</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Agentic coding platform that revolutionizes how developers manage specifications, 
-              mutations, and collaborative coding workflows.
+              Unified orchestration for AI coding agents. Spec-driven agentic development 
+              that synchronizes all agents, specs, and codebases in one ecosystem.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
@@ -66,11 +66,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
+          {/* Ecosystem Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Product</h3>
+            <h3 className="font-bold text-lg mb-4">Ecosystem</h3>
             <ul className="space-y-2">
-              {footerLinks.product.map((link) => (
+              {footerLinks.ecosystem.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
@@ -100,11 +100,11 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Developers Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Support</h3>
+            <h3 className="font-bold text-lg mb-4">Developers</h3>
             <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
+              {footerLinks.developers.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
@@ -139,7 +139,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-4 mb-4 md:mb-0">
               <span className="text-gray-400 text-sm">
-                © 2024 Lattice Engine. All rights reserved.
+                © 2024 Project Lattice. All rights reserved.
               </span>
             </div>
             

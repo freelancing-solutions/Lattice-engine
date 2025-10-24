@@ -6,36 +6,36 @@ import { FileText, GitBranch, Zap, CheckCircle } from "lucide-react"
 
 const valuePropositions = [
   {
-    title: "Spec-Driven Development",
-    description: "Define your application behavior with living specifications that evolve with your code",
+    title: "Unified Ecosystem",
+    description: "Six core components working together to orchestrate AI agents across your entire development workflow",
     icon: FileText,
     features: [
-      "Automated spec validation",
-      "Version-controlled specifications",
-      "Real-time sync with codebase",
-      "Collaborative spec editing"
+      "Mutation Engine for spec-to-code transformation",
+      "Portal for ecosystem management",
+      "BugSage for intelligent debugging",
+      "Integrated CLI, VSCode, and MCP tools"
     ]
   },
   {
-    title: "Intelligent Mutations",
-    description: "Track, approve, and execute code changes with AI-powered risk assessment",
+    title: "Spec-Driven Architecture",
+    description: "Build with specifications as the foundation, ensuring consistency and enabling AI agent collaboration",
     icon: GitBranch,
     features: [
-      "Risk-based approval workflows",
-      "Automated testing integration",
-      "Rollback capabilities",
-      "Audit trail for all changes"
+      "Specification-first development approach",
+      "Automated code generation from specs",
+      "AI agent orchestration through shared context",
+      "Cross-component traceability and validation"
     ]
   },
   {
-    title: "Seamless Integration",
-    description: "Works with your existing tools and workflows through VSCode extension and APIs",
+    title: "Agentic Development",
+    description: "Empower AI agents to collaborate seamlessly through standardized protocols and unified orchestration",
     icon: Zap,
     features: [
-      "VSCode extension",
-      "REST API access",
-      "MCP server integration",
-      "CI/CD pipeline support"
+      "Multi-agent coordination and communication",
+      "Model Context Protocol (MCP) integration",
+      "Autonomous error resolution and optimization",
+      "Real-time agent monitoring and management"
     ]
   }
 ]
@@ -52,10 +52,10 @@ export default function ValuePropositions() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Why Developers Choose Lattice
+            Why Choose Project Lattice
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Built by developers, for developers. Experience the future of collaborative coding with tools that understand your workflow.
+            Experience the power of unified orchestration for AI coding agents. Build the future with spec-driven agentic development.
           </p>
         </motion.div>
 

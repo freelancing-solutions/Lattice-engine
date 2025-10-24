@@ -5,16 +5,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Github, Twitter, Shield } from "lucide-react"
+import { Menu, X, Github, Twitter } from "lucide-react"
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Features", href: "/features" },
+  { name: "Ecosystem", href: "/ecosystem" },
   { name: "Documentation", href: "/docs" },
-  { name: "Downloads", href: "/downloads" },
-  { name: "Status", href: "/status" },
-  { name: "Support", href: "/support" },
-  { name: "Admin", href: "/admin/tickets", isAdmin: true },
+  { name: "CLI Tools", href: "/cli-tools" },
+  { name: "MCP Servers", href: "/mcp-servers" },
+  { name: "Blog", href: "/blog" },
+  { name: "Pricing", href: "/pricing" },
 ]
 
 export default function Navigation() {
@@ -52,8 +52,8 @@ export default function Navigation() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">L</span>
               </div>
-              <span className="text-foreground font-bold text-xl hidden sm:block">Lattice Engine</span>
-              <span className="text-foreground font-bold text-xl sm:hidden">LR</span>
+              <span className="text-foreground font-bold text-xl hidden sm:block">Project Lattice</span>
+              <span className="text-foreground font-bold text-xl sm:hidden">PL</span>
             </a>
           </motion.div>
 
@@ -63,13 +63,8 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className={`transition-colors duration-200 text-sm font-medium flex items-center space-x-1 ${
-                  item.isAdmin
-                    ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className="transition-colors duration-200 text-sm font-medium text-muted-foreground hover:text-foreground"
               >
-                {item.isAdmin && <Shield className="h-4 w-4" />}
                 <span>{item.name}</span>
               </a>
             ))}
@@ -82,7 +77,7 @@ export default function Navigation() {
               <a href="https://app.project-lattice.site/login">Sign In</a>
             </Button>
             <Button asChild>
-              <a href="/pricing">Get Started</a>
+              <a href="/pricing">Start Building with Specs</a>
             </Button>
           </div>
 
@@ -99,14 +94,9 @@ export default function Navigation() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className={`transition-colors duration-200 text-lg font-medium flex items-center space-x-2 ${
-                      item.isAdmin
-                        ? "text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
+                    className="transition-colors duration-200 text-lg font-medium text-muted-foreground hover:text-foreground"
                     onClick={() => setIsOpen(false)}
                   >
-                    {item.isAdmin && <Shield className="h-4 w-4" />}
                     <span>{item.name}</span>
                   </a>
                 ))}
@@ -119,7 +109,7 @@ export default function Navigation() {
                     <a href="https://app.project-lattice.site/login">Sign In</a>
                   </Button>
                   <Button asChild>
-                    <a href="/pricing">Get Started</a>
+                    <a href="/pricing">Start Building with Specs</a>
                   </Button>
                 </div>
                 <div className="flex space-x-4 pt-6 border-t border-border">

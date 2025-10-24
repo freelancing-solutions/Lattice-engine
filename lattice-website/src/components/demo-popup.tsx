@@ -404,10 +404,10 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   </div>
                   <div className="flex space-x-2 sm:ml-auto">
                     <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                      Learn More
+                      Explore the Ecosystem
                     </Button>
                     <Button size="sm" className="flex-1 sm:flex-none">
-                      Get Started
+                      Start Building with Specs
                       <ArrowRight className="h-4 w-4 ml-2 hidden sm:inline" />
                     </Button>
                   </div>

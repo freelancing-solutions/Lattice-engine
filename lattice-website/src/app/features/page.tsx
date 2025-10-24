@@ -1,121 +1,185 @@
 "use client"
 
-import { Metadata } from "next";
-
-// Metadata for the Features page
-// export const metadata: Metadata = {
-//   title: "Features - Lattice Engine",
-//   description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, and advanced debugging capabilities.",
-// }
-import Navigation from "@/components/navigation"
-import Footer from "@/components/footer"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import Navigation from '@/components/navigation'
+import Footer from '@/components/footer'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { 
   Terminal, 
   Code, 
-  Webhook, 
-  Database, 
-  Copy, 
-  ExternalLink,
-  Zap,
-  Shield,
-  GitBranch,
-  Cpu,
-  Cloud,
-  Users,
-  BarChart3,
-  Puzzle
-} from "lucide-react"
+  Bot, 
+  Globe, 
+  BarChart3, 
+  Zap, 
+  ExternalLink, 
+  Copy,
+  Cog,
+  Bug,
+  Layers,
+  Puzzle,
+  Database,
+  Webhook
+} from 'lucide-react'
+import { motion } from 'framer-motion'
 
-const coreFeatures = [
+// Metadata is handled by the layout or moved to a server component
+// since this is a client component using framer-motion
+
+const ecosystemComponents = [
   {
     icon: Zap,
-    title: "AI-Powered Code Generation",
-    description: "Generate high-quality code from natural language descriptions",
-    features: ["Natural language to code", "Context-aware suggestions", "Multi-language support", "Smart refactoring"]
+    title: "Mutation Engine",
+    description: "The core orchestration engine that transforms specifications into executable code changes",
+    features: ["Spec-to-code transformation", "Cross-project traceability", "Autonomous error resolution", "Multi-agent coordination"],
+    status: "Core",
+    link: "/docs/mutation-engine"
   },
   {
-    icon: Shield,
-    title: "Automated Testing",
-    description: "Comprehensive test generation and execution",
-    features: ["Unit test generation", "Integration testing", "Performance testing", "Security scanning"]
+    icon: Globe,
+    title: "Lattice Portal",
+    description: "Centralized web interface for managing specifications, mutations, and project orchestration",
+    features: ["Unified project dashboard", "Spec management", "Real-time mutation tracking", "Team collaboration"],
+    status: "Core",
+    link: "/portal"
   },
   {
-    icon: GitBranch,
-    title: "Version Control Integration",
-    description: "Seamless Git workflow integration",
-    features: ["Branch management", "Merge conflict resolution", "Code review automation", "Release management"]
-  },
-  {
-    icon: Cpu,
-    title: "Performance Optimization",
-    description: "Intelligent performance analysis and optimization",
-    features: ["Code profiling", "Memory optimization", "Database query optimization", "Bundle size analysis"]
-  },
-  {
-    icon: Cloud,
-    title: "Cloud Deployment",
-    description: "One-click deployment to multiple cloud providers",
-    features: ["Multi-cloud support", "Auto-scaling", "Load balancing", "Environment management"]
-  },
-  {
-    icon: Users,
-    title: "Team Collaboration",
-    description: "Built-in tools for team productivity",
-    features: ["Real-time collaboration", "Code sharing", "Team analytics", "Permission management"]
-  }
-]
-
-const developerTools = [
-  {
-    icon: Terminal,
-    title: "CLI Integration",
-    description: "Powerful command-line tools for automation",
-    code: "npx lattice mutation propose --spec user-auth",
-    features: ["Automation scripts", "CI/CD integration", "Batch operations", "Custom workflows"]
+    icon: Bug,
+    title: "BugSage",
+    description: "AI-powered debugging companion that provides contextual error analysis and resolution",
+    features: ["Intelligent error detection", "Contextual debugging", "Automated fix suggestions", "Learning from patterns"],
+    status: "Core",
+    link: "/bugsage"
   },
   {
     icon: Code,
     title: "VSCode Extension",
-    description: "Native IDE integration with IntelliSense",
-    code: "// Auto-complete for Lattice APIs\nlattice.mutation.create({...})",
-    features: ["Real-time validation", "Code completion", "Integrated debugging", "Live preview"]
+    description: "Native IDE integration bringing spec-driven development directly to your editor",
+    features: ["Inline spec editing", "Real-time validation", "Mutation preview", "Integrated debugging"],
+    status: "Core",
+    link: "/docs/vscode-extension"
   },
   {
-    icon: Webhook,
-    title: "REST API",
-    description: "Full programmatic access to all features",
-    code: "POST /api/v1/mutations\n{\n  \"spec_id\": \"user-auth\",\n  \"changes\": {...}\n}",
-    features: ["RESTful design", "Webhook support", "Rate limiting", "OAuth 2.0 security"]
+    icon: Terminal,
+    title: "CLI Tools",
+    description: "Command-line interface for automation and CI/CD integration",
+    features: ["Spec management", "Mutation automation", "CI/CD integration", "Batch operations"],
+    status: "Core",
+    link: "/docs/cli"
   },
   {
     icon: Database,
     title: "MCP Servers",
-    description: "Model Context Protocol integration",
-    code: "https://mcp.project-lattice.site/specs/user-management",
-    features: ["Real-time sync", "Multi-client support", "Event streaming", "State management"]
+    description: "Model Context Protocol servers for seamless AI agent integration",
+    features: ["Real-time spec sync", "Multi-agent coordination", "Context sharing", "Event streaming"],
+    status: "Core",
+    link: "/docs/mcp-servers"
   }
 ]
 
-const analyticsFeatures = [
+const integrationTools = [
   {
-    icon: BarChart3,
-    title: "Development Analytics",
-    description: "Comprehensive insights into your development process",
-    metrics: ["Code quality scores", "Development velocity", "Bug detection rates", "Team productivity"]
+    title: "CLI Tools",
+    description: "Command-line interface for spec-driven development workflow",
+    icon: Terminal,
+    code: `# Install Project Lattice CLI
+npm install -g @project-lattice/cli
+
+# Initialize spec-driven project
+lattice init --template=agentic
+
+# Generate from specifications
+lattice generate --spec=user-service.yaml`,
+    features: [
+      "Spec-driven project scaffolding",
+      "AI agent orchestration commands",
+      "Automated code generation from specs",
+      "Unified ecosystem management"
+    ]
   },
   {
-    icon: Puzzle,
-    title: "Integration Ecosystem",
-    description: "Connect with your favorite development tools",
-    integrations: ["GitHub/GitLab", "Jira/Linear", "Slack/Discord", "Docker/Kubernetes"]
+    title: "VSCode Extension",
+    description: "Native IDE integration with spec-aware AI assistance",
+    icon: Code,
+    code: `// Spec-aware code completion
+const userService = await lattice.specs.implement({
+  specification: "user-service.yaml",
+  target: "typescript"
+});
+
+// AI agent collaboration
+lattice.agents.collaborate(userService);`,
+    features: [
+      "Specification-driven IntelliSense",
+      "AI agent integration panel",
+      "Real-time spec validation",
+      "Unified ecosystem navigation"
+    ]
+  },
+  {
+    title: "MCP Servers",
+    description: "Model Context Protocol servers for AI agent orchestration",
+    icon: Database,
+    code: `// Connect to Project Lattice MCP
+const mcpClient = new LatticeClient({
+  serverUrl: 'ws://localhost:8080/lattice-mcp',
+  ecosystem: 'unified'
+});
+
+await mcpClient.orchestrate();`,
+    features: [
+      "Standardized agent communication",
+      "Spec-driven context sharing",
+      "Multi-agent orchestration",
+      "Ecosystem-wide collaboration"
+    ]
+  },
+  {
+    title: "Portal Integration",
+    description: "Web-based interface for ecosystem management and monitoring",
+    icon: Webhook,
+    code: `// Portal API integration
+const portal = new LatticePortal({
+  apiKey: process.env.LATTICE_API_KEY,
+  ecosystem: 'production'
+});
+
+const status = await portal.getEcosystemStatus();`,
+    features: [
+      "Unified ecosystem dashboard",
+      "Real-time agent monitoring",
+      "Specification management",
+      "Cross-component analytics"
+    ]
   }
 ]
 
-export default function FeaturesPage() {
+const ecosystemBenefits = [
+  {
+    title: "Unified Orchestration",
+    description: "Seamlessly coordinate AI agents across your entire development ecosystem",
+    icon: BarChart3,
+    benefits: [
+      "Single source of truth for specifications",
+      "Coordinated multi-agent workflows",
+      "Consistent development patterns",
+      "Reduced integration complexity"
+    ]
+  },
+  {
+    title: "Spec-Driven Architecture",
+    description: "Build with specifications as the foundation for all development activities",
+    icon: Zap,
+    benefits: [
+      "Specification-first development approach",
+      "Automated code generation from specs",
+      "Consistent API and service contracts",
+      "Enhanced collaboration through shared specs"
+    ]
+  }
+]
+
+export default function EcosystemPage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
   }
@@ -134,24 +198,24 @@ export default function FeaturesPage() {
               className="text-center"
             >
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                Powerful Features for
-                <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Modern Development</span>
+                Unified Ecosystem for
+                <span className="bg-gradient-to-r from-primary to-orange-400 bg-clip-text text-transparent"> Spec-Driven Development</span>
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-                Discover the comprehensive suite of AI-powered tools and features that make Lattice Engine 
-                the ultimate development platform for teams of all sizes.
+                Six core components working in harmony to orchestrate AI coding agents, 
+                synchronize specifications, and deliver coherent multi-agent development.
               </p>
               <div className="flex flex-wrap justify-center gap-2 mb-8">
-                <Badge variant="secondary" className="bg-primary text-primary-foreground">AI-Powered</Badge>
-                <Badge variant="secondary" className="bg-blue-600 text-white">Cloud-Native</Badge>
-                <Badge variant="secondary" className="bg-green-600 text-white">Team-Ready</Badge>
-                <Badge variant="secondary" className="bg-orange-600 text-white">Enterprise-Grade</Badge>
+                <Badge variant="secondary" className="bg-primary text-primary-foreground">Spec-Driven</Badge>
+                <Badge variant="secondary" className="bg-blue-600 text-white">AI-Orchestrated</Badge>
+                <Badge variant="secondary" className="bg-green-600 text-white">Unified</Badge>
+                <Badge variant="secondary" className="bg-orange-600 text-white">Traceable</Badge>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Core Features */}
+        {/* Ecosystem Components */}
         <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <motion.div
@@ -162,15 +226,15 @@ export default function FeaturesPage() {
               className="text-center mb-16"
             >
               <h2 className="text-4xl font-bold text-foreground mb-4">
-                Core Features
+                Core Ecosystem Components
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Everything you need to accelerate your development workflow and build better software faster.
+                Six interconnected components that form the foundation of spec-driven agentic development.
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {coreFeatures.map((feature, index) => (
+              {ecosystemComponents.map((component, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -180,25 +244,38 @@ export default function FeaturesPage() {
                 >
                   <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
                     <CardHeader>
-                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-                        <feature.icon className="h-6 w-6 text-primary-foreground" />
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+                          <component.icon className="h-6 w-6 text-primary-foreground" />
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          {component.status}
+                        </Badge>
                       </div>
                       <CardTitle className="text-xl text-foreground">
-                        {feature.title}
+                        {component.title}
                       </CardTitle>
                       <CardDescription className="text-muted-foreground">
-                        {feature.description}
+                        {component.description}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <ul className="space-y-2">
-                        {feature.features.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-center space-x-2">
+                        {component.features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <span className="text-muted-foreground text-sm">{item}</span>
+                            <span className="text-muted-foreground text-sm">{feature}</span>
                           </li>
                         ))}
                       </ul>
+                      <div className="pt-4 border-t border-border">
+                        <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+                          <a href={component.link}>
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Learn More
+                          </a>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -207,7 +284,7 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* Developer Tools */}
+        {/* Integration Tools */}
         <section className="py-20 bg-card">
           <div className="container mx-auto px-4">
             <motion.div
@@ -218,15 +295,15 @@ export default function FeaturesPage() {
               className="text-center mb-16"
             >
               <h2 className="text-4xl font-bold text-foreground mb-4">
-                Developer Tools
+                Integration Tools
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Integrate Lattice seamlessly into your existing workflow with tools designed for how you actually work.
+                Seamlessly integrate Project Lattice into your existing workflow with tools designed for spec-driven development.
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {developerTools.map((tool, index) => (
+              {integrationTools.map((tool, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -291,7 +368,7 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* Analytics & Integrations */}
+        {/* Ecosystem Benefits */}
         <section className="py-20 bg-slate-50">
           <div className="container mx-auto px-4">
             <motion.div
@@ -302,15 +379,15 @@ export default function FeaturesPage() {
               className="text-center mb-16"
             >
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Analytics & Integrations
+                Ecosystem Benefits
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Get insights into your development process and connect with your favorite tools.
+                Experience the power of unified orchestration and spec-driven architecture working together.
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {analyticsFeatures.map((feature, index) => (
+              {ecosystemBenefits.map((benefit, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
@@ -321,18 +398,18 @@ export default function FeaturesPage() {
                   <Card className="h-full hover:shadow-lg transition-shadow duration-300">
                     <CardHeader>
                       <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
-                        <feature.icon className="h-6 w-6 text-primary-foreground" />
+                        <benefit.icon className="h-6 w-6 text-primary-foreground" />
                       </div>
                       <CardTitle className="text-xl text-gray-900">
-                        {feature.title}
+                        {benefit.title}
                       </CardTitle>
                       <CardDescription className="text-gray-600">
-                        {feature.description}
+                        {benefit.description}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2">
-                        {(feature.metrics || feature.integrations)?.map((item, itemIndex) => (
+                        {benefit.benefits?.map((item, itemIndex) => (
                           <li key={itemIndex} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-primary rounded-full"></div>
                             <span className="text-gray-700 text-sm">{item}</span>
@@ -358,18 +435,18 @@ export default function FeaturesPage() {
               className="text-center"
             >
               <h2 className="text-4xl font-bold text-white mb-4">
-                Ready to Experience These Features?
+                Ready to Experience the Unified Ecosystem?
               </h2>
               <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
-                Join thousands of developers who are already building better software with Lattice Engine. 
-                Start your free trial today - no credit card required.
+                Join developers who are building the future with spec-driven agentic development. 
+                Start orchestrating your AI coding agents today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
-                  Start Free Trial
+                  Start Building with Specs
                 </Button>
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  Schedule Demo
+                  Explore the Ecosystem
                 </Button>
               </div>
             </motion.div>

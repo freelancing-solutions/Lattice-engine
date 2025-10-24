@@ -10,33 +10,33 @@ import Footer from "@/components/footer"
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
 export const metadata: Metadata = {
-  title: "Lattice Engine - AI-Powered Development Platform",
-  description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment for modern applications.",
+  title: "Project Lattice - Spec-Driven Development for the Agentic Era",
+  description: "Unified orchestration for AI coding agents. Project Lattice is a unified ecosystem for spec-driven agentic development that brings order, traceability, and coherence to multi-agent software development.",
   keywords: [
-    "AI development platform",
-    "automated code generation",
-    "intelligent testing", 
-    "DevOps automation",
-    "machine learning development",
-    "CI/CD pipeline",
-    "cloud deployment",
-    "developer tools",
-    "software engineering",
-    "artificial intelligence",
-    "lattice engine",
-    "development automation"
+    "spec-driven development",
+    "agentic development",
+    "AI coding agents",
+    "unified ecosystem",
+    "mutation engine",
+    "agentic orchestration",
+    "cross-project traceability",
+    "autonomous error resolution",
+    "lattice portal",
+    "bugsage integration",
+    "MCP servers",
+    "CLI tools"
   ],
   openGraph: {
-    title: "Lattice Engine - AI-Powered Development Platform",
-    description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment.",
+    title: "Project Lattice - Spec-Driven Development for the Agentic Era",
+    description: "Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.",
     url: baseUrl,
-    siteName: "Lattice Engine",
+    siteName: "Project Lattice",
     images: [
       {
         url: `${baseUrl}/og-home.png`,
         width: 1200,
         height: 630,
-        alt: "Lattice Engine - AI-Powered Development Platform",
+        alt: "Project Lattice - Spec-Driven Development for the Agentic Era",
       },
     ],
     locale: "en_US",
@@ -44,8 +44,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lattice Engine - AI-Powered Development Platform", 
-    description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment.",
+    title: "Project Lattice - Spec-Driven Development for the Agentic Era", 
+    description: "Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.",
     images: [`${baseUrl}/twitter-home.png`],
   },
   alternates: {

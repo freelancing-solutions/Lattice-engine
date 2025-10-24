@@ -91,9 +91,9 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Agentic Coding
+            Spec-Driven Development
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 block">
-              Redefined
+              for the Agentic Era
             </span>
           </h1>
           
@@ -103,10 +103,9 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Automate your development workflow with intelligent mutation management,
-            spec-driven development, and collaborative code evolution.
+            Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.
             <span className="block text-orange-300 mt-2">
-              Experience a real security fix from problem to production in just 8 minutes.
+              Stop fighting fragmented agentic development. Project Lattice synchronizes all specs, agents, and codebases in one unified mutation framework.
             </span>
           </motion.p>
           
@@ -122,11 +121,11 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
               onClick={() => setShowDemo(true)}
             >
               <Play className="mr-2 h-5 w-5" />
-              Watch Cinematic Demo
+              Start Building with Specs
             </Button>
             <Button size="lg" variant="outline" className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-8 py-3 text-lg">
               <Download className="mr-2 h-5 w-5" />
-              Get Started Free
+              Explore the Ecosystem
             </Button>
           </motion.div>
         </motion.div>
