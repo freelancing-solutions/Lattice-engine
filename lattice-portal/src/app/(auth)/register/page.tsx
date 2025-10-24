@@ -1,11 +1,4 @@
 'use client';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Register',
-  description: 'Create your Lattice Portal account to manage code mutations and approvals.',
-  alternates: { canonical: '/register' },
-};
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';

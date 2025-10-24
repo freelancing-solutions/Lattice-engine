@@ -6,16 +6,12 @@ This script properly handles imports and provides a clean way to start the engin
 
 import sys
 import os
-import asyncio
 import logging
 from pathlib import Path
 
 # Add the project root to Python path for absolute imports
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
-
-# Now import and run the main function using absolute imports
-from src.main import main
 
 # Setup basic logging for the entry point
 logging.basicConfig(
@@ -25,9 +21,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    logger.info("Starting Lattice Mutation Engine...")
+    logger.info("Starting Lattice Mutation Engine API Server...")
+    
+    # Import uvicorn and the FastAPI app
+    import uvicorn
+    from src.api.endpoints import app
+    
+    # Get port from environment variable (Railway sets this)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    
+    logger.info(f"Starting server on {host}:{port}")
+    
     try:
-        asyncio.run(main())
+        uvicorn.run(
+            app,
+            host=host,
+            port=port,
+            log_level="info",
+            access_log=True
+        )
     except KeyboardInterrupt:
         logger.info("Shutting down Lattice Mutation Engine...")
     except Exception as e:

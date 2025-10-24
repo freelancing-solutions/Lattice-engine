@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Project Lattice avatar">
+  <rect width="512" height="512" fill="#0B2545" rx="48"/>
+  <g transform="translate(96,96)" stroke-linecap="round">
+    <!-- simplified lattice inside circle -->
+    <circle cx="160" cy="160" r="136" fill="#F6F7F9"/>
+    <g transform="translate(64,64)">
+      <line x1="0" y1="128" x2="128" y2="0" stroke="#1E88E5" stroke-width="12"/>
+      <line x1="128" y1="0" x2="256" y2="128" stroke="#0B2545" stroke-width="12"/>
+      <circle cx="128" cy="0" r="14" fill="#F4B400"/>
+      <circle cx="0" cy="128" r="12" fill="#1E88E5"/>
+      <circle cx="256" cy="128" r="12" fill="#1E88E5"/>
+      <circle cx="128" cy="256" r="10" fill="#0B2545"/>
+    </g>
+  </g>
+</svg>

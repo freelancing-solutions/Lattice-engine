@@ -1,11 +1,4 @@
 'use client';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Overview of your projects, mutations, and approvals in Lattice Portal.',
-  alternates: { canonical: '/dashboard' },
-};
 
 import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
