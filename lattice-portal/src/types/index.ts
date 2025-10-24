@@ -882,3 +882,187 @@ export interface BillingEvent {
   type: 'subscription_updated' | 'invoice_paid' | 'payment_failed' | 'usage_limit_exceeded';
   data: Subscription | Invoice | UsageMetrics;
 }
+
+// Webhook-related interfaces
+export enum WebhookStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  ERROR = 'ERROR'
+}
+
+export enum WebhookDeliveryStatus {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  RETRYING = 'RETRYING'
+}
+
+export enum WebhookEventType {
+  MUTATION_CREATED = 'mutation.created',
+  MUTATION_APPROVED = 'mutation.approved',
+  MUTATION_DEPLOYED = 'mutation.deployed',
+  MUTATION_REJECTED = 'mutation.rejected',
+  DEPLOYMENT_CREATED = 'deployment.created',
+  DEPLOYMENT_COMPLETED = 'deployment.completed',
+  DEPLOYMENT_FAILED = 'deployment.failed',
+  APPROVAL_REQUESTED = 'approval.requested',
+  APPROVAL_RESPONDED = 'approval.responded',
+  SPEC_CREATED = 'spec.created',
+  SPEC_UPDATED = 'spec.updated',
+  TASK_COMPLETED = 'task.completed'
+}
+
+export interface Webhook {
+  id: string;
+  organizationId: string;
+  name: string;
+  url: string;
+  events: WebhookEventType[];
+  secret: string;
+  active: boolean;
+  headers: Record<string, string>;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  lastTriggeredAt: string | null;
+  totalDeliveries: number;
+  successfulDeliveries: number;
+  failedDeliveries: number;
+}
+
+export interface WebhookDelivery {
+  id: string;
+  webhookId: string;
+  eventType: string;
+  payload: Record<string, any>;
+  status: WebhookDeliveryStatus;
+  attempts: number;
+  maxAttempts: number;
+  responseStatusCode: number | null;
+  responseBody: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  completedAt: string | null;
+  nextRetryAt: string | null;
+}
+
+export interface CreateWebhookRequest {
+  name: string;
+  url: string;
+  events: WebhookEventType[];
+  secret?: string;
+  active?: boolean;
+  headers?: Record<string, string>;
+}
+
+export interface UpdateWebhookRequest {
+  name?: string;
+  url?: string;
+  events?: WebhookEventType[];
+  active?: boolean;
+  headers?: Record<string, string>;
+}
+
+export interface WebhookFilters {
+  active?: boolean;
+  search?: string;
+}
+
+export interface WebhookTestRequest {
+  webhookId: string;
+}
+
+export interface WebhookEvent {
+  type: 'webhook_delivery_success' | 'webhook_delivery_failed';
+  data: WebhookDelivery;
+}
+
+// Agent Types
+export enum AgentType {
+  SPEC_VALIDATOR = 'spec_validator',
+  DEPENDENCY_RESOLVER = 'dependency_resolver',
+  SEMANTIC_COHERENCE = 'semantic_coherence',
+  MUTATION_GENERATOR = 'mutation_generator',
+  IMPACT_ANALYZER = 'impact_analyzer',
+  CONFLICT_RESOLVER = 'conflict_resolver'
+}
+
+export enum AgentStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  TRAINING = 'training',
+  ERROR = 'error',
+  MAINTENANCE = 'maintenance'
+}
+
+export interface AgentConfiguration {
+  model: string;
+  temperature: number;
+  maxTokens: number;
+  systemPrompt: string;
+  tools: string[];
+  constraints: Array<{type: string, value: any}>;
+  triggers: Array<{event: string, condition: any}>;
+}
+
+export interface AgentPerformance {
+  successRate: number;
+  averageResponseTime: number;
+  totalRequests: number;
+  errorRate: number;
+  confidenceScore: number | null;
+  lastActivity: string | null;
+}
+
+export interface Agent {
+  id: string;
+  organizationId: string;
+  name: string;
+  description: string | null;
+  type: AgentType;
+  status: AgentStatus;
+  configuration: AgentConfiguration | null;
+  performance: AgentPerformance | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  lastActivityAt: string | null;
+  isSystemAgent: boolean;
+}
+
+export interface CreateAgentRequest {
+  name: string;
+  description?: string;
+  type: AgentType;
+  configuration: AgentConfiguration;
+}
+
+export interface UpdateAgentRequest {
+  name?: string;
+  description?: string;
+  status?: AgentStatus;
+  configuration?: AgentConfiguration;
+}
+
+export interface AgentFilters {
+  type?: AgentType;
+  status?: AgentStatus;
+  search?: string;
+}
+
+export interface AgentPerformanceMetric {
+  id: string;
+  agentId: string;
+  taskId: string;
+  operation: string;
+  success: boolean;
+  responseTimeMs: number;
+  confidenceScore: number | null;
+  errorMessage: string | null;
+  createdAt: string;
+}
+
+export interface AgentEvent {
+  type: 'agent_created' | 'agent_updated' | 'agent_deleted' | 'agent_status_changed' | 'agent_performance_updated';
+  data: Agent | AgentPerformance;
+}

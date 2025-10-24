@@ -14,6 +14,8 @@ from src.api.project_endpoints import router as project_router
 from src.api.organization_endpoints import router as organization_router
 from src.api.subscription_endpoints import router as subscription_router
 from src.api.billing_endpoints import router as billing_router
+from src.api.webhook_endpoints import router as webhook_router
+from src.api.agent_endpoints import router as agent_router
 from typing import Dict, Any, Optional, List
 import json
 import asyncio
@@ -141,6 +143,8 @@ app.include_router(project_router)
 app.include_router(organization_router)
 app.include_router(subscription_router)
 app.include_router(billing_router)
+app.include_router(webhook_router)
+app.include_router(agent_router)
 
 api_router.include_router(graph_router)
 api_router.include_router(spec_router)
@@ -153,6 +157,8 @@ api_router.include_router(project_router)
 api_router.include_router(organization_router)
 api_router.include_router(subscription_router)
 api_router.include_router(billing_router)
+api_router.include_router(webhook_router)
+api_router.include_router(agent_router)
 
 # Lifecycle events
 @app.on_event("startup")

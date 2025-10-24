@@ -58,7 +58,18 @@ import {
   MCPSyncResponse,
   MCPHealthCheck,
   MCPFilters,
-  SpecSyncStatus
+  SpecSyncStatus,
+  Webhook,
+  WebhookDelivery,
+  CreateWebhookRequest,
+  UpdateWebhookRequest,
+  WebhookFilters,
+  Agent,
+  AgentPerformance,
+  AgentPerformanceMetric,
+  CreateAgentRequest,
+  UpdateAgentRequest,
+  AgentFilters,
 } from '@/types';
 
 // API base configuration
@@ -1970,6 +1981,549 @@ class APIClient {
       };
     } catch (error: any) {
       throw error.response?.data || { success: false, error: { message: 'Failed to create payment method checkout' } };
+    }
+  }
+
+  // Webhook API methods
+  async getWebhooks(filters?: WebhookFilters): Promise<APIResponse<ListResponse<Webhook>>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.active !== undefined) params.append('active', filters.active.toString());
+      if (filters?.search) params.append('search', filters.search);
+      params.append('limit', '50');
+      params.append('offset', '0');
+
+      const response: AxiosResponse<any> = await this.client.get(`/webhooks?${params.toString()}`);
+
+      // Transform backend response to ListResponse format and convert snake_case to camelCase
+      const webhooks = response.data.items.map((webhook: any) => ({
+        id: webhook.id,
+        organizationId: webhook.organization_id,
+        name: webhook.name,
+        url: webhook.url,
+        events: webhook.events,
+        secret: webhook.secret,
+        active: webhook.active,
+        headers: webhook.headers,
+        createdBy: webhook.created_by,
+        createdAt: webhook.created_at,
+        updatedAt: webhook.updated_at,
+        lastTriggeredAt: webhook.last_triggered_at,
+        totalDeliveries: webhook.total_deliveries,
+        successfulDeliveries: webhook.successful_deliveries,
+        failedDeliveries: webhook.failed_deliveries
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: webhooks,
+          total: response.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch webhooks' } };
+    }
+  }
+
+  async getWebhook(webhookId: string): Promise<APIResponse<Webhook>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.get(`/webhooks/${webhookId}`);
+
+      // Convert snake_case to camelCase
+      const webhook = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        name: response.data.name,
+        url: response.data.url,
+        events: response.data.events,
+        secret: response.data.secret,
+        active: response.data.active,
+        headers: response.data.headers,
+        createdBy: response.data.created_by,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at,
+        lastTriggeredAt: response.data.last_triggered_at,
+        totalDeliveries: response.data.total_deliveries,
+        successfulDeliveries: response.data.successful_deliveries,
+        failedDeliveries: response.data.failed_deliveries
+      };
+
+      return {
+        success: true,
+        data: webhook
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch webhook' } };
+    }
+  }
+
+  async createWebhook(request: CreateWebhookRequest): Promise<APIResponse<Webhook>> {
+    try {
+      // Convert camelCase to snake_case for backend
+      const payload = {
+        name: request.name,
+        url: request.url,
+        events: request.events,
+        secret: request.secret,
+        active: request.active,
+        headers: request.headers
+      };
+
+      const response: AxiosResponse<any> = await this.client.post('/webhooks', payload);
+
+      // Convert snake_case to camelCase
+      const webhook = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        name: response.data.name,
+        url: response.data.url,
+        events: response.data.events,
+        secret: response.data.secret,
+        active: response.data.active,
+        headers: response.data.headers,
+        createdBy: response.data.created_by,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at,
+        lastTriggeredAt: response.data.last_triggered_at,
+        totalDeliveries: response.data.total_deliveries,
+        successfulDeliveries: response.data.successful_deliveries,
+        failedDeliveries: response.data.failed_deliveries
+      };
+
+      return {
+        success: true,
+        data: webhook
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to create webhook' } };
+    }
+  }
+
+  async updateWebhook(webhookId: string, request: UpdateWebhookRequest): Promise<APIResponse<Webhook>> {
+    try {
+      // Convert camelCase to snake_case for backend
+      const payload = {};
+      if (request.name !== undefined) payload.name = request.name;
+      if (request.url !== undefined) payload.url = request.url;
+      if (request.events !== undefined) payload.events = request.events;
+      if (request.active !== undefined) payload.active = request.active;
+      if (request.headers !== undefined) payload.headers = request.headers;
+
+      const response: AxiosResponse<any> = await this.client.put(`/webhooks/${webhookId}`, payload);
+
+      // Convert snake_case to camelCase
+      const webhook = {
+        id: response.data.id,
+        organizationId: response.data.organization_id,
+        name: response.data.name,
+        url: response.data.url,
+        events: response.data.events,
+        secret: response.data.secret,
+        active: response.data.active,
+        headers: response.data.headers,
+        createdBy: response.data.created_by,
+        createdAt: response.data.created_at,
+        updatedAt: response.data.updated_at,
+        lastTriggeredAt: response.data.last_triggered_at,
+        totalDeliveries: response.data.total_deliveries,
+        successfulDeliveries: response.data.successful_deliveries,
+        failedDeliveries: response.data.failed_deliveries
+      };
+
+      return {
+        success: true,
+        data: webhook
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to update webhook' } };
+    }
+  }
+
+  async deleteWebhook(webhookId: string): Promise<APIResponse<{success: boolean, message: string}>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.delete(`/webhooks/${webhookId}`);
+
+      return {
+        success: true,
+        data: {
+          success: response.data.success,
+          message: response.data.message
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to delete webhook' } };
+    }
+  }
+
+  async testWebhook(webhookId: string): Promise<APIResponse<WebhookDelivery>> {
+    try {
+      const response: AxiosResponse<any> = await this.client.post(`/webhooks/${webhookId}/test`);
+
+      // Convert snake_case to camelCase
+      const delivery = {
+        id: response.data.id,
+        webhookId: response.data.webhook_id,
+        eventType: response.data.event_type,
+        payload: response.data.payload,
+        status: response.data.status,
+        attempts: response.data.attempts,
+        maxAttempts: response.data.max_attempts,
+        responseStatusCode: response.data.response_status_code,
+        responseBody: response.data.response_body,
+        errorMessage: response.data.error_message,
+        createdAt: response.data.created_at,
+        completedAt: response.data.completed_at,
+        nextRetryAt: response.data.next_retry_at
+      };
+
+      return {
+        success: true,
+        data: delivery
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to test webhook' } };
+    }
+  }
+
+  async getWebhookDeliveries(webhookId: string, limit: number = 50, offset: number = 0): Promise<APIResponse<ListResponse<WebhookDelivery>>> {
+    try {
+      const params = new URLSearchParams();
+      params.append('limit', limit.toString());
+      params.append('offset', offset.toString());
+
+      const response: AxiosResponse<any> = await this.client.get(`/webhooks/${webhookId}/deliveries?${params.toString()}`);
+
+      // Transform backend response to ListResponse format and convert snake_case to camelCase
+      const deliveries = response.data.items.map((delivery: any) => ({
+        id: delivery.id,
+        webhookId: delivery.webhook_id,
+        eventType: delivery.event_type,
+        payload: delivery.payload,
+        status: delivery.status,
+        attempts: delivery.attempts,
+        maxAttempts: delivery.max_attempts,
+        responseStatusCode: delivery.response_status_code,
+        responseBody: delivery.response_body,
+        errorMessage: delivery.error_message,
+        createdAt: delivery.created_at,
+        completedAt: delivery.completed_at,
+        nextRetryAt: delivery.next_retry_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: deliveries,
+          total: response.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch webhook deliveries' } };
+    }
+  }
+
+  // Agent API Methods
+  async getAgents(filters?: AgentFilters): Promise<APIResponse<ListResponse<Agent>>> {
+    try {
+      const params: any = {
+        limit: 50,
+        offset: 0
+      };
+
+      if (filters?.type) {
+        params.type = filters.type;
+      }
+      if (filters?.status) {
+        params.status = filters.status;
+      }
+      if (filters?.search) {
+        params.search = filters.search;
+      }
+
+      const response: AxiosResponse<APIResponse<{items: any[], total: number}>> = await this.apiClient.get('/api/agents', { params });
+
+      // Transform backend response to frontend format
+      const agents = response.data.data.items.map((agent: any) => ({
+        id: agent.id,
+        organizationId: agent.organization_id,
+        name: agent.name,
+        description: agent.description,
+        type: agent.type,
+        status: agent.status,
+        configuration: agent.configuration ? {
+          model: agent.configuration.model,
+          temperature: agent.configuration.temperature,
+          maxTokens: agent.configuration.max_tokens,
+          systemPrompt: agent.configuration.system_prompt,
+          tools: agent.configuration.tools || [],
+          constraints: agent.configuration.constraints || [],
+          triggers: agent.configuration.triggers || []
+        } : null,
+        performance: agent.performance ? {
+          successRate: agent.performance.success_rate,
+          averageResponseTime: agent.performance.average_response_time,
+          totalRequests: agent.performance.total_requests,
+          errorRate: agent.performance.error_rate,
+          confidenceScore: agent.performance.confidence_score,
+          lastActivity: agent.performance.last_activity
+        } : null,
+        createdBy: agent.created_by,
+        createdAt: agent.created_at,
+        updatedAt: agent.updated_at,
+        lastActivityAt: agent.last_activity_at,
+        isSystemAgent: agent.is_system_agent
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: agents,
+          total: response.data.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch agents' } };
+    }
+  }
+
+  async getAgent(agentId: string): Promise<APIResponse<Agent>> {
+    try {
+      const response: AxiosResponse<APIResponse<any>> = await this.apiClient.get(`/api/agents/${agentId}`);
+
+      const agent = response.data.data;
+      const transformedAgent: Agent = {
+        id: agent.id,
+        organizationId: agent.organization_id,
+        name: agent.name,
+        description: agent.description,
+        type: agent.type,
+        status: agent.status,
+        configuration: agent.configuration ? {
+          model: agent.configuration.model,
+          temperature: agent.configuration.temperature,
+          maxTokens: agent.configuration.max_tokens,
+          systemPrompt: agent.configuration.system_prompt,
+          tools: agent.configuration.tools || [],
+          constraints: agent.configuration.constraints || [],
+          triggers: agent.configuration.triggers || []
+        } : null,
+        performance: agent.performance ? {
+          successRate: agent.performance.success_rate,
+          averageResponseTime: agent.performance.average_response_time,
+          totalRequests: agent.performance.total_requests,
+          errorRate: agent.performance.error_rate,
+          confidenceScore: agent.performance.confidence_score,
+          lastActivity: agent.performance.last_activity
+        } : null,
+        createdBy: agent.created_by,
+        createdAt: agent.created_at,
+        updatedAt: agent.updated_at,
+        lastActivityAt: agent.last_activity_at,
+        isSystemAgent: agent.is_system_agent
+      };
+
+      return {
+        success: true,
+        data: transformedAgent
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch agent' } };
+    }
+  }
+
+  async createAgent(request: CreateAgentRequest): Promise<APIResponse<Agent>> {
+    try {
+      // Transform frontend request to backend format
+      const backendRequest = {
+        name: request.name,
+        description: request.description,
+        type: request.type,
+        configuration: request.configuration ? {
+          model: request.configuration.model,
+          temperature: request.configuration.temperature,
+          max_tokens: request.configuration.maxTokens,
+          system_prompt: request.configuration.systemPrompt,
+          tools: request.configuration.tools,
+          constraints: request.configuration.constraints,
+          triggers: request.configuration.triggers
+        } : undefined
+      };
+
+      const response: AxiosResponse<APIResponse<any>> = await this.apiClient.post('/api/agents', backendRequest);
+
+      const agent = response.data.data;
+      const transformedAgent: Agent = {
+        id: agent.id,
+        organizationId: agent.organization_id,
+        name: agent.name,
+        description: agent.description,
+        type: agent.type,
+        status: agent.status,
+        configuration: agent.configuration ? {
+          model: agent.configuration.model,
+          temperature: agent.configuration.temperature,
+          maxTokens: agent.configuration.max_tokens,
+          systemPrompt: agent.configuration.system_prompt,
+          tools: agent.configuration.tools || [],
+          constraints: agent.configuration.constraints || [],
+          triggers: agent.configuration.triggers || []
+        } : null,
+        performance: null,
+        createdBy: agent.created_by,
+        createdAt: agent.created_at,
+        updatedAt: agent.updated_at,
+        lastActivityAt: agent.last_activity_at,
+        isSystemAgent: agent.is_system_agent
+      };
+
+      return {
+        success: true,
+        data: transformedAgent
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to create agent' } };
+    }
+  }
+
+  async updateAgent(agentId: string, request: UpdateAgentRequest): Promise<APIResponse<Agent>> {
+    try {
+      // Transform frontend request to backend format
+      const backendRequest: any = {};
+      if (request.name !== undefined) backendRequest.name = request.name;
+      if (request.description !== undefined) backendRequest.description = request.description;
+      if (request.status !== undefined) backendRequest.status = request.status;
+      if (request.configuration !== undefined) {
+        backendRequest.configuration = {
+          model: request.configuration.model,
+          temperature: request.configuration.temperature,
+          max_tokens: request.configuration.maxTokens,
+          system_prompt: request.configuration.systemPrompt,
+          tools: request.configuration.tools,
+          constraints: request.configuration.constraints,
+          triggers: request.configuration.triggers
+        };
+      }
+
+      const response: AxiosResponse<APIResponse<any>> = await this.apiClient.put(`/api/agents/${agentId}`, backendRequest);
+
+      const agent = response.data.data;
+      const transformedAgent: Agent = {
+        id: agent.id,
+        organizationId: agent.organization_id,
+        name: agent.name,
+        description: agent.description,
+        type: agent.type,
+        status: agent.status,
+        configuration: agent.configuration ? {
+          model: agent.configuration.model,
+          temperature: agent.configuration.temperature,
+          maxTokens: agent.configuration.max_tokens,
+          systemPrompt: agent.configuration.system_prompt,
+          tools: agent.configuration.tools || [],
+          constraints: agent.configuration.constraints || [],
+          triggers: agent.configuration.triggers || []
+        } : null,
+        performance: agent.performance ? {
+          successRate: agent.performance.success_rate,
+          averageResponseTime: agent.performance.average_response_time,
+          totalRequests: agent.performance.total_requests,
+          errorRate: agent.performance.error_rate,
+          confidenceScore: agent.performance.confidence_score,
+          lastActivity: agent.performance.last_activity
+        } : null,
+        createdBy: agent.created_by,
+        createdAt: agent.created_at,
+        updatedAt: agent.updated_at,
+        lastActivityAt: agent.last_activity_at,
+        isSystemAgent: agent.is_system_agent
+      };
+
+      return {
+        success: true,
+        data: transformedAgent
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to update agent' } };
+    }
+  }
+
+  async deleteAgent(agentId: string): Promise<APIResponse<{success: boolean, message: string}>> {
+    try {
+      const response: AxiosResponse<APIResponse<any>> = await this.apiClient.delete(`/api/agents/${agentId}`);
+
+      return {
+        success: true,
+        data: response.data.data
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to delete agent' } };
+    }
+  }
+
+  async getAgentPerformance(agentId: string, period: '1h' | '24h' | '7d' | '30d' = '30d'): Promise<APIResponse<{metrics: AgentPerformanceMetric[], summary: AgentPerformance}>> {
+    try {
+      const response: AxiosResponse<APIResponse<any>> = await this.apiClient.get(`/api/agents/${agentId}/performance?period=${period}`);
+
+      const summary = response.data.data.summary;
+      const metrics = response.data.data.metrics.map((metric: any) => ({
+        id: metric.id,
+        agentId: metric.agent_id,
+        taskId: metric.task_id,
+        operation: metric.operation,
+        success: metric.success,
+        responseTimeMs: metric.response_time_ms,
+        confidenceScore: metric.confidence_score,
+        errorMessage: metric.error_message,
+        createdAt: metric.created_at
+      }));
+
+      const transformedSummary: AgentPerformance = {
+        successRate: summary.success_rate,
+        averageResponseTime: summary.average_response_time,
+        totalRequests: summary.total_requests,
+        errorRate: summary.error_rate,
+        confidenceScore: summary.confidence_score,
+        lastActivity: summary.last_activity
+      };
+
+      return {
+        success: true,
+        data: {
+          metrics,
+          summary: transformedSummary
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch agent performance' } };
+    }
+  }
+
+  async getAgentMetrics(agentId: string, limit: number = 50, offset: number = 0): Promise<APIResponse<ListResponse<AgentPerformanceMetric>>> {
+    try {
+      const response: AxiosResponse<APIResponse<{items: any[], total: number}>> = await this.apiClient.get(`/api/agents/${agentId}/metrics?limit=${limit}&offset=${offset}`);
+
+      const metrics = response.data.data.items.map((metric: any) => ({
+        id: metric.id,
+        agentId: metric.agent_id,
+        taskId: metric.task_id,
+        operation: metric.operation,
+        success: metric.success,
+        responseTimeMs: metric.response_time_ms,
+        confidenceScore: metric.confidence_score,
+        errorMessage: metric.error_message,
+        createdAt: metric.created_at
+      }));
+
+      return {
+        success: true,
+        data: {
+          items: metrics,
+          total: response.data.data.total
+        }
+      };
+    } catch (error: any) {
+      throw error.response?.data || { success: false, error: { message: 'Failed to fetch agent metrics' } };
     }
   }
 }

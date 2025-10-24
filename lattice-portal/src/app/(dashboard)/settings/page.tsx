@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Bell, Shield, Palette, Globe, Key, Play, Square, RefreshCw, FolderOpen, Activity, CheckCircle, XCircle, Clock, Loader2, Settings, Users, UserPlus, Mail, CreditCard, DollarSign, Receipt, TrendingUp, AlertTriangle } from 'lucide-react';
+import { User, Bell, Shield, Palette, Globe, Key, Play, Square, RefreshCw, FolderOpen, Activity, CheckCircle, XCircle, Clock, Loader2, Settings, Users, UserPlus, Mail, CreditCard, DollarSign, Receipt, TrendingUp, AlertTriangle, Webhook, Link, Send, Trash2, TestTube, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,8 +18,9 @@ import { useUIStore } from '@/stores/ui-store';
 import { useSpecSyncStore } from '@/stores/spec-sync-store';
 import { useOrganizationStore } from '@/stores/organization-store';
 import { useBillingStore } from '@/stores/billing-store';
+import { useWebhookStore, useWebhookActions, useWebhookHelpers } from '@/stores/webhook-store';
 import { apiClient } from '@/lib/api';
-import { SpecSyncStatus, CreateInvitationRequest, OrganizationMember, OrganizationInvitation, Subscription, Plan, Invoice, UsageMetrics, PaymentMethod } from '@/types';
+import { SpecSyncStatus, CreateInvitationRequest, OrganizationMember, OrganizationInvitation, Subscription, Plan, Invoice, UsageMetrics, PaymentMethod, Webhook, WebhookDelivery, CreateWebhookRequest, UpdateWebhookRequest } from '@/types';
 import { InviteMemberDialog } from '@/components/team/invite-member-dialog';
 import { MemberList } from '@/components/team/member-list';
 import { InvitationList } from '@/components/team/invitation-list';
@@ -86,6 +87,32 @@ export default function SettingsPage() {
     clearInvoices,
     clearPaymentMethods
   } = useBillingStore();
+
+  // Webhook State
+  const {
+    webhooks,
+    selectedWebhook,
+    deliveries,
+    isLoading: webhooksLoading,
+    error: webhookError,
+    activeCount,
+    totalDeliveries
+  } = useWebhookStore();
+
+  const {
+    setWebhooks,
+    setSelectedWebhook,
+    setDeliveries,
+    addDelivery,
+    setLoading: setWebhookLoading,
+    setError: setWebhookError,
+    clearError: clearWebhookError,
+    addWebhook,
+    updateWebhook,
+    removeWebhook
+  } = useWebhookActions();
+
+  const { getSuccessRate, getWebhookById } = useWebhookHelpers();
 
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
@@ -433,6 +460,146 @@ export default function SettingsPage() {
     }
   };
 
+  // Webhook Functions
+  const loadWebhooks = async () => {
+    if (!user?.organizationId) return;
+
+    try {
+      setWebhookLoading(true);
+      clearWebhookError();
+      const response = await apiClient.getWebhooks();
+      if (response.success && response.data) {
+        setWebhooks(response.data.items);
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to load webhooks';
+      setWebhookError(errorMessage);
+      addNotification({
+        type: 'error',
+        title: 'Failed to Load Webhooks',
+        message: errorMessage,
+        duration: 5000
+      });
+    } finally {
+      setWebhookLoading(false);
+    }
+  };
+
+  const handleCreateWebhook = async (data: CreateWebhookRequest) => {
+    if (!user?.organizationId) return;
+
+    try {
+      const response = await apiClient.createWebhook(data);
+      if (response.success && response.data) {
+        addWebhook(response.data);
+        addNotification({
+          type: 'success',
+          title: 'Webhook Created',
+          message: `Webhook "${data.name}" has been created successfully`,
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to create webhook';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Create Webhook',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
+  const handleUpdateWebhook = async (webhookId: string, data: UpdateWebhookRequest) => {
+    try {
+      const response = await apiClient.updateWebhook(webhookId, data);
+      if (response.success && response.data) {
+        updateWebhook(webhookId, response.data);
+        addNotification({
+          type: 'success',
+          title: 'Webhook Updated',
+          message: 'Webhook has been updated successfully',
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to update webhook';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Update Webhook',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
+  const handleDeleteWebhook = async (webhookId: string) => {
+    try {
+      const response = await apiClient.deleteWebhook(webhookId);
+      if (response.success) {
+        removeWebhook(webhookId);
+        addNotification({
+          type: 'success',
+          title: 'Webhook Deleted',
+          message: 'Webhook has been deleted successfully',
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to delete webhook';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Delete Webhook',
+        message: errorMessage,
+        duration: 5000
+      });
+      throw error;
+    }
+  };
+
+  const handleTestWebhook = async (webhookId: string) => {
+    try {
+      const response = await apiClient.testWebhook(webhookId);
+      if (response.success && response.data) {
+        addDelivery(webhookId, response.data);
+        const status = response.data.status === 'SUCCESS' ? 'success' : 'error';
+        addNotification({
+          type: status,
+          title: `Webhook Test ${status === 'success' ? 'Succeeded' : 'Failed'}`,
+          message: `Test webhook ${status === 'success' ? 'delivered successfully' : 'failed to deliver'}`,
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to test webhook';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Test Webhook',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
+  const handleLoadDeliveries = async (webhookId: string) => {
+    try {
+      const response = await apiClient.getWebhookDeliveries(webhookId);
+      if (response.success && response.data) {
+        setDeliveries(webhookId, response.data.items);
+      }
+    } catch (error: any) {
+      const errorMessage = error.error?.message || 'Failed to load deliveries';
+      addNotification({
+        type: 'error',
+        title: 'Failed to Load Deliveries',
+        message: errorMessage,
+        duration: 5000
+      });
+    }
+  };
+
   // Team Management Functions
   const loadMembers = async () => {
     if (!user?.organizationId) return;
@@ -603,6 +770,7 @@ export default function SettingsPage() {
       loadMembers();
       loadInvitations();
       loadBillingData();
+      loadWebhooks();
     }
   }, [user?.organizationId]);
 
@@ -636,7 +804,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
@@ -660,6 +828,10 @@ export default function SettingsPage() {
           <TabsTrigger value="billing" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
             Billing
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="flex items-center gap-2">
+            <Webhook className="h-4 w-4" />
+            Webhooks
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
@@ -1332,6 +1504,183 @@ export default function SettingsPage() {
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{billingError}</AlertDescription>
             </Alert>
+          )}
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Webhooks</h2>
+              <p className="text-muted-foreground">
+                Manage webhooks to receive real-time notifications about events in your organization
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-green-600 border-green-600">
+                {activeCount} Active
+              </Badge>
+              <Badge variant="outline">
+                {totalDeliveries} Total Deliveries
+              </Badge>
+            </div>
+          </div>
+
+          {webhookError && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{webhookError}</AlertDescription>
+            </Alert>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Webhooks</span>
+                <Button onClick={() => {/* TODO: Open create webhook dialog */}}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Webhook
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                Configure webhooks to receive notifications when specific events occur
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {webhooksLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-64" />
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  ))}
+                </div>
+              ) : webhooks.length === 0 ? (
+                <div className="text-center py-8">
+                  <Webhook className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No Webhooks Configured</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first webhook to start receiving real-time event notifications
+                  </p>
+                  <Button onClick={() => {/* TODO: Open create webhook dialog */}}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Webhook
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {webhooks.map((webhook) => (
+                    <div key={webhook.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold">{webhook.name}</h3>
+                          <Badge variant={webhook.active ? "default" : "secondary"}>
+                            {webhook.active ? "Active" : "Inactive"}
+                          </Badge>
+                          {webhook.totalDeliveries > 0 && (
+                            <Badge variant="outline" className="text-green-600 border-green-600">
+                              {getSuccessRate(webhook.id)}% Success Rate
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{webhook.url}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{webhook.events.length} Events</span>
+                          <span>{webhook.totalDeliveries} Deliveries</span>
+                          {webhook.lastTriggeredAt && (
+                            <span>Last triggered: {new Date(webhook.lastTriggeredAt).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTestWebhook(webhook.id)}
+                        >
+                          <TestTube className="h-4 w-4 mr-1" />
+                          Test
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {/* TODO: Open edit dialog */}}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {/* TODO: View deliveries */}}
+                        >
+                          <Activity className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteWebhook(webhook.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {selectedWebhook && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Delivery History</CardTitle>
+                <CardDescription>
+                  Recent webhook deliveries for {selectedWebhook.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {deliveries[selectedWebhook.id]?.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Activity className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No Deliveries Yet</h3>
+                    <p className="text-muted-foreground">
+                      Test the webhook to see delivery history here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {deliveries[selectedWebhook.id]?.map((delivery) => (
+                      <div key={delivery.id} className="flex items-center justify-between p-3 border rounded">
+                        <div className="flex items-center gap-3">
+                          <Badge variant={
+                            delivery.status === 'SUCCESS' ? 'default' :
+                            delivery.status === 'FAILED' ? 'destructive' : 'secondary'
+                          }>
+                            {delivery.status}
+                          </Badge>
+                          <div>
+                            <p className="font-medium">{delivery.eventType}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(delivery.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm">{delivery.attempts} attempts</p>
+                          {delivery.responseStatusCode && (
+                            <p className="text-sm text-muted-foreground">
+                              Status: {delivery.responseStatusCode}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 

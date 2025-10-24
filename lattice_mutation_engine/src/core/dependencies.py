@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import HTTPException, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from .database import get_db
 
 from src.config.settings import config, EngineConfig
 
@@ -190,6 +192,16 @@ def get_usage_tracker():
     """Get the usage tracker service"""
     return ServiceDependency("usage_tracker", object)()
 
+def get_webhook_delivery_service(db: Session = Depends(get_db)):
+    """Get webhook delivery service"""
+    from src.webhooks.delivery_service import WebhookDeliveryService
+    return WebhookDeliveryService(db)
+
+def get_agent_service(db: Session = Depends(get_db), orchestrator = Depends(get_orchestrator)):
+    """Get agent service"""
+    from src.agents.agent_service import AgentService
+    return AgentService(db, orchestrator)
+
 # Health check dependency
 class HealthStatus(BaseModel):
     """Health status model"""
@@ -273,6 +285,8 @@ __all__ = [
     'get_spec_sync_daemon',
     'get_paddle_service',
     'get_usage_tracker',
+    'get_webhook_delivery_service',
+    'get_agent_service',
     'get_health_status',
     'register_service_factory',
     'register_service_singleton',

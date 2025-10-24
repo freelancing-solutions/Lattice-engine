@@ -296,7 +296,8 @@ class AuthService:
                 "billing:manage",
                 "specs:read", "specs:write", "specs:delete",
                 "mutations:read", "mutations:write", "mutations:approve",
-                "approvals:manage"
+                "approvals:manage",
+                "agents:read", "agents:write", "agents:delete", "agents:manage"
             ]
         elif role == UserRole.ADMIN:
             permissions = [
@@ -305,7 +306,8 @@ class AuthService:
                 "api_keys:manage",
                 "specs:read", "specs:write", "specs:delete",
                 "mutations:read", "mutations:write", "mutations:approve",
-                "approvals:manage"
+                "approvals:manage",
+                "agents:read", "agents:write", "agents:delete"
             ]
         elif role == UserRole.MANAGER:
             permissions = [
@@ -313,19 +315,22 @@ class AuthService:
                 "projects:read", "projects:write",
                 "specs:read", "specs:write",
                 "mutations:read", "mutations:write", "mutations:approve",
-                "approvals:approve"
+                "approvals:approve",
+                "agents:read", "agents:write"
             ]
         elif role == UserRole.DEVELOPER:
             permissions = [
                 "projects:read",
                 "specs:read", "specs:write",
-                "mutations:read", "mutations:write"
+                "mutations:read", "mutations:write",
+                "agents:read"
             ]
         elif role == UserRole.VIEWER:
             permissions = [
                 "projects:read",
                 "specs:read",
-                "mutations:read"
+                "mutations:read",
+                "agents:read"
             ]
         
         return permissions

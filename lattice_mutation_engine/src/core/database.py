@@ -31,6 +31,8 @@ from src.models.api_key_models import APIKeyTable, SubscriptionTable
 from src.models.project_models import ProjectTable, SpecTable, ProjectMutationTable
 from src.models.invitation_models import OrganizationInvitationTable
 from src.models.subscription_models import PlanTable, InvoiceTable, UsageRecordTable
+from src.models.webhook_models import WebhookTable, WebhookDeliveryTable
+from src.models.agent_crud_models import AgentTable, AgentPerformanceMetricTable
 
 Base = declarative_base()
 
