@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { User, Bell, Shield, Palette, Globe, Key, Play, Square, RefreshCw, FolderOpen, Activity, CheckCircle, XCircle, Clock, Loader2, Settings, Users, UserPlus, Mail, CreditCard, DollarSign, Receipt, TrendingUp, AlertTriangle, Webhook, Link, Send, Trash2, TestTube, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { User, Bell, Shield, Palette, Globe, Key, Settings, Cpu, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,9 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Slider } from '@/components/ui/slider';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useSpecSyncStore } from '@/stores/spec-sync-store';
@@ -138,6 +136,35 @@ export default function SettingsPage() {
     apiAccess: false,
   });
 
+  const [orchestratorSettings, setOrchestratorSettings] = useState({
+    // Confidence thresholds
+    autoApprovalThreshold: 0.85,
+    semanticSimilarityThreshold: 0.75,
+    lowConfidenceThreshold: 0.7,
+    
+    // Timeout settings
+    agentTimeoutSeconds: 300,
+    approvalTimeoutSeconds: 300,
+    mutationTimeoutSeconds: 300,
+    
+    // Agent configuration
+    maxConcurrentAgents: 10,
+    retryAttempts: 3,
+    
+    // Priority settings
+    enableAutoPriority: true,
+    criticalChangeThreshold: true,
+    
+    // Breaking change detection
+    enableBreakingChangeDetection: true,
+    requireApprovalForBreakingChanges: true,
+    
+    // Performance settings
+    enableAgentCaching: true,
+    maxGraphTraversalDepth: 10,
+    embeddingCacheTtl: 3600,
+  });
+
   const handleProfileUpdate = () => {
     // TODO: Implement profile update API call
     console.log('Updating profile:', profileData);
@@ -153,644 +180,9 @@ export default function SettingsPage() {
     console.log('Updating security settings:', securitySettings);
   };
 
-  // Spec Sync Functions
-  const loadStatus = async () => {
-    setLoading(true);
-    clearError();
-
-    try {
-      const response = await apiClient.getSpecSyncStatus();
-
-      if (response.success && response.data) {
-        setStatus(response.data);
-        setLastChecked(new Date().toISOString());
-      } else {
-        setError(response.error?.message || 'Failed to load spec sync status');
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load spec sync status';
-      setError(errorMessage);
-      addNotification({
-        type: 'error',
-        title: 'Load Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStart = async () => {
-    try {
-      const response = await apiClient.startSpecSync();
-
-      if (response.success) {
-        addNotification({
-          type: 'success',
-          title: 'Spec Sync Started',
-          message: response.data.dir
-            ? `Spec sync started for directory: ${response.data.dir}`
-            : 'Spec sync daemon has been started',
-          duration: 3000
-        });
-
-        addActivityLog({
-          id: Date.now().toString(),
-          action: 'start',
-          timestamp: new Date().toISOString(),
-          success: true,
-          error: null
-        });
-
-        // Reload status
-        await loadStatus();
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to start spec sync';
-      addNotification({
-        type: 'error',
-        title: 'Start Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-
-      addActivityLog({
-        id: Date.now().toString(),
-        action: 'start',
-        timestamp: new Date().toISOString(),
-        success: false,
-        error: errorMessage
-      });
-    }
-  };
-
-  const handleStop = async () => {
-    try {
-      const response = await apiClient.stopSpecSync();
-
-      if (response.success) {
-        addNotification({
-          type: 'success',
-          title: 'Spec Sync Stopped',
-          message: 'Spec sync daemon has been stopped',
-          duration: 3000
-        });
-
-        addActivityLog({
-          id: Date.now().toString(),
-          action: 'stop',
-          timestamp: new Date().toISOString(),
-          success: true,
-          error: null
-        });
-
-        // Reload status
-        await loadStatus();
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to stop spec sync';
-      addNotification({
-        type: 'error',
-        title: 'Stop Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-
-      addActivityLog({
-        id: Date.now().toString(),
-        action: 'stop',
-        timestamp: new Date().toISOString(),
-        success: false,
-        error: errorMessage
-      });
-    }
-  };
-
-  // Billing Functions
-  const loadBillingData = async () => {
-    if (!user?.organizationId) return;
-
-    try {
-      setBillingLoading(true);
-      setBillingError(null);
-
-      // Load all billing data in parallel
-      const [subscriptionRes, usageRes, plansRes, invoicesRes, paymentMethodsRes] = await Promise.all([
-        apiClient.getCurrentSubscription(),
-        apiClient.getUsageMetrics(),
-        apiClient.getPlans(),
-        apiClient.getInvoices(),
-        apiClient.getPaymentMethods()
-      ]);
-
-      if (subscriptionRes.success && subscriptionRes.data) {
-        setSubscription(subscriptionRes.data);
-      }
-
-      if (usageRes.success && usageRes.data) {
-        setUsageMetrics(usageRes.data);
-      }
-
-      if (plansRes.success && plansRes.data) {
-        setPlans(plansRes.data);
-      }
-
-      if (invoicesRes.success && invoicesRes.data) {
-        setInvoices(invoicesRes.data.items);
-      }
-
-      if (paymentMethodsRes.success && paymentMethodsRes.data) {
-        setPaymentMethods(paymentMethodsRes.data);
-      }
-
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load billing data';
-      setBillingError(errorMessage);
-      addNotification({
-        type: 'error',
-        title: 'Failed to Load Billing Data',
-        message: errorMessage,
-        duration: 5000
-      });
-    } finally {
-      setBillingLoading(false);
-    }
-  };
-
-  const handleUpgradePlan = async (planId: string) => {
-    try {
-      const response = await apiClient.createCheckoutSession({ planId });
-
-      if (response.success && response.data) {
-        // Redirect to Paddle checkout
-        window.location.href = response.data.url;
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to create checkout session';
-      addNotification({
-        type: 'error',
-        title: 'Upgrade Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleCancelSubscription = async () => {
-    if (!subscription) return;
-
-    try {
-      const response = await apiClient.cancelSubscription(subscription.id);
-
-      if (response.success) {
-        addNotification({
-          type: 'success',
-          title: 'Subscription Cancelled',
-          message: 'Your subscription has been cancelled successfully',
-          duration: 5000
-        });
-
-        // Reload billing data
-        await loadBillingData();
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to cancel subscription';
-      addNotification({
-        type: 'error',
-        title: 'Cancellation Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleUpdatePaymentMethod = async () => {
-    try {
-      const response = await apiClient.createPaymentMethodUpdateSession();
-
-      if (response.success && response.data) {
-        // Redirect to Paddle payment method update
-        window.location.href = response.data.url;
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to create payment method update session';
-      addNotification({
-        type: 'error',
-        title: 'Update Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleSetDefaultPaymentMethod = async (paymentMethodId: string) => {
-    try {
-      const response = await apiClient.updatePaymentMethod(paymentMethodId, { isDefault: true });
-
-      if (response.success && response.data) {
-        addNotification({
-          type: 'success',
-          title: 'Payment Method Updated',
-          message: 'Default payment method updated successfully',
-          duration: 3000
-        });
-
-        // Reload billing data
-        await loadBillingData();
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to update payment method';
-      addNotification({
-        type: 'error',
-        title: 'Update Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleRemovePaymentMethod = async (paymentMethodId: string) => {
-    try {
-      const response = await apiClient.removePaymentMethod(paymentMethodId);
-
-      if (response.success) {
-        addNotification({
-          type: 'success',
-          title: 'Payment Method Removed',
-          message: 'Payment method removed successfully',
-          duration: 3000
-        });
-
-        // Reload billing data
-        await loadBillingData();
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to remove payment method';
-      addNotification({
-        type: 'error',
-        title: 'Removal Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleDownloadInvoice = async (invoiceId: string) => {
-    try {
-      const response = await apiClient.downloadInvoice(invoiceId);
-
-      if (response.success && response.data) {
-        // Create download link
-        const link = document.createElement('a');
-        link.href = response.data.url;
-        link.download = `invoice-${invoiceId}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to download invoice';
-      addNotification({
-        type: 'error',
-        title: 'Download Failed',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  // Webhook Functions
-  const loadWebhooks = async () => {
-    if (!user?.organizationId) return;
-
-    try {
-      setWebhookLoading(true);
-      clearWebhookError();
-      const response = await apiClient.getWebhooks();
-      if (response.success && response.data) {
-        setWebhooks(response.data.items);
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load webhooks';
-      setWebhookError(errorMessage);
-      addNotification({
-        type: 'error',
-        title: 'Failed to Load Webhooks',
-        message: errorMessage,
-        duration: 5000
-      });
-    } finally {
-      setWebhookLoading(false);
-    }
-  };
-
-  const handleCreateWebhook = async (data: CreateWebhookRequest) => {
-    if (!user?.organizationId) return;
-
-    try {
-      const response = await apiClient.createWebhook(data);
-      if (response.success && response.data) {
-        addWebhook(response.data);
-        addNotification({
-          type: 'success',
-          title: 'Webhook Created',
-          message: `Webhook "${data.name}" has been created successfully`,
-          duration: 5000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to create webhook';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Create Webhook',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  const handleUpdateWebhook = async (webhookId: string, data: UpdateWebhookRequest) => {
-    try {
-      const response = await apiClient.updateWebhook(webhookId, data);
-      if (response.success && response.data) {
-        updateWebhook(webhookId, response.data);
-        addNotification({
-          type: 'success',
-          title: 'Webhook Updated',
-          message: 'Webhook has been updated successfully',
-          duration: 5000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to update webhook';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Update Webhook',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  const handleDeleteWebhook = async (webhookId: string) => {
-    try {
-      const response = await apiClient.deleteWebhook(webhookId);
-      if (response.success) {
-        removeWebhook(webhookId);
-        addNotification({
-          type: 'success',
-          title: 'Webhook Deleted',
-          message: 'Webhook has been deleted successfully',
-          duration: 5000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to delete webhook';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Delete Webhook',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  const handleTestWebhook = async (webhookId: string) => {
-    try {
-      const response = await apiClient.testWebhook(webhookId);
-      if (response.success && response.data) {
-        addDelivery(webhookId, response.data);
-        const status = response.data.status === 'SUCCESS' ? 'success' : 'error';
-        addNotification({
-          type: status,
-          title: `Webhook Test ${status === 'success' ? 'Succeeded' : 'Failed'}`,
-          message: `Test webhook ${status === 'success' ? 'delivered successfully' : 'failed to deliver'}`,
-          duration: 5000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to test webhook';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Test Webhook',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  const handleLoadDeliveries = async (webhookId: string) => {
-    try {
-      const response = await apiClient.getWebhookDeliveries(webhookId);
-      if (response.success && response.data) {
-        setDeliveries(webhookId, response.data.items);
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load deliveries';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Load Deliveries',
-        message: errorMessage,
-        duration: 5000
-      });
-    }
-  };
-
-  // Team Management Functions
-  const loadMembers = async () => {
-    if (!user?.organizationId) return;
-
-    try {
-      setIsTeamLoading(true);
-      setTeamError(null);
-      const response = await apiClient.getOrganizationMembers(user.organizationId);
-      if (response.success && response.data) {
-        setMembers(response.data.items);
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load members';
-      setTeamError(errorMessage);
-      addNotification({
-        type: 'error',
-        title: 'Failed to Load Members',
-        message: errorMessage,
-        duration: 5000
-      });
-    } finally {
-      setIsTeamLoading(false);
-    }
-  };
-
-  const loadInvitations = async () => {
-    if (!user?.organizationId) return;
-
-    try {
-      setIsTeamLoading(true);
-      setTeamError(null);
-      const response = await apiClient.getOrganizationInvitations(user.organizationId);
-      if (response.success && response.data) {
-        setInvitations(response.data.items);
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to load invitations';
-      setTeamError(errorMessage);
-      addNotification({
-        type: 'error',
-        title: 'Failed to Load Invitations',
-        message: errorMessage,
-        duration: 5000
-      });
-    } finally {
-      setIsTeamLoading(false);
-    }
-  };
-
-  const handleInvite = async (invitation: CreateInvitationRequest) => {
-    if (!user?.organizationId) return;
-
-    try {
-      const response = await apiClient.inviteOrganizationMember(user.organizationId, invitation);
-      if (response.success && response.data) {
-        addInvitation(response.data);
-        addNotification({
-          type: 'success',
-          title: 'Invitation Sent',
-          message: `Invitation sent to ${invitation.email}`,
-          duration: 5000
-        });
-        await loadInvitations(); // Reload invitations
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to send invitation';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Send Invitation',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  const handleUpdateRole = async (userId: string, role: string) => {
-    if (!user?.organizationId) return;
-
-    try {
-      const response = await apiClient.updateMemberRole(user.organizationId, userId, { role });
-      if (response.success && response.data) {
-        updateMember(userId, response.data);
-        addNotification({
-          type: 'success',
-          title: 'Role Updated',
-          message: 'Member role updated successfully',
-          duration: 3000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to update role';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Update Role',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  const handleRemoveMember = async (userId: string) => {
-    if (!user?.organizationId) return;
-
-    try {
-      const response = await apiClient.removeOrganizationMember(user.organizationId, userId);
-      if (response.success) {
-        removeMember(userId);
-        addNotification({
-          type: 'success',
-          title: 'Member Removed',
-          message: 'Member removed successfully',
-          duration: 3000
-        });
-      }
-    } catch (error: any) {
-      const errorMessage = error.error?.message || 'Failed to remove member';
-      addNotification({
-        type: 'error',
-        title: 'Failed to Remove Member',
-        message: errorMessage,
-        duration: 5000
-      });
-      throw error;
-    }
-  };
-
-  // Auto-refresh logic
-  useEffect(() => {
-    if (autoRefresh && status?.running) {
-      const interval = setInterval(async () => {
-        try {
-          const response = await apiClient.getSpecSyncStatus();
-          if (response.success && response.data) {
-            setStatus(response.data);
-            setLastChecked(new Date().toISOString());
-          }
-        } catch (error) {
-          // Silently fail auto-refresh to avoid annoying notifications
-          console.error('Auto-refresh failed:', error);
-        }
-      }, 5000); // Poll every 5 seconds
-
-      setRefreshInterval(interval);
-    } else {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        setRefreshInterval(null);
-      }
-    }
-
-    return () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
-    };
-  }, [autoRefresh, status?.running, setStatus, setLastChecked]);
-
-  // Load initial status
-  useEffect(() => {
-    loadStatus();
-  }, []);
-
-  // Load team data when component mounts
-  useEffect(() => {
-    if (user?.organizationId) {
-      loadMembers();
-      loadInvitations();
-      loadBillingData();
-      loadWebhooks();
-    }
-  }, [user?.organizationId]);
-
-  // Helper function for relative time
-  const getRelativeTime = (timestamp: string | null) => {
-    if (!timestamp) return 'Never';
-
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-
-    const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  const handleOrchestratorSettingsUpdate = () => {
+    // TODO: Implement orchestrator settings update API call
+    console.log('Updating orchestrator settings:', orchestratorSettings);
   };
 
   return (
@@ -804,7 +196,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
@@ -817,21 +209,9 @@ export default function SettingsPage() {
             <Shield className="h-4 w-4" />
             Security
           </TabsTrigger>
-          <TabsTrigger value="spec-sync" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Spec Sync
-          </TabsTrigger>
-          <TabsTrigger value="team" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Team
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            Billing
-          </TabsTrigger>
-          <TabsTrigger value="webhooks" className="flex items-center gap-2">
-            <Webhook className="h-4 w-4" />
-            Webhooks
+          <TabsTrigger value="orchestrator" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Orchestrator
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
@@ -1114,574 +494,311 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="spec-sync" className="space-y-6">
-          {/* Spec Sync Status Card */}
+        <TabsContent value="orchestrator" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Spec Sync Daemon Status
+                <Cpu className="h-5 w-5" />
+                Agent Configuration
               </CardTitle>
               <CardDescription>
-                Monitor and control the specification synchronization daemon
+                Configure AI agent behavior and performance settings
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <XCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="h-4 w-64" />
-                </div>
-              ) : status ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Status:</span>
-                      {status.running ? (
-                        <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
-                          <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
-                          Running
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="flex items-center gap-1">
-                          <Square className="h-3 w-3" />
-                          Stopped
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Enabled:</span>
-                      {status.enabled ? (
-                        <Badge variant="outline" className="text-green-600 border-green-600">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Yes
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-gray-600 border-gray-600">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          No
-                        </Badge>
-                      )}
-                    </div>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Auto-Approval Confidence Threshold</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[orchestratorSettings.autoApprovalThreshold]}
+                      onValueChange={(value) =>
+                        setOrchestratorSettings(prev => ({ ...prev, autoApprovalThreshold: value[0] }))
+                      }
+                      max={1}
+                      min={0}
+                      step={0.05}
+                      className="w-full"
+                    />
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Sync Directory:</span>
-                    <code className="text-sm bg-muted px-2 py-1 rounded">{status.dir}</code>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>0% (Never auto-approve)</span>
+                    <span className="font-medium">{Math.round(orchestratorSettings.autoApprovalThreshold * 100)}%</span>
+                    <span>100% (Always auto-approve)</span>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Last Checked:</span>
-                    <span className="text-sm text-muted-foreground">{getRelativeTime(lastChecked)}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2">
-                    {status.running ? (
-                      <Button onClick={handleStop} variant="destructive" size="sm">
-                        <Square className="h-4 w-4 mr-2" />
-                        Stop Daemon
-                      </Button>
-                    ) : (
-                      <Button onClick={handleStart} size="sm" disabled={!status.enabled}>
-                        <Play className="h-4 w-4 mr-2" />
-                        Start Daemon
-                      </Button>
-                    )}
-                    <Button onClick={loadStatus} variant="outline" size="sm">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh Status
-                    </Button>
-                    <div className="flex items-center gap-2 ml-auto">
-                      <Switch
-                        checked={autoRefresh}
-                        onCheckedChange={setAutoRefresh}
-                        disabled={!status?.running}
-                      />
-                      <Label className="text-sm">Auto-refresh (5s)</Label>
-                    </div>
-                  </div>
-
-                  {!status.enabled && (
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        Spec sync is currently disabled. Please enable it in the engine configuration to use this feature.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Status not loaded</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Activity Log */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Activity Log
-                  </CardTitle>
-                  <CardDescription>
-                    Recent daemon activity and actions
-                  </CardDescription>
-                </div>
-                <Badge variant="outline">{activityLogs.length} entries</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {activityLogs.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No activity recorded yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="max-h-64 overflow-y-auto space-y-2">
-                    {activityLogs.slice(0, 10).map((log) => (
-                      <div key={log.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          {log.action === 'start' && (
-                            <Badge className="bg-blue-100 text-blue-800">
-                              <Play className="h-3 w-3 mr-1" />
-                              Start
-                            </Badge>
-                          )}
-                          {log.action === 'stop' && (
-                            <Badge className="bg-orange-100 text-orange-800">
-                              <Square className="h-3 w-3 mr-1" />
-                              Stop
-                            </Badge>
-                          )}
-                          {log.action === 'status_check' && (
-                            <Badge variant="secondary">
-                              <RefreshCw className="h-3 w-3 mr-1" />
-                              Status Check
-                            </Badge>
-                          )}
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(log.timestamp).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {log.success ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-600" title={log.error || 'Unknown error'} />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {activityLogs.length > 10 && (
-                    <div className="flex justify-center pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => clearActivityLogs()}
-                      >
-                        Clear All Logs
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Configuration
-              </CardTitle>
-              <CardDescription>
-                Spec sync daemon configuration settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {status ? (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Sync Directory</Label>
-                      <div className="flex items-center gap-2">
-                        <code className="flex-1 text-sm bg-muted px-3 py-2 rounded font-mono">
-                          {status.dir}
-                        </code>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigator.clipboard.writeText(status.dir)}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Daemon Enabled</Label>
-                      <div className="flex items-center gap-2 p-2">
-                        {status.enabled ? (
-                          <>
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span className="text-sm">Yes - daemon can be started</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="h-4 w-4 text-red-600" />
-                            <span className="text-sm">No - daemon disabled in config</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      Configuration changes must be made in the engine configuration file. These settings cannot be modified from the UI.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Configuration not loaded</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="team" className="space-y-6">
-          <div className="space-y-6">
-            {/* Members Section */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Team Members
-                  </CardTitle>
-                  <CardDescription>
-                    Manage organization members and their roles
-                  </CardDescription>
-                </div>
-                <Button
-                  onClick={() => setInviteDialogOpen(true)}
-                  className="flex items-center gap-2"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  Invite Member
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {teamError && (
-                  <Alert className="mb-4 border-red-200 bg-red-50">
-                    <AlertDescription className="text-red-800">
-                      Error: {teamError}
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <MemberList
-                  members={members}
-                  currentUserId={user?.id || ''}
-                  currentUserRole={user?.role || 'viewer'}
-                  onUpdateRole={handleUpdateRole}
-                  onRemoveMember={handleRemoveMember}
-                  isLoading={isTeamLoading}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Invitations Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Pending Invitations
-                </CardTitle>
-                <CardDescription>
-                  Manage pending team member invitations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <InvitationList
-                  invitations={invitations}
-                  onResend={async (invitationId) => {
-                    // TODO: Implement resend functionality
-                    addNotification({
-                      type: 'info',
-                      title: 'Resend Feature',
-                      message: 'Resend invitation feature coming soon',
-                      duration: 3000
-                    });
-                  }}
-                  onCancel={async (invitationId) => {
-                    // TODO: Implement cancel functionality
-                    addNotification({
-                      type: 'info',
-                      title: 'Cancel Feature',
-                      message: 'Cancel invitation feature coming soon',
-                      duration: 3000
-                    });
-                  }}
-                  isLoading={isTeamLoading}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <InviteMemberDialog
-            open={inviteDialogOpen}
-            onOpenChange={setInviteDialogOpen}
-            onInvite={handleInvite}
-            isLoading={isTeamLoading}
-          />
-        </TabsContent>
-
-        <TabsContent value="billing" className="space-y-6">
-          {/* Billing Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SubscriptionSummaryCard
-              subscription={subscription}
-              plans={plans}
-              loading={loading}
-              onUpgrade={handleUpgradePlan}
-              onCancel={handleCancelSubscription}
-            />
-            <UsageMetricsCard
-              usageMetrics={usageMetrics}
-              subscription={subscription}
-              loading={loading}
-            />
-          </div>
-
-          {/* Plan Comparison */}
-          <PlanComparisonCard
-            plans={plans}
-            currentPlanId={subscription?.planId}
-            loading={loading}
-            onUpgrade={handleUpgradePlan}
-          />
-
-          {/* Billing Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <InvoiceListCard
-              invoices={invoices}
-              loading={loading}
-              onDownload={handleDownloadInvoice}
-            />
-            <PaymentMethodsCard
-              paymentMethods={paymentMethods}
-              loading={loading}
-              onUpdatePaymentMethod={handleUpdatePaymentMethod}
-              onSetDefault={handleSetDefaultPaymentMethod}
-              onRemove={handleRemovePaymentMethod}
-            />
-          </div>
-
-          {/* Billing Error Display */}
-          {billingError && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{billingError}</AlertDescription>
-            </Alert>
-          )}
-        </TabsContent>
-
-        <TabsContent value="webhooks" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Webhooks</h2>
-              <p className="text-muted-foreground">
-                Manage webhooks to receive real-time notifications about events in your organization
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-green-600 border-green-600">
-                {activeCount} Active
-              </Badge>
-              <Badge variant="outline">
-                {totalDeliveries} Total Deliveries
-              </Badge>
-            </div>
-          </div>
-
-          {webhookError && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{webhookError}</AlertDescription>
-            </Alert>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Webhooks</span>
-                <Button onClick={() => {/* TODO: Open create webhook dialog */}}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Webhook
-                </Button>
-              </CardTitle>
-              <CardDescription>
-                Configure webhooks to receive notifications when specific events occur
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {webhooksLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <Skeleton className="h-4 w-64" />
-                      <Skeleton className="h-4 w-48" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                  ))}
-                </div>
-              ) : webhooks.length === 0 ? (
-                <div className="text-center py-8">
-                  <Webhook className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">No Webhooks Configured</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Create your first webhook to start receiving real-time event notifications
+                  <p className="text-sm text-muted-foreground">
+                    Mutations with confidence above this threshold will be auto-approved
                   </p>
-                  <Button onClick={() => {/* TODO: Open create webhook dialog */}}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Your First Webhook
-                  </Button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {webhooks.map((webhook) => (
-                    <div key={webhook.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold">{webhook.name}</h3>
-                          <Badge variant={webhook.active ? "default" : "secondary"}>
-                            {webhook.active ? "Active" : "Inactive"}
-                          </Badge>
-                          {webhook.totalDeliveries > 0 && (
-                            <Badge variant="outline" className="text-green-600 border-green-600">
-                              {getSuccessRate(webhook.id)}% Success Rate
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{webhook.url}</p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{webhook.events.length} Events</span>
-                          <span>{webhook.totalDeliveries} Deliveries</span>
-                          {webhook.lastTriggeredAt && (
-                            <span>Last triggered: {new Date(webhook.lastTriggeredAt).toLocaleDateString()}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleTestWebhook(webhook.id)}
-                        >
-                          <TestTube className="h-4 w-4 mr-1" />
-                          Test
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {/* TODO: Open edit dialog */}}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {/* TODO: View deliveries */}}
-                        >
-                          <Activity className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteWebhook(webhook.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {selectedWebhook && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Delivery History</CardTitle>
-                <CardDescription>
-                  Recent webhook deliveries for {selectedWebhook.name}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {deliveries[selectedWebhook.id]?.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Activity className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">No Deliveries Yet</h3>
-                    <p className="text-muted-foreground">
-                      Test the webhook to see delivery history here
+                <div className="space-y-2">
+                  <Label>Low Confidence Threshold</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[orchestratorSettings.lowConfidenceThreshold]}
+                      onValueChange={(value) =>
+                        setOrchestratorSettings(prev => ({ ...prev, lowConfidenceThreshold: value[0] }))
+                      }
+                      max={1}
+                      min={0}
+                      step={0.05}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>0%</span>
+                    <span className="font-medium">{Math.round(orchestratorSettings.lowConfidenceThreshold * 100)}%</span>
+                    <span>100%</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Mutations below this threshold will be marked as high priority for review
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="maxAgents">Max Concurrent Agents</Label>
+                    <Input
+                      id="maxAgents"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={orchestratorSettings.maxConcurrentAgents}
+                      onChange={(e) =>
+                        setOrchestratorSettings(prev => ({ ...prev, maxConcurrentAgents: parseInt(e.target.value) || 10 }))
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Maximum number of agents that can run simultaneously
                     </p>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {deliveries[selectedWebhook.id]?.map((delivery) => (
-                      <div key={delivery.id} className="flex items-center justify-between p-3 border rounded">
-                        <div className="flex items-center gap-3">
-                          <Badge variant={
-                            delivery.status === 'SUCCESS' ? 'default' :
-                            delivery.status === 'FAILED' ? 'destructive' : 'secondary'
-                          }>
-                            {delivery.status}
-                          </Badge>
-                          <div>
-                            <p className="font-medium">{delivery.eventType}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(delivery.createdAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">{delivery.attempts} attempts</p>
-                          {delivery.responseStatusCode && (
-                            <p className="text-sm text-muted-foreground">
-                              Status: {delivery.responseStatusCode}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="retryAttempts">Retry Attempts</Label>
+                    <Input
+                      id="retryAttempts"
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={orchestratorSettings.retryAttempts}
+                      onChange={(e) =>
+                        setOrchestratorSettings(prev => ({ ...prev, retryAttempts: parseInt(e.target.value) || 3 }))
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Number of retry attempts for failed agent operations
+                    </p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Timeout Settings
+              </CardTitle>
+              <CardDescription>
+                Configure timeout values for various operations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="agentTimeout">Agent Timeout (seconds)</Label>
+                  <Input
+                    id="agentTimeout"
+                    type="number"
+                    min="30"
+                    max="1800"
+                    value={orchestratorSettings.agentTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, agentTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time for agent task execution
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="approvalTimeout">Approval Timeout (seconds)</Label>
+                  <Input
+                    id="approvalTimeout"
+                    type="number"
+                    min="60"
+                    max="3600"
+                    value={orchestratorSettings.approvalTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, approvalTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time to wait for user approval
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mutationTimeout">Mutation Timeout (seconds)</Label>
+                  <Input
+                    id="mutationTimeout"
+                    type="number"
+                    min="30"
+                    max="1800"
+                    value={orchestratorSettings.mutationTimeoutSeconds}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, mutationTimeoutSeconds: parseInt(e.target.value) || 300 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum time for mutation execution
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Approval Rules
+              </CardTitle>
+              <CardDescription>
+                Configure automatic approval and priority rules
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Enable Auto-Priority Assignment</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically assign priority based on mutation characteristics
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableAutoPriority}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableAutoPriority: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Breaking Change Detection</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically detect potentially breaking changes
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableBreakingChangeDetection}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableBreakingChangeDetection: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Require Approval for Breaking Changes</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Always require manual approval for breaking changes
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.requireApprovalForBreakingChanges}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, requireApprovalForBreakingChanges: checked }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Critical Change Threshold</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Mark changes as critical based on impact analysis
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.criticalChangeThreshold}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, criticalChangeThreshold: checked }))
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance Optimization</CardTitle>
+              <CardDescription>
+                Configure performance and caching settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Enable Agent Caching</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Cache agent results to improve performance
+                  </p>
+                </div>
+                <Switch
+                  checked={orchestratorSettings.enableAgentCaching}
+                  onCheckedChange={(checked) =>
+                    setOrchestratorSettings(prev => ({ ...prev, enableAgentCaching: checked }))
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="traversalDepth">Max Graph Traversal Depth</Label>
+                  <Input
+                    id="traversalDepth"
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={orchestratorSettings.maxGraphTraversalDepth}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, maxGraphTraversalDepth: parseInt(e.target.value) || 10 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Maximum depth for dependency graph traversal
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cacheTtl">Embedding Cache TTL (seconds)</Label>
+                  <Input
+                    id="cacheTtl"
+                    type="number"
+                    min="300"
+                    max="86400"
+                    value={orchestratorSettings.embeddingCacheTtl}
+                    onChange={(e) =>
+                      setOrchestratorSettings(prev => ({ ...prev, embeddingCacheTtl: parseInt(e.target.value) || 3600 }))
+                    }
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Time-to-live for cached embeddings
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={handleOrchestratorSettingsUpdate}>
+                  Save Orchestrator Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-6">

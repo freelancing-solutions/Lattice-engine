@@ -37,7 +37,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-white">
+    <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
@@ -46,18 +46,18 @@ export default function Footer() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">L</span>
               </div>
-              <span className="text-white font-bold text-xl">Project Lattice</span>
+              <span className="text-foreground font-bold text-xl">Lattice Engine</span>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
-              Unified orchestration for AI coding agents. Spec-driven agentic development 
-              that synchronizes all agents, specs, and codebases in one ecosystem.
+            <p className="text-muted-foreground text-sm mb-4">
+              Agentic coding platform that revolutionizes how developers manage specifications, 
+              mutations, and collaborative coding workflows.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
-                  className="text-gray-400 hover:text-white transition-colors duration-200"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200"
                   aria-label={social.label}
                 >
                   <social.icon className="h-5 w-5" />
@@ -68,13 +68,13 @@ export default function Footer() {
 
           {/* Ecosystem Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Ecosystem</h3>
+            <h3 className="font-bold text-lg mb-4 text-foreground">Product</h3>
             <ul className="space-y-2">
               {footerLinks.ecosystem.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                   >
                     {link.name}
                   </a>
@@ -85,13 +85,13 @@ export default function Footer() {
 
           {/* Documentation Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Documentation</h3>
+            <h3 className="font-bold text-lg mb-4 text-foreground">Documentation</h3>
             <ul className="space-y-2">
               {footerLinks.documentation.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                   >
                     {link.name}
                   </a>
@@ -102,13 +102,13 @@ export default function Footer() {
 
           {/* Developers Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Developers</h3>
+            <h3 className="font-bold text-lg mb-4 text-foreground">Support</h3>
             <ul className="space-y-2">
               {footerLinks.developers.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                   >
                     {link.name}
                   </a>
@@ -119,13 +119,13 @@ export default function Footer() {
 
           {/* Company Links */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Company</h3>
+            <h3 className="font-bold text-lg mb-4 text-foreground">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200 text-sm"
                   >
                     {link.name}
                   </a>
@@ -135,22 +135,22 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8">
+        <div className="border-t border-border mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <span className="text-gray-400 text-sm">
-                © 2024 Project Lattice. All rights reserved.
+              <span className="text-muted-foreground text-sm">
+                © 2024 Lattice Engine. All rights reserved.
               </span>
             </div>
             
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <a href="/privacy" className="hover:text-white transition-colors duration-200">
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <a href="/privacy" className="hover:text-primary transition-colors duration-200">
                 Privacy Policy
               </a>
-              <a href="/terms" className="hover:text-white transition-colors duration-200">
+              <a href="/terms" className="hover:text-primary transition-colors duration-200">
                 Terms of Service
               </a>
-              <a href="/support" className="hover:text-white transition-colors duration-200">
+              <a href="/support" className="hover:text-primary transition-colors duration-200">
                 Security
               </a>
             </div>

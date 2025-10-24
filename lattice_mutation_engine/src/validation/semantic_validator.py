@@ -13,7 +13,7 @@ import logging
 from datetime import datetime
 
 from src.models.validation_models import ValidationRule, ValidationResult
-from src.models.spec_graph_models import Node, Edge, NodeType, RelationshipType
+from src.models.spec_graph_models import Node, Edge, NodeType, RelationshipType, SpecGraph
 
 
 logger = logging.getLogger(__name__)
@@ -455,8 +455,8 @@ class SemanticValidator:
         
         logger.info("Semantic validator initialized")
     
-    def validate_node(self, node: Node, related_nodes: List[Node] = None, 
-                     edges: List[Edge] = None) -> List[ValidationResult]:
+    def validate_node(self, node: Node, related_nodes: List[Node] = None,
+                     edges: List[Edge] = None, graph_metadata: Dict[str, Any] = None) -> List[ValidationResult]:
         """Validate a single node with semantic rules"""
         results = []
         
@@ -473,7 +473,7 @@ class SemanticValidator:
                 related_nodes=related_nodes,
                 incoming_edges=incoming_edges,
                 outgoing_edges=outgoing_edges,
-                graph_metadata={}
+                graph_metadata=graph_metadata or {}
             )
             
             # Run naming convention validation
@@ -615,5 +615,55 @@ class SemanticValidator:
                 enabled=True,
                 metadata={'rule_type': 'consistency'}
             ))
-        
+
         return rules
+
+    def validate_edge_semantics(self, edge: Edge, source_node: Node, target_node: Node) -> List[ValidationResult]:
+        """Validate edge semantic relationships"""
+        results = []
+
+        try:
+            # Create a minimal semantic context for edge validation
+            context = SemanticContext(
+                node=source_node,
+                related_nodes=[target_node],
+                incoming_edges=[],
+                outgoing_edges=[edge],
+                graph_metadata={}
+            )
+
+            # Use consistency validator to validate the edge relationship
+            results.extend(self.consistency_validator._validate_type_consistency(context))
+            results.extend(self.consistency_validator._validate_relationship_consistency(context))
+
+        except Exception as e:
+            logger.error(f"Error during edge semantic validation: {e}")
+            results.append(ValidationResult(
+                rule_id="edge_semantic_validation_error",
+                severity="ERROR",
+                message=f"Edge semantic validation failed: {str(e)}",
+                node_id=edge.id,
+                metadata={'error': str(e)}
+            ))
+
+        return results
+
+    def validate_graph_consistency(self, graph: SpecGraph) -> List[ValidationResult]:
+        """Validate semantic consistency across the entire graph"""
+        try:
+            # Extract nodes and edges from graph
+            nodes = graph.nodes
+            edges = graph.edges
+
+            # Call existing validate_graph_semantics method
+            return self.validate_graph_semantics(nodes, edges)
+
+        except Exception as e:
+            logger.error(f"Error during graph consistency validation: {e}")
+            return [ValidationResult(
+                rule_id="graph_consistency_validation_error",
+                severity="ERROR",
+                message=f"Graph consistency validation failed: {str(e)}",
+                node_id="graph",
+                metadata={'error': str(e)}
+            )]

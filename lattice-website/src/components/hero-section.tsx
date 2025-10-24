@@ -56,13 +56,13 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
   if (!mounted) return null
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-orange-900 to-slate-900 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/50 to-background overflow-hidden">
       {/* Animated Code Background */}
       <div className="absolute inset-0 overflow-hidden opacity-10">
         {codeSnippets.map((snippet, i) => (
           <motion.div
             key={i}
-            className="absolute text-orange-400 font-mono text-sm whitespace-nowrap"
+            className="absolute text-primary font-mono text-sm whitespace-nowrap"
             initial={{ x: -200, y: Math.random() * 100 }}
             animate={{ 
               x: "100vw",
@@ -90,22 +90,23 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Spec-Driven Development
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 block">
-              for the Agentic Era
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+            Agentic Coding
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/80 block">
+              Redefined
             </span>
           </h1>
           
           <motion.p
-            className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.
-            <span className="block text-orange-300 mt-2">
-              Stop fighting fragmented agentic development. Project Lattice synchronizes all specs, agents, and codebases in one unified mutation framework.
+            Automate your development workflow with intelligent mutation management,
+            spec-driven development, and collaborative code evolution.
+            <span className="block text-primary mt-2">
+              Experience a real security fix from problem to production in just 8 minutes.
             </span>
           </motion.p>
           
@@ -117,13 +118,13 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               onClick={() => setShowDemo(true)}
             >
               <Play className="mr-2 h-5 w-5" />
               Start Building with Specs
             </Button>
-            <Button size="lg" variant="outline" className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white px-8 py-3 text-lg">
+            <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
               <Download className="mr-2 h-5 w-5" />
               Explore the Ecosystem
             </Button>
@@ -139,24 +140,24 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
 
       {/* Terminal Preview */}
       <motion.div 
-        className="absolute bottom-10 right-10 w-96 bg-gray-900 rounded-lg shadow-2xl border border-gray-700 hidden lg:block"
+        className="absolute bottom-10 right-10 w-96 bg-card rounded-lg shadow-2xl border border-border hidden lg:block"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
       >
-        <div className="flex items-center justify-between p-3 border-b border-gray-700">
+        <div className="flex items-center justify-between p-3 border-b border-border">
           <div className="flex space-x-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
-          <span className="text-gray-400 text-sm font-mono">lattice-cli</span>
+          <span className="text-muted-foreground text-sm font-mono">lattice-cli</span>
         </div>
         
-        <div className="p-4 font-mono text-sm text-orange-400">
+        <div className="p-4 font-mono text-sm text-primary">
           <pre className="whitespace-pre-wrap">
             {terminalText}
-            <span className={`inline-block w-2 h-4 bg-orange-400 ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'}`}></span>
+            <span className={`inline-block w-2 h-4 bg-primary ml-1 ${showCursor ? 'opacity-100' : 'opacity-0'}`}></span>
           </pre>
         </div>
       </motion.div>
@@ -174,7 +175,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 0.5,
           }}
         >
-          <Terminal className="h-6 w-6 text-orange-400 mb-2" />
+          <Terminal className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">CLI Tools</h4>
         </motion.div>
 
@@ -189,7 +190,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 1,
           }}
         >
-          <GitBranch className="h-6 w-6 text-orange-400 mb-2" />
+          <GitBranch className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Smart Mutations</h4>
         </motion.div>
 
@@ -204,7 +205,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 1.5,
           }}
         >
-          <Zap className="h-6 w-6 text-orange-400 mb-2" />
+          <Zap className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Real-time Sync</h4>
         </motion.div>
 
@@ -219,7 +220,7 @@ const fullText = `$ lattice mutation propose\n✓ Analyzing code changes...\n✓
             delay: 2,
           }}
         >
-          <FileText className="h-6 w-6 text-orange-400 mb-2" />
+          <FileText className="h-6 w-6 text-primary mb-2" />
           <h4 className="text-white font-semibold text-sm">Living Specs</h4>
         </motion.div>
       </div>

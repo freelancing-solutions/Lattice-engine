@@ -64,7 +64,11 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className="transition-colors duration-200 text-sm font-medium text-muted-foreground hover:text-foreground"
+                className={`transition-colors duration-200 text-sm font-medium flex items-center space-x-1 ${
+                  item.isAdmin
+                    ? "text-primary hover:text-primary/80"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <span>{item.name}</span>
               </a>
@@ -95,7 +99,11 @@ export default function Navigation() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="transition-colors duration-200 text-lg font-medium text-muted-foreground hover:text-foreground"
+                    className={`transition-colors duration-200 text-lg font-medium flex items-center space-x-2 ${
+                      item.isAdmin
+                        ? "text-primary hover:text-primary/80"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
                     <span>{item.name}</span>

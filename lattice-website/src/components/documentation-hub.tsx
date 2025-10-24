@@ -9,10 +9,10 @@ import Link from "next/link"
 
 const docCategories = [
   {
-    icon: Zap,
-    title: "Quick Start",
-    description: "Get up and running with Project Lattice in minutes",
-    color: "bg-green-500",
+    icon: Code,
+    title: "API Documentation",
+    description: "Complete REST API reference with examples and SDKs",
+    color: "bg-primary",
     items: [
       "Installation & Setup",
       "First Project Creation",
@@ -24,10 +24,10 @@ const docCategories = [
     href: "/docs/quickstart"
   },
   {
-    icon: Book,
-    title: "Core Concepts",
-    description: "Understand the fundamentals of spec-driven development",
-    color: "bg-primary",
+    icon: Terminal,
+    title: "CLI Tools",
+    description: "Command-line interface for automation and CI/CD",
+    color: "bg-muted",
     items: [
       "Living Specifications",
       "Agentic Development Model",
@@ -40,9 +40,9 @@ const docCategories = [
   },
   {
     icon: Terminal,
-    title: "Integration Guides",
-    description: "Connect Project Lattice with your development workflow",
-    color: "bg-purple-500",
+    title: "VSCode Extension",
+    description: "Native IDE integration for seamless development workflow",
+    color: "bg-primary",
     items: [
       "VSCode Extension Guide",
       "CLI Tools & Automation",
@@ -54,10 +54,25 @@ const docCategories = [
     href: "/docs/integration-guides"
   },
   {
-    icon: Code,
-    title: "API Reference",
-    description: "Complete REST API documentation with examples",
-    color: "bg-blue-500",
+    icon: Zap,
+    title: "MCP Servers",
+    description: "Model Context Protocol integration for advanced workflows",
+    color: "bg-primary/80",
+    items: [
+      "Server Configuration",
+      "Real-time Synchronization",
+      "Multi-client Support",
+      "Event Streaming",
+      "State Management"
+    ],
+    badge: "v2.0.0",
+    href: "/docs/mcp-servers"
+  },
+  {
+    icon: Book,
+    title: "Tutorials & Guides",
+    description: "Step-by-step guides to master Lattice Engine",
+    color: "bg-primary",
     items: [
       "Authentication & Security",
       "Mutation Management API",
@@ -113,45 +128,42 @@ export default function DocumentationHub() {
         </motion.div>
 
         {/* Documentation Categories */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {docCategories.map((category, index) => (
             <motion.div
-              key={index}
+              key={category.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 shadow-md">
+              <Card className="h-full bg-card border-border shadow-md hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 ${category.color} rounded-lg flex items-center justify-center`}>
-                      <category.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
+                  <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center mb-4`}>
+                    <category.icon className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg text-foreground">{category.title}</CardTitle>
+                    <Badge variant="secondary" className="text-sm">
                       {category.badge}
                     </Badge>
                   </div>
-                  <CardTitle className="text-lg text-gray-900">
-                    {category.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 text-sm">
+                  <CardDescription className="text-muted-foreground">
                     {category.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 mb-4">
+                  <ul className="space-y-2 mb-6">
                     {category.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="text-sm text-gray-600 flex items-center">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                      <li key={itemIndex} className="text-sm text-muted-foreground flex items-center">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3" />
                         {item}
                       </li>
                     ))}
                   </ul>
                   <Button variant="outline" className="w-full" asChild>
                     <Link href={category.href}>
-                      View Docs
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      Explore Documentation
                     </Link>
                   </Button>
                 </CardContent>
@@ -168,33 +180,33 @@ export default function DocumentationHub() {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <Card className="bg-gradient-to-r from-purple-600 to-pink-600 border-0 text-white">
+          <Card className="bg-primary text-primary-foreground">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
                 🚀 Developer Journey
               </CardTitle>
-              <CardDescription className="text-purple-100 text-lg">
-                Get up and running with Project Lattice in under 5 minutes
+              <CardDescription className="text-primary-foreground/80 text-lg">
+                Get up and running with Lattice Engine in under 5 minutes
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-4 gap-6">
                 {quickStartSteps.map((step, index) => (
                   <div key={index} className="text-center">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <step.icon className="h-8 w-8 text-white" />
+                    <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <step.icon className="h-8 w-8 text-primary-foreground" />
                     </div>
-                    <h4 className="font-semibold text-white mb-2">
+                    <h4 className="font-semibold text-primary-foreground mb-2">
                       Step {index + 1}
                     </h4>
-                    <p className="text-purple-100 text-sm">
+                    <p className="text-primary-foreground/80 text-sm">
                       {step.title}
                     </p>
                   </div>
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
+                <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90" asChild>
                   <Link href="/docs/quickstart">
                     Start Building with Specs
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -213,9 +225,9 @@ export default function DocumentationHub() {
           viewport={{ once: true }}
         >
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
-                <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Community Forum</CardTitle>
                 <CardDescription>
                   Join thousands of developers sharing tips and best practices
@@ -228,9 +240,9 @@ export default function DocumentationHub() {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
-                <Star className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <Star className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>GitHub Discussions</CardTitle>
                 <CardDescription>
                   Contribute to the project and engage with the core team
@@ -243,9 +255,9 @@ export default function DocumentationHub() {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-0 shadow-md">
+            <Card className="text-center border-border shadow-md">
               <CardHeader>
-                <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
                 <CardTitle>Blog & Tutorials</CardTitle>
                 <CardDescription>
                   Latest insights, tutorials, and product updates

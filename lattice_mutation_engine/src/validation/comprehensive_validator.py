@@ -142,9 +142,9 @@ class ComprehensiveValidator:
             logger.error(f"Error during comprehensive validation of node {node.id}: {e}")
             results.append(ValidationResult(
                 rule_id="comprehensive_validation_error",
-                severity="ERROR",
+                severity="error",
                 message=f"Comprehensive validation failed: {str(e)}",
-                node_id=node.id,
+                spec_id=node.id,
                 metadata={'error': str(e), 'validation_type': 'comprehensive'}
             ))
         
@@ -158,8 +158,12 @@ class ComprehensiveValidator:
         try:
             # Schema validation for edge
             if self.config.enable_schema:
-                schema_results = self.schema_validator.validate_edge(edge)
-                results.extend(schema_results)
+                schema_results = self.schema_validator.validate_edge(edge, source_node, target_node)
+                # Ensure schema_results is a list
+                if isinstance(schema_results, ValidationResult):
+                    results.extend([schema_results])
+                else:
+                    results.extend(schema_results)
             
             # Semantic validation for edge relationships
             if self.config.enable_semantic and source_node and target_node:
@@ -176,9 +180,9 @@ class ComprehensiveValidator:
             logger.error(f"Error during comprehensive validation of edge {edge.id}: {e}")
             results.append(ValidationResult(
                 rule_id="edge_validation_error",
-                severity="ERROR",
+                severity="error",
                 message=f"Edge validation failed: {str(e)}",
-                node_id=edge.source_id,
+                spec_id=edge.source_id,
                 metadata={'error': str(e), 'edge_id': edge.id}
             ))
         
@@ -221,9 +225,9 @@ class ComprehensiveValidator:
             
             # Compile summary
             summary.total_violations = len(all_results)
-            summary.error_count = len([r for r in all_results if r.severity == "ERROR"])
-            summary.warning_count = len([r for r in all_results if r.severity == "WARNING"])
-            summary.info_count = len([r for r in all_results if r.severity == "INFO"])
+            summary.error_count = len([r for r in all_results if r.severity == "error"])
+            summary.warning_count = len([r for r in all_results if r.severity == "warning"])
+            summary.info_count = len([r for r in all_results if r.severity == "info"])
             summary.validation_time_ms = (datetime.now() - start_time).total_seconds() * 1000
             summary.passed = summary.error_count == 0
             summary.blocked_by_errors = self._should_block(all_results)
@@ -279,9 +283,9 @@ class ComprehensiveValidator:
             
             # Compile summary
             summary.total_violations = len(all_results)
-            summary.error_count = len([r for r in all_results if r.severity == "ERROR"])
-            summary.warning_count = len([r for r in all_results if r.severity == "WARNING"])
-            summary.info_count = len([r for r in all_results if r.severity == "INFO"])
+            summary.error_count = len([r for r in all_results if r.severity == "error"])
+            summary.warning_count = len([r for r in all_results if r.severity == "warning"])
+            summary.info_count = len([r for r in all_results if r.severity == "info"])
             summary.validation_time_ms = (datetime.now() - start_time).total_seconds() * 1000
             summary.passed = summary.error_count == 0
             summary.blocked_by_errors = self._should_block(all_results)
@@ -374,7 +378,7 @@ class ComprehensiveValidator:
                     task_results = future.result()
                     results.extend(task_results)
                     
-                    if self.config.fail_fast and any(r.severity == "ERROR" for r in task_results):
+                    if self.config.fail_fast and any(r.severity == "error" for r in task_results):
                         # Cancel remaining tasks
                         for remaining_future in future_to_task:
                             if not remaining_future.done():
@@ -385,9 +389,9 @@ class ComprehensiveValidator:
                     logger.error(f"Error in parallel validation task {task_name}: {e}")
                     results.append(ValidationResult(
                         rule_id=f"{task_name}_validation_error",
-                        severity="ERROR",
+                        severity="error",
                         message=f"{task_name} validation failed: {str(e)}",
-                        node_id="unknown",
+                        spec_id="unknown",
                         metadata={'error': str(e), 'task': task_name}
                     ))
         
@@ -406,7 +410,7 @@ class ComprehensiveValidator:
                 task_results = task_func(*task_args)
                 results.extend(task_results)
                 
-                if self.config.fail_fast and any(r.severity == "ERROR" for r in task_results):
+                if self.config.fail_fast and any(r.severity == "error" for r in task_results):
                     logger.debug(f"Fail-fast triggered after {task_name} validation")
                     break
                     
@@ -414,9 +418,9 @@ class ComprehensiveValidator:
                 logger.error(f"Error in sequential validation task {task_name}: {e}")
                 results.append(ValidationResult(
                     rule_id=f"{task_name}_validation_error",
-                    severity="ERROR",
+                    severity="error",
                     message=f"{task_name} validation failed: {str(e)}",
-                    node_id="unknown",
+                    spec_id="unknown",
                     metadata={'error': str(e), 'task': task_name}
                 ))
                 
@@ -448,9 +452,9 @@ class ComprehensiveValidator:
                     logger.error(f"Error validating node {node_id}: {e}")
                     results.append(ValidationResult(
                         rule_id="node_validation_error",
-                        severity="ERROR",
+                        severity="error",
                         message=f"Node validation failed: {str(e)}",
-                        node_id=node_id,
+                        spec_id=node_id,
                         metadata={'error': str(e)}
                     ))
         
@@ -467,7 +471,7 @@ class ComprehensiveValidator:
                 node_results = self.validate_node(node, related_nodes, node_edges, graph.metadata)
                 results.extend(node_results)
                 
-                if self.config.fail_fast and any(r.severity == "ERROR" for r in node_results):
+                if self.config.fail_fast and any(r.severity == "error" for r in node_results):
                     logger.debug(f"Fail-fast triggered after validating node {node.id}")
                     break
                     
@@ -475,9 +479,9 @@ class ComprehensiveValidator:
                 logger.error(f"Error validating node {node.id}: {e}")
                 results.append(ValidationResult(
                     rule_id="node_validation_error",
-                    severity="ERROR",
+                    severity="error",
                     message=f"Node validation failed: {str(e)}",
-                    node_id=node.id,
+                    spec_id=node.id,
                     metadata={'error': str(e)}
                 ))
                 
@@ -496,11 +500,11 @@ class ComprehensiveValidator:
                 continue
             
             # Filter by severity
-            if result.severity == "ERROR":
+            if result.severity == "error":
                 filtered.append(result)
-            elif result.severity == "WARNING" and self.config.include_warnings:
+            elif result.severity == "warning" and self.config.include_warnings:
                 filtered.append(result)
-            elif result.severity == "INFO" and self.config.include_info:
+            elif result.severity == "info" and self.config.include_info:
                 filtered.append(result)
         
         return filtered
@@ -510,7 +514,7 @@ class ComprehensiveValidator:
         if self.config.mode == ValidationMode.ADVISORY:
             return False
         
-        error_count = len([r for r in results if r.severity == "ERROR"])
+        error_count = len([r for r in results if r.severity == "error"])
         
         if self.config.mode == ValidationMode.STRICT:
             return error_count > 0

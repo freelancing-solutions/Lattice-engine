@@ -1,10 +1,51 @@
 "use client"
 
-import Navigation from '@/components/navigation'
-import Footer from '@/components/footer'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Metadata } from "next";
+
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://lattice-engine.com";
+
+// Metadata for the Features page
+export const metadata: Metadata = {
+  title: "Features - Lattice Engine | AI-Powered Development Tools",
+  description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, automated testing, and advanced debugging capabilities.",
+  keywords: "AI development tools, code generation, automated testing, version control, performance optimization, cloud deployment, team collaboration, developer tools",
+  authors: [{ name: "Lattice Engine Team" }],
+  creator: "Lattice Engine",
+  publisher: "Lattice Engine",
+  robots: "index, follow",
+  openGraph: {
+    title: "Features - Lattice Engine | AI-Powered Development Tools",
+    description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, and advanced debugging capabilities.",
+    url: `${baseUrl}/features`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine - Features"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Features - Lattice Engine | AI-Powered Development Tools",
+    description: "Explore the comprehensive features of Lattice Engine, including AI-powered development tools, real-time collaboration, and advanced debugging capabilities.",
+    images: [`${baseUrl}/og-image.jpg`],
+    creator: "@latticeengine"
+  },
+  alternates: {
+    canonical: `${baseUrl}/features`
+  }
+}
+import Navigation from "@/components/navigation"
+import Footer from "@/components/footer"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
   Terminal, 
   Code, 
@@ -370,8 +411,8 @@ export default function EcosystemPage() {
           </div>
         </section>
 
-        {/* Ecosystem Benefits */}
-        <section className="py-20 bg-slate-50">
+        {/* Analytics & Integrations */}
+        <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -380,11 +421,11 @@ export default function EcosystemPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Platform Benefits
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Analytics & Integrations
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Experience the power of unified AI agent orchestration and spec-driven agentic development working together.
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Get insights into your development process and connect with your favorite tools.
               </p>
             </motion.div>
 
@@ -397,16 +438,16 @@ export default function EcosystemPage() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="h-full hover:shadow-lg transition-shadow duration-300">
+                  <Card className="h-full hover:shadow-lg transition-shadow duration-300 border-0 shadow-md">
                     <CardHeader>
                       <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4">
                         <benefit.icon className="h-6 w-6 text-primary-foreground" />
                       </div>
-                      <CardTitle className="text-xl text-gray-900">
-                        {benefit.title}
+                      <CardTitle className="text-xl text-foreground">
+                        {feature.title}
                       </CardTitle>
-                      <CardDescription className="text-gray-600">
-                        {benefit.description}
+                      <CardDescription className="text-muted-foreground">
+                        {feature.description}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -414,7 +455,7 @@ export default function EcosystemPage() {
                         {benefit.benefits?.map((item, itemIndex) => (
                           <li key={itemIndex} className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-primary rounded-full"></div>
-                            <span className="text-gray-700 text-sm">{item}</span>
+                            <span className="text-muted-foreground text-sm">{item}</span>
                           </li>
                         ))}
                       </ul>

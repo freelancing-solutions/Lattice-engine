@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="1500" height="500" role="img" aria-label="Project Lattice banner">
+  <defs>
+    <linearGradient id="bgrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#F6F7F9"/>
+      <stop offset="1" stop-color="#E9F2FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1500" height="500" fill="url(#bgrad)"/>
+
+  <!-- subtle large lattice grid pattern on left -->
+  <g transform="translate(60,40)" opacity="0.95">
+    <!-- repeated nodes pattern -->
+    <g id="module" transform="translate(0,0)">
+      <line x1="0" y1="60" x2="60" y2="0" stroke="#0B2545" stroke-width="6" stroke-linecap="round" opacity="0.18"/>
+      <line x1="60" y1="0" x2="120" y2="60" stroke="#1E88E5" stroke-width="6" stroke-linecap="round" opacity="0.18"/>
+      <circle cx="60" cy="0" r="10" fill="#F4B400" opacity="0.95"/>
+    </g>
+
+    <use href="#module" x="0" y="0"/>
+    <use href="#module" x="120" y="40"/>
+    <use href="#module" x="240" y="0"/>
+    <use href="#module" x="360" y="40"/>
+    <use href="#module" x="480" y="0"/>
+    <use href="#module" x="600" y="40"/>
+  </g>
+
+  <!-- large title + tagline on right -->
+  <g transform="translate(780,150)">
+    <text x="0" y="0" font-family="Inter, Helvetica, Arial, sans-serif" font-size="56" font-weight="800" fill="#0B2545">Project Lattice</text>
+    <text x="0" y="60" font-family="Inter, Helvetica, Arial, sans-serif" font-size="20" fill="#374151">Spec-driven mutation engine for safer code evolution</text>
+    <!-- callout capsule -->
+    <rect x="0" y="90" rx="8" ry="8" width="360" height="40" fill="#1E88E5" opacity="0.12"/>
+    <text x="16" y="118" font-family="Inter, Helvetica, Arial, sans-serif" font-size="14" fill="#0B2545">Open-source • FastAPI • MCP & VSCode integration</text>
+  </g>
+
+  <!-- decorative nodes floating -->
+  <circle cx="1200" cy="80" r="8" fill="#F4B400" opacity="0.95"/>
+  <circle cx="1360" cy="180" r="6" fill="#1E88E5" opacity="0.85"/>
+  <circle cx="1120" cy="320" r="10" fill="#0B2545" opacity="0.75"/>
+</svg>

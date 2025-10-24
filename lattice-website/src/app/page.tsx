@@ -10,8 +10,9 @@ import Footer from "@/components/footer"
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
 export const metadata: Metadata = {
-  title: "Project Lattice - Spec-Driven Development for the Agentic Era",
-  description: "Unified orchestration for AI coding agents. Project Lattice is a unified ecosystem for spec-driven agentic development that brings order, traceability, and coherence to multi-agent software development.",
+  metadataBase: new URL(baseUrl),
+  title: "Lattice Engine - AI-Powered Development Platform",
+  description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment for modern applications.",
   keywords: [
     "spec-driven development",
     "agentic development",
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
     "MCP servers",
     "CLI tools"
   ],
+  authors: [{ name: "Lattice Engine Team" }],
   openGraph: {
     title: "Project Lattice - Spec-Driven Development for the Agentic Era",
     description: "Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Project Lattice",
     images: [
       {
-        url: `${baseUrl}/og-home.png`,
+        url: `${baseUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Project Lattice - Spec-Driven Development for the Agentic Era",
@@ -44,9 +46,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Project Lattice - Spec-Driven Development for the Agentic Era", 
-    description: "Unified orchestration for AI coding agents. One ecosystem, infinite coders, zero chaos.",
-    images: [`${baseUrl}/twitter-home.png`],
+    title: "Lattice Engine - AI-Powered Development Platform", 
+    description: "Transform your development workflow with Lattice Engine's AI-powered platform. Intelligent code generation, automated testing, and seamless deployment.",
+    images: [`${baseUrl}/og-image.png`],
   },
   alternates: {
     canonical: baseUrl,

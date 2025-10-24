@@ -31,11 +31,49 @@ import {
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
 
-// Metadata for the MCP Servers page
-// export const metadata: Metadata = {
-//   title: "MCP Servers v2.0.0 - Lattice Engine",
-//   description: "Model Context Protocol integration for advanced workflows. Configure MCP servers for real-time synchronization and multi-client support.",
-// }
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: "MCP Servers v2.0.0 - Lattice Engine | Model Context Protocol",
+  description: "Model Context Protocol integration for advanced workflows. Configure MCP servers for real-time synchronization, multi-client support, event streaming, and enterprise-grade security.",
+  keywords: [
+    "mcp servers",
+    "model context protocol",
+    "real-time synchronization",
+    "multi-client support",
+    "event streaming",
+    "state management",
+    "enterprise security",
+    "oauth integration",
+    "redis clustering",
+    "performance monitoring"
+  ],
+  authors: [{ name: "Lattice Engine Team" }],
+  openGraph: {
+    title: "MCP Servers v2.0.0 - Lattice Engine",
+    description: "Model Context Protocol integration for advanced workflows. Configure MCP servers for real-time synchronization and multi-client support.",
+    url: `${baseUrl}/docs/mcp-servers`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-mcp-docs.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine MCP Servers Documentation"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MCP Servers v2.0.0 - Lattice Engine",
+    description: "Model Context Protocol integration for advanced workflows. Configure MCP servers for real-time synchronization and multi-client support.",
+    images: [`${baseUrl}/og-mcp-docs.jpg`]
+  },
+  alternates: {
+    canonical: `${baseUrl}/docs/mcp-servers`
+  }
+}
 
 const mcpFeatures = [
   {

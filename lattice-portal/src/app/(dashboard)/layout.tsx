@@ -6,37 +6,51 @@ import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { PageLoading } from '@/components/loading-states';
+import { PerformanceMonitor } from '@/components/performance-monitor';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const { isAuthenticated, getCurrentUser } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
   const { sidebarCollapsed } = useUIStore();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !user) {
       router.push('/login');
-    } else {
-      getCurrentUser();
     }
-  }, [isAuthenticated, router, getCurrentUser]);
+  }, [user, isLoading, router]);
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to login
+  if (isLoading) {
+    return <PageLoading message="Loading dashboard..." />;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
-        <Header />
-        <main className="p-6">
-          {children}
-        </main>
+    <ErrorBoundary>
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main 
+            className={`flex-1 overflow-auto p-6 transition-all duration-300 ${
+              sidebarCollapsed ? 'ml-16' : 'ml-64'
+            }`}
+          >
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </main>
+        </div>
+        <PerformanceMonitor />
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }

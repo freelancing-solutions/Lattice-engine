@@ -47,7 +47,7 @@ export default function DeveloperFeatures() {
   }
 
   return (
-    <section className="py-20 bg-slate-900">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,10 +56,10 @@ export default function DeveloperFeatures() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-white mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Built for Developers
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Integrate Lattice seamlessly into your existing workflow with tools designed for how you actually work.
           </p>
         </motion.div>
@@ -73,17 +73,17 @@ export default function DeveloperFeatures() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full bg-slate-800 border-slate-700 hover:border-purple-500 transition-colors duration-300">
+              <Card className="h-full bg-card border-border hover:border-primary transition-colors duration-300">
                 <CardHeader>
                   <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-                      <feature.icon className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+                      <feature.icon className="h-6 w-6 text-primary-foreground" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl text-white">
+                      <CardTitle className="text-xl text-foreground">
                         {feature.title}
                       </CardTitle>
-                      <CardDescription className="text-gray-400">
+                      <CardDescription className="text-muted-foreground">
                         {feature.description}
                       </CardDescription>
                     </div>
@@ -91,13 +91,13 @@ export default function DeveloperFeatures() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="relative">
-                    <pre className="bg-slate-900 p-4 rounded text-green-400 font-mono text-sm overflow-x-auto border border-slate-600">
+                    <pre className="bg-muted p-4 rounded text-primary font-mono text-sm overflow-x-auto border border-border">
                       <code>{feature.code}</code>
                     </pre>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                      className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"
                       onClick={() => copyToClipboard(feature.code)}
                     >
                       <Copy className="h-4 w-4" />
@@ -105,19 +105,19 @@ export default function DeveloperFeatures() {
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-white">Key Features:</h4>
+                    <h4 className="font-semibold text-foreground">Key Features:</h4>
                     <ul className="space-y-2">
                       {feature.features.map((item, itemIndex) => (
                         <li key={itemIndex} className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                          <span className="text-gray-300 text-sm">{item}</span>
+                          <div className="w-2 h-2 bg-primary rounded-full"></div>
+                          <span className="text-muted-foreground text-sm">{item}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-700">
-                    <Button variant="outline" className="w-full border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white" asChild>
+                  <div className="pt-4 border-t border-border">
+                    <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
                       <Link href={feature.href}>
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Start Building with Specs
@@ -137,23 +137,23 @@ export default function DeveloperFeatures() {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 rounded-2xl">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Ready to Start Building?
+          <div className="bg-primary p-8 rounded-2xl">
+            <h3 className="text-2xl font-bold text-primary-foreground mb-4">
+              Ready to Get Started?
             </h3>
-            <p className="text-purple-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of developers who are already building better software with Project Lattice. 
-              Start your spec-driven development journey today.
+            <p className="text-primary-foreground/80 mb-6 max-w-2xl mx-auto">
+              Join thousands of developers who are already building better software with Lattice. 
+              Start your free trial today - no credit card required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100" asChild>
-                <Link href="/docs/quickstart">
-                  Start Building with Specs
+              <Button size="lg" className="bg-background text-foreground hover:bg-muted" asChild>
+                <Link href="/docs/vscode-extension">
+                  Install VSCode Extension
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600" asChild>
-                <Link href="/ecosystem">
-                  Explore the Ecosystem
+              <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Link href="/docs/api-documentation">
+                  View API Docs
                 </Link>
               </Button>
             </div>

@@ -1,40 +1,96 @@
-import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Terminal, 
-  Download, 
-  Play, 
-  BookOpen, 
-  Settings, 
-  Info, 
-  Zap, 
-  CheckCircle, 
-  Copy, 
-  ExternalLink, 
-  ArrowRight, 
-  Lightbulb,
-  Command,
-  FileText,
-  Database,
-  Globe,
-  Shield,
-  Monitor
-} from 'lucide-react';
+"use client"
+
+import { Metadata } from "next";
+import Navigation from "@/components/navigation"
+import Footer from "@/components/footer"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Terminal, Settings, Shield, GitBranch, BookOpen, Link as LinkIcon } from "lucide-react"
+import Link from "next/link"
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.project-lattice.site'
+
+export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
+  title: "CLI Documentation - Lattice Engine | Command Line Interface",
+  description: "Automate workflows and integrate with CI/CD. Learn installation, global flags, dry-run previews, environment variables, and examples for key commands with Lattice CLI tools.",
+  keywords: [
+    "lattice cli",
+    "command line interface",
+    "cli tools",
+    "automation",
+    "ci/cd integration",
+    "npm package",
+    "project initialization",
+    "dry-run previews",
+    "environment variables",
+    "workflow automation"
+  ],
+  authors: [{ name: "Lattice Engine Team" }],
+  openGraph: {
+    title: "CLI Documentation - Lattice Engine",
+    description: "Automate workflows and integrate with CI/CD. Learn installation, global flags, dry-run previews, environment variables, and examples for key commands.",
+    url: `${baseUrl}/docs/cli`,
+    siteName: "Lattice Engine",
+    images: [
+      {
+        url: `${baseUrl}/og-cli-docs.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "Lattice Engine CLI Documentation"
+      }
+    ],
+    locale: "en_US",
+    type: "website"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CLI Documentation - Lattice Engine",
+    description: "Automate workflows and integrate with CI/CD. Learn installation, global flags, dry-run previews, environment variables, and examples for key commands.",
+    images: [`${baseUrl}/og-cli-docs.jpg`]
+  },
+  alternates: {
+    canonical: `${baseUrl}/docs/cli`
+  }
+}
+
+export default function CLIDocsPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main className="pt-16">
+        <div className="container mx-auto px-4 py-16">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl font-bold text-foreground mb-4">Lattice CLI Tools</h1>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Automate workflows and integrate with CI/CD. Learn installation, global flags, dry-run previews,
+              environment variables, and examples for key commands.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <Badge variant="secondary">Node 18, 20, 22</Badge>
+              <Badge variant="outline">Windows · macOS · Linux</Badge>
+            </div>
+          </motion.div>
+
+          {/* Installation */}
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Terminal className="h-5 w-5" />Installation</CardTitle>
+                <CardDescription>Install globally via npm</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="bg-muted p-4 rounded-md text-sm overflow-auto">
+{`# Install globally
+npm install -g @lattice/cli
 
 export default function CLIPage() {
   return (
